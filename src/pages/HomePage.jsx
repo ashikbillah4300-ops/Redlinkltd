@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Zap, Shield, DollarSign, Clock, Star, ChevronLeft, ChevronRight,
-  ArrowRight, Wifi, BarChart3, HeadphonesIcon, MapPin, CreditCard, User
+  ArrowRight, Wifi, BarChart3, Headphones, MapPin, CreditCard, User
 } from 'lucide-react';
 
 import { GlassCard, SectionHeading, FadeUp } from '../components/ui/index';
@@ -161,7 +161,7 @@ const quickActions = [
   { icon: CreditCard, label: 'Pay Bill', labelBn: 'বিল পরিশোধ', to: '/pay-bill', desc: 'Quick online payment', descBn: 'দ্রুত অনলাইন পেমেন্ট' },
   { icon: MapPin, label: 'Check Coverage', labelBn: 'কভারেজ দেখুন', to: '/coverage', desc: 'Is your area covered?', descBn: 'আপনার এলাকায় সেবা আছে?' },
   { icon: User, label: 'Customer Login', labelBn: 'কাস্টমার লগইন', to: '/portal/login', desc: 'Access your portal', descBn: 'পোর্টালে প্রবেশ করুন' },
-  { icon: HeadphonesIcon, label: 'Get Support', labelBn: 'সাপোর্ট নিন', to: '/support', desc: '24/7 technical help', descBn: '২৪/৭ সাহায্য পান' },
+  { icon: Headphones, label: 'Get Support', labelBn: 'সাপোর্ট নিন', to: '/support', desc: '24/7 technical help', descBn: '২৪/৭ সাহায্য পান' },
 ];
 
 // ── Main Export ────────────────────────────────────────────────────────────────
@@ -246,21 +246,24 @@ export default function HomePage() {
       <section className="py-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {quickActions.map((action, i) => (
-              <FadeUp key={action.label} delay={i * 0.1}>
-                <Link to={action.to}>
-                  <GlassCard className="p-5 flex flex-col items-center text-center gap-3 cursor-pointer h-full">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-900/20 border border-red-500/20 flex items-center justify-center">
-                      <action.icon size={22} className="text-red-400" />
-                    </div>
-                    <div>
-                      <div className={`text-white font-semibold text-sm ${isBn ? 'font-bangla' : ''}`}>{isBn ? action.labelBn : action.label}</div>
-                      <div className={`text-[#B8B8C0] text-xs mt-0.5 ${isBn ? 'font-bangla' : ''}`}>{isBn ? action.descBn : action.desc}</div>
-                    </div>
-                  </GlassCard>
-                </Link>
-              </FadeUp>
-            ))}
+            {quickActions.map((action, i) => {
+              const ActionIcon = action.icon;
+              return (
+                <FadeUp key={action.label} delay={i * 0.1}>
+                  <Link to={action.to}>
+                    <GlassCard className="p-5 flex flex-col items-center text-center gap-3 cursor-pointer h-full">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-900/20 border border-red-500/20 flex items-center justify-center">
+                        <ActionIcon size={22} className="text-red-400" />
+                      </div>
+                      <div>
+                        <div className={`text-white font-semibold text-sm ${isBn ? 'font-bangla' : ''}`}>{isBn ? action.labelBn : action.label}</div>
+                        <div className={`text-[#B8B8C0] text-xs mt-0.5 ${isBn ? 'font-bangla' : ''}`}>{isBn ? action.descBn : action.desc}</div>
+                      </div>
+                    </GlassCard>
+                  </Link>
+                </FadeUp>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -404,7 +407,7 @@ export default function HomePage() {
                     {isBn ? 'এখনই আবেদন করুন' : 'Apply Now'} <ArrowRight size={18} />
                   </Link>
                   <Link to="/support" className="btn-outline px-8 py-3.5 text-base">
-                    {isBn ? 'আমাদের সাথে কথা বলুন' : 'Talk to Us'} <HeadphonesIcon size={18} />
+                    {isBn ? 'আমাদের সাথে কথা বলুন' : 'Talk to Us'} <Headphones size={18} />
                   </Link>
                 </div>
               </div>

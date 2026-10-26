@@ -1,10 +1,11 @@
-// ── GlassCard ─────────────────────────────────────────────────────────────────
+// ── Reusable UI System ────────────────────────────────────────────────────────
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 
 /**
  * GlassCard — reusable glass morphism card
  * @param {boolean} hover — enable lift-on-hover (default true)
- * @param {boolean} static_ — disable all hover effects
  */
 export const GlassCard = ({ children, className = '', hover = true, onClick, ...props }) => {
   if (!hover) {
@@ -113,8 +114,6 @@ export const FormSelect = ({ label, error, children, className = '', ...props })
 );
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
-import { useEffect } from 'react';
-
 export const Modal = ({ isOpen, onClose, title, children }) => {
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden';
@@ -151,9 +150,6 @@ export const Modal = ({ isOpen, onClose, title, children }) => {
 };
 
 // ── Accordion ─────────────────────────────────────────────────────────────────
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-
 export const Accordion = ({ items, isBn }) => {
   const [open, setOpen] = useState(null);
 
