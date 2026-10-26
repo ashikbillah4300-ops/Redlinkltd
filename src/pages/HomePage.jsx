@@ -2,8 +2,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import CountUp from 'react-countup';
-import { useInView } from 'react-intersection-observer';
 import {
   Zap, Shield, DollarSign, Clock, Star, ChevronLeft, ChevronRight,
   ArrowRight, Wifi, BarChart3, HeadphonesIcon, MapPin, CreditCard, User
@@ -99,13 +97,7 @@ function StatCounter({ stat, isBn }) {
   return (
     <div className="text-center">
       <div className="text-4xl md:text-5xl font-black font-poppins gradient-text">
-        <CountUp
-          end={stat.value}
-          decimals={stat.decimals || 0}
-          duration={2}
-          separator=","
-          suffix={stat.suffix}
-        />
+        {stat.value.toLocaleString()}{stat.suffix}
       </div>
       <div className={`text-[#B8B8C0] mt-1 font-medium ${isBn ? 'font-bangla' : ''}`}>
         {isBn ? stat.labelBn : stat.label}

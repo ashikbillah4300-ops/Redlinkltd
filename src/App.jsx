@@ -38,33 +38,31 @@ function AppContent() {
       <PageWrapper>
         <Navbar />
         <main>
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/packages" element={<PackagesPage />} />
-              <Route path="/pay-bill" element={<PayBillPage />} />
-              <Route path="/coverage" element={<CoveragePage />} />
-              <Route path="/support" element={<SupportPage />} />
-              <Route path="/business" element={<BusinessPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/packages" element={<PackagesPage />} />
+            <Route path="/pay-bill" element={<PayBillPage />} />
+            <Route path="/coverage" element={<CoveragePage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/business" element={<BusinessPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
 
-              {/* Customer Portal */}
-              <Route path="/portal/login" element={<LoginPage />} />
-              <Route
-                path="/portal"
-                element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                }
-              />
+            {/* Customer Portal */}
+            <Route path="/portal/login" element={<LoginPage />} />
+            <Route
+              path="/portal"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* 404 */}
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </AnimatePresence>
+            {/* 404 */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
         </main>
         <Footer />
         <WhatsAppFloat />
