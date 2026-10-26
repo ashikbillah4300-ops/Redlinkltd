@@ -65,6 +65,28 @@ const INITIAL_NETWORK_NODES = [
   { id: 'RAJ-EDGE', name: 'Rajshahi Regional POP', status: 'Operational', load: '38%', ping: '14 ms', uptime: '99.96%' },
 ];
 
+export const INITIAL_HOME_MAP_CONFIG = {
+  enabled: true,
+  title: 'Our Nationwide Fiber Coverage Map',
+  titleBn: 'আমাদের দেশব্যাপী ফাইবার কভারেজ ম্যাপ',
+  subtitle: 'High-speed gigabit optical POPs active across all major divisions and districts in Bangladesh.',
+  subtitleBn: 'বাংলাদেশ জুড়ে সকল প্রধান বিভাগ ও জেলায় দ্রুতগতির গিগাবিট অপটিক্যাল হাব ও ফাইবার নেটওয়ার্ক।',
+  centerLat: 23.8103,
+  centerLng: 90.4125,
+  zoom: 7,
+  mapType: 'interactive', // 'interactive' | 'embed'
+  embedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.848037380962!2d90.4132043759083!3d23.788390787919934!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c79ebac40a05%3A0x835a5857e4e08f51!2sGulshan-1%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1700000000000!5m2!1sen!2sbd',
+  points: [
+    { id: 'POP-01', name: 'Dhaka Central Core', nameBn: 'ঢাকা সেন্ট্রাল কোর', division: 'Dhaka', lat: 23.8103, lng: 90.4125, status: 'Active', capacity: '100G Ring', users: '18,500+' },
+    { id: 'POP-02', name: 'Mirpur & Uttara Metro', nameBn: 'মিরপুর ও উত্তরা মেট্রো', division: 'Dhaka', lat: 23.8350, lng: 90.3700, status: 'Active', capacity: '40G Hub', users: '12,300+' },
+    { id: 'POP-03', name: 'Chittagong Coastal Link', nameBn: 'চট্টগ্রাম কোস্টাল লিংক', division: 'Chittagong', lat: 22.3569, lng: 91.8324, status: 'Active', capacity: '50G Subsea', users: '9,400+' },
+    { id: 'POP-04', name: 'Sylhet Metro Node', nameBn: 'সিলেট মেট্রো নোড', division: 'Sylhet', lat: 24.8949, lng: 91.8687, status: 'Active', capacity: '20G Optical', users: '4,800+' },
+    { id: 'POP-05', name: 'Rajshahi Regional Point', nameBn: 'রাজশাহী রিজিওনাল হাব', division: 'Rajshahi', lat: 24.3745, lng: 88.6042, status: 'Active', capacity: '20G Optical', users: '3,900+' },
+    { id: 'POP-06', name: 'Khulna Port Distribution', nameBn: 'খুলনা পোর্ট ডিস্ট্রিবিউশন', division: 'Khulna', lat: 22.8456, lng: 89.5403, status: 'Expanding', capacity: '10G Fiber', users: '2,100+' },
+    { id: 'POP-07', name: 'Barishal Division Hub', nameBn: 'বরিশাল বিভাগীয় হাব', division: 'Barishal', lat: 22.7010, lng: 90.3535, status: 'Planned', capacity: '10G Fiber', users: 'Upcoming' },
+  ]
+};
+
 export function AdminProvider({ children }) {
   // Load state from localStorage or initial seed
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
@@ -116,6 +138,11 @@ export function AdminProvider({ children }) {
     return saved ? JSON.parse(saved) : INITIAL_NETWORK_NODES;
   });
 
+  const [homeMapConfig, setHomeMapConfig] = useState(() => {
+    const saved = localStorage.getItem('redlink_admin_home_map');
+    return saved ? JSON.parse(saved) : INITIAL_HOME_MAP_CONFIG;
+  });
+
   const [auditLogs, setAuditLogs] = useState(() => {
     const saved = localStorage.getItem('redlink_admin_audit');
     return saved ? JSON.parse(saved) : [
@@ -156,6 +183,10 @@ export function AdminProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('redlink_admin_nodes', JSON.stringify(networkNodes));
   }, [networkNodes]);
+
+  useEffect(() => {
+    localStorage.setItem('redlink_admin_home_map', JSON.stringify(homeMapConfig));
+  }, [homeMapConfig]);
 
   useEffect(() => {
     localStorage.setItem('redlink_admin_audit', JSON.stringify(auditLogs));
@@ -343,6 +374,58 @@ export function AdminProvider({ children }) {
     toast.success(`Node ${id} is now ${status}`);
   };
 
+  // ── Home Map Setup CMS ──
+  const updateHomeMapConfig = (fields) => {
+    setHomeMapConfig((prev) => ({ ...prev, ...fields }));
+    logAction('Updated Home Map Configuration');
+    toast.success('Home map settings updated!');
+  };
+
+  const addHomeMapPoint = (point) => {
+    const newPoint = {
+      ...point,
+      id: `POP-${Math.floor(10 + Math.random() * 90)}`,
+      lat: Number(point.lat) || 23.8103,
+      lng: Number(point.lng) || 90.4125,
+      status: point.status || 'Active'
+    };
+    setHomeMapConfig((prev) => ({
+      ...prev,
+      points: [newPoint, ...prev.points]
+    }));
+    logAction(`Added map node ${newPoint.name} (${newPoint.id})`);
+    toast.success(`Added ${newPoint.name} to Home Map!`);
+  };
+
+  const updateHomeMapPoint = (id, fields) => {
+    setHomeMapConfig((prev) => ({
+      ...prev,
+      points: prev.points.map((p) => p.id === id ? {
+        ...p,
+        ...fields,
+        lat: fields.lat !== undefined ? Number(fields.lat) : p.lat,
+        lng: fields.lng !== undefined ? Number(fields.lng) : p.lng,
+      } : p)
+    }));
+    logAction(`Updated map node ${id}`);
+    toast.success(`Map node updated!`);
+  };
+
+  const deleteHomeMapPoint = (id) => {
+    setHomeMapConfig((prev) => ({
+      ...prev,
+      points: prev.points.filter((p) => p.id !== id)
+    }));
+    logAction(`Deleted map node ${id}`);
+    toast.success('Map node deleted!');
+  };
+
+  const resetHomeMapConfig = () => {
+    setHomeMapConfig(INITIAL_HOME_MAP_CONFIG);
+    logAction('Reset Home Map to default template');
+    toast.success('Home Map reset to default template');
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -373,6 +456,12 @@ export function AdminProvider({ children }) {
         updateNotice,
         networkNodes,
         updateNodeStatus,
+        homeMapConfig,
+        updateHomeMapConfig,
+        addHomeMapPoint,
+        updateHomeMapPoint,
+        deleteHomeMapPoint,
+        resetHomeMapConfig,
         auditLogs
       }}
     >

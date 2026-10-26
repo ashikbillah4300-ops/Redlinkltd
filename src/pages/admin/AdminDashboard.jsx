@@ -7,11 +7,23 @@ import {
   MapPin, Megaphone, Activity, Settings, Shield, LogOut, Search,
   Plus, Filter, CheckCircle2, AlertTriangle, Clock, RefreshCw,
   Edit2, Trash2, Eye, ArrowUpRight, TrendingUp, Download, Globe,
-  Phone, Mail, Server, Menu, X, Sparkles, Check
+  Phone, Mail, Server, Menu, X, Sparkles, Check, Globe2, Radio, Navigation
 } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
 import { useAdmin } from '../../context/AdminContext';
 import { GlassCard, GlassButton, FormInput } from '../../components/ui/index';
 import toast from 'react-hot-toast';
+
+const createAdminMapIcon = (status = 'Active') => {
+  const color = status === 'Active' ? '#FF2D3F' : status === 'Expanding' ? '#F59E0B' : '#3B82F6';
+  return L.divIcon({
+    html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #ffffff;box-shadow:0 0 8px ${color};"></div>`,
+    className: '',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  });
+};
 
 export default function AdminDashboard() {
   const {
@@ -24,6 +36,8 @@ export default function AdminDashboard() {
     siteSettings, updateSiteSettings,
     notice, updateNotice,
     networkNodes, updateNodeStatus,
+    homeMapConfig, updateHomeMapConfig,
+    addHomeMapPoint, updateHomeMapPoint, deleteHomeMapPoint, resetHomeMapConfig,
     auditLogs
   } = useAdmin();
 
@@ -36,12 +50,21 @@ export default function AdminDashboard() {
   const [showRecordPaymentModal, setShowRecordPaymentModal] = useState(false);
   const [showAddPackageModal, setShowAddPackageModal] = useState(false);
   const [editingPackage, setEditingPackage] = useState(null);
+  const [showAddMapPointModal, setShowAddMapPointModal] = useState(false);
+  const [editingMapPoint, setEditingMapPoint] = useState(null);
 
   // Search & Filter States
   const [userSearch, setUserSearch] = useState('');
   const [userStatusFilter, setUserStatusFilter] = useState('all');
   const [paymentSearch, setPaymentSearch] = useState('');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
+  const [mapPointSearch, setMapPointSearch] = useState('');
+  const [mapDivisionFilter, setMapDivisionFilter] = useState('all');
+
+  // Map Point Form State
+  const [mapPointForm, setMapPointForm] = useState({
+    name: '', nameBn: '', division: 'Dhaka', lat: 23.8103, lng: 90.4125, status: 'Active', capacity: '20G Optical', users: '2,500+'
+  });
 
   // New User Form State
   const [newUserForm, setNewUserForm] = useState({
@@ -81,6 +104,7 @@ export default function AdminDashboard() {
     { id: 'leads', label: 'Connection Leads', icon: UserPlus, badge: newLeadsCount ? `${newLeadsCount} new` : null, badgeColor: 'bg-emerald-500' },
     { id: 'tickets', label: 'Support Helpdesk', icon: LifeBuoy, badge: openTicketsCount ? `${openTicketsCount} open` : null, badgeColor: 'bg-red-500' },
     { id: 'coverage', label: 'Coverage & POP Nodes', icon: MapPin },
+    { id: 'homemap', label: 'Home Map Setup', icon: Globe2, badge: homeMapConfig?.enabled ? `${homeMapConfig.points?.length || 0} POPs` : 'Off', badgeColor: homeMapConfig?.enabled ? 'bg-red-500' : 'bg-gray-500' },
     { id: 'announcements', label: 'Live Notice Banner', icon: Megaphone, badge: notice.enabled ? 'Live' : 'Off', badgeColor: notice.enabled ? 'bg-emerald-500' : 'bg-gray-500' },
     { id: 'noc', label: 'Network & NOC Health', icon: Activity },
     { id: 'settings', label: 'Website Settings CMS', icon: Settings },
@@ -853,6 +877,389 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* ── TAB: HOME MAP SETUP ── */}
+        {activeTab === 'homemap' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Globe2 size={20} className="text-red-400" />
+                  <h3 className="font-bold text-white text-lg">Home Map Setup (হোম ম্যাপ সেটআপ)</h3>
+                </div>
+                <p className="text-xs text-[#B8B8C0]">
+                  Configure the interactive fiber network map displayed on RedLink's homepage. Manage POP coordinates, live provider, and points.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={resetHomeMapConfig}
+                  className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#B8B8C0] hover:text-white text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <RefreshCw size={13} />
+                  Reset Defaults
+                </button>
+                <GlassButton
+                  onClick={() => {
+                    setEditingMapPoint(null);
+                    setMapPointForm({
+                      name: '', nameBn: '', division: 'Dhaka', lat: 23.8103, lng: 90.4125, status: 'Active', capacity: '20G Optical', users: '2,500+'
+                    });
+                    setShowAddMapPointModal(true);
+                  }}
+                  className="py-2 px-4 text-xs font-semibold flex items-center gap-1.5"
+                >
+                  <Plus size={14} />
+                  Add POP Point
+                </GlassButton>
+              </div>
+            </div>
+
+            {/* Top Config Cards: Display Settings & Copywriting */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Card 1: Map Display & Provider */}
+              <GlassCard className="p-6 space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                  <div>
+                    <span className="font-bold text-white text-sm block">Display Map on Homepage</span>
+                    <span className="text-[11px] text-[#B8B8C0]">Turn on or off the interactive map section on the home page.</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={homeMapConfig?.enabled ?? true}
+                      onChange={(e) => updateHomeMapConfig({ enabled: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                  </label>
+                </div>
+
+                <div>
+                  <label className="text-xs text-[#B8B8C0] font-medium block mb-2">Map Engine / Provider Mode</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => updateHomeMapConfig({ mapType: 'interactive' })}
+                      className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                        (homeMapConfig?.mapType || 'interactive') === 'interactive'
+                          ? 'bg-red-500/20 border-red-500 text-white'
+                          : 'bg-white/5 border-white/10 text-[#B8B8C0] hover:text-white'
+                      }`}
+                    >
+                      <Radio size={14} className={(homeMapConfig?.mapType || 'interactive') === 'interactive' ? 'text-red-400' : ''} />
+                      Interactive Dark Fiber Map
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateHomeMapConfig({ mapType: 'embed' })}
+                      className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                        homeMapConfig?.mapType === 'embed'
+                          ? 'bg-red-500/20 border-red-500 text-white'
+                          : 'bg-white/5 border-white/10 text-[#B8B8C0] hover:text-white'
+                      }`}
+                    >
+                      <Globe size={14} className={homeMapConfig?.mapType === 'embed' ? 'text-red-400' : ''} />
+                      Google Maps Embed Iframe
+                    </button>
+                  </div>
+                </div>
+
+                {homeMapConfig?.mapType === 'embed' ? (
+                  <div>
+                    <label className="text-xs text-[#B8B8C0] font-medium block mb-1">Google Maps Embed URL (Iframe Src)</label>
+                    <textarea
+                      rows={3}
+                      value={homeMapConfig?.embedUrl || ''}
+                      onChange={(e) => updateHomeMapConfig({ embedUrl: e.target.value })}
+                      placeholder="https://www.google.com/maps/embed?pb=..."
+                      className="glass-input text-xs w-full font-mono"
+                    />
+                    <span className="text-[10px] text-[#B8B8C0] mt-1 block">
+                      Tip: Open Google Maps, search location, click Share &gt; Embed a map, then copy the src link.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-3 gap-3">
+                      <FormInput
+                        label="Center Latitude"
+                        type="number"
+                        step="0.0001"
+                        value={homeMapConfig?.centerLat || 23.8103}
+                        onChange={(e) => updateHomeMapConfig({ centerLat: Number(e.target.value) })}
+                      />
+                      <FormInput
+                        label="Center Longitude"
+                        type="number"
+                        step="0.0001"
+                        value={homeMapConfig?.centerLng || 90.4125}
+                        onChange={(e) => updateHomeMapConfig({ centerLng: Number(e.target.value) })}
+                      />
+                      <FormInput
+                        label="Default Zoom (5-15)"
+                        type="number"
+                        min="5"
+                        max="16"
+                        value={homeMapConfig?.zoom || 7}
+                        onChange={(e) => updateHomeMapConfig({ zoom: Number(e.target.value) })}
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-[#B8B8C0] block mb-1">Quick Center Presets:</span>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { label: 'All Bangladesh', lat: 23.8103, lng: 90.4125, zoom: 7 },
+                          { label: 'Dhaka Division', lat: 23.8103, lng: 90.4125, zoom: 11 },
+                          { label: 'Chittagong Hub', lat: 22.3569, lng: 91.8324, zoom: 11 },
+                          { label: 'Sylhet Node', lat: 24.8949, lng: 91.8687, zoom: 11 },
+                        ].map((p) => (
+                          <button
+                            key={p.label}
+                            type="button"
+                            onClick={() => updateHomeMapConfig({ centerLat: p.lat, centerLng: p.lng, zoom: p.zoom })}
+                            className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] text-white transition-all cursor-pointer"
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </GlassCard>
+
+              {/* Card 2: Section Titles & Copywriting */}
+              <GlassCard className="p-6 space-y-3">
+                <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
+                  Homepage Section Copywriting
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormInput
+                    label="Section Title (English)"
+                    value={homeMapConfig?.title || ''}
+                    onChange={(e) => updateHomeMapConfig({ title: e.target.value })}
+                    placeholder="Our Nationwide Fiber Coverage Map"
+                  />
+                  <FormInput
+                    label="Section Title (Bangla)"
+                    value={homeMapConfig?.titleBn || ''}
+                    onChange={(e) => updateHomeMapConfig({ titleBn: e.target.value })}
+                    placeholder="আমাদের দেশব্যাপী ফাইবার কভারেজ ম্যাপ"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-[#B8B8C0] font-medium block mb-1">Subtitle (English)</label>
+                  <textarea
+                    rows={2}
+                    value={homeMapConfig?.subtitle || ''}
+                    onChange={(e) => updateHomeMapConfig({ subtitle: e.target.value })}
+                    className="glass-input text-xs w-full"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-[#B8B8C0] font-medium block mb-1">Subtitle (Bangla)</label>
+                  <textarea
+                    rows={2}
+                    value={homeMapConfig?.subtitleBn || ''}
+                    onChange={(e) => updateHomeMapConfig({ subtitleBn: e.target.value })}
+                    className="glass-input text-xs w-full"
+                  />
+                </div>
+              </GlassCard>
+            </div>
+
+            {/* Live Map Preview Card */}
+            <GlassCard className="p-4 sm:p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span className="font-bold text-white text-sm">Live Preview (Homepage Synchronized)</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-[#B8B8C0]">
+                    {homeMapConfig?.enabled ? 'Live on Site' : 'Hidden on Site'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="text-[#B8B8C0]">Total POPs: <strong className="text-white">{homeMapConfig?.points?.length || 0}</strong></span>
+                  <span className="text-emerald-400 font-semibold">Active: {homeMapConfig?.points?.filter(p => p.status === 'Active').length || 0}</span>
+                  <span className="text-amber-400 font-semibold">Expanding: {homeMapConfig?.points?.filter(p => p.status === 'Expanding').length || 0}</span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl overflow-hidden border border-white/10 h-80 sm:h-96 relative bg-[#09090D]">
+                {homeMapConfig?.mapType === 'embed' && homeMapConfig?.embedUrl ? (
+                  <iframe
+                    src={homeMapConfig.embedUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(110%)' }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    title="Home Map Live Preview"
+                  />
+                ) : (
+                  <MapContainer
+                    center={[Number(homeMapConfig?.centerLat) || 23.8103, Number(homeMapConfig?.centerLng) || 90.4125]}
+                    zoom={Number(homeMapConfig?.zoom) || 7}
+                    scrollWheelZoom={false}
+                    className="w-full h-full z-10"
+                    attributionControl={false}
+                  >
+                    <TileLayer
+                      url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                      subdomains="abcd"
+                      maxZoom={19}
+                    />
+                    {(homeMapConfig?.points || []).map((pt) => (
+                      <Marker
+                        key={pt.id}
+                        position={[pt.lat, pt.lng]}
+                        icon={createAdminMapIcon(pt.status)}
+                      >
+                        <Popup>
+                          <div className="p-1 text-xs">
+                            <div className="font-bold text-slate-900">{pt.name}</div>
+                            <div className="text-[11px] text-slate-600">{pt.division} Division • {pt.status}</div>
+                            <div className="text-[10px] text-red-600 font-semibold mt-1">{pt.capacity} • {pt.users}</div>
+                          </div>
+                        </Popup>
+                      </Marker>
+                    ))}
+                  </MapContainer>
+                )}
+              </div>
+            </GlassCard>
+
+            {/* POP Nodes / Coverage Points Management Table */}
+            <GlassCard className="p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+                <div>
+                  <h4 className="font-bold text-white text-base">Configured POP Hubs & Coverage Nodes</h4>
+                  <p className="text-xs text-[#B8B8C0]">Add, modify, or remove fiber distribution points that show on the map.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B8B8C0]" />
+                    <input
+                      type="text"
+                      placeholder="Search node or division..."
+                      value={mapPointSearch}
+                      onChange={(e) => setMapPointSearch(e.target.value)}
+                      className="glass-input pl-8 pr-3 py-1.5 text-xs w-48 sm:w-60"
+                    />
+                  </div>
+                  <select
+                    value={mapDivisionFilter}
+                    onChange={(e) => setMapDivisionFilter(e.target.value)}
+                    className="glass-input py-1.5 px-3 text-xs"
+                  >
+                    <option value="all" className="bg-[#111113]">All Divisions</option>
+                    <option value="Dhaka" className="bg-[#111113]">Dhaka</option>
+                    <option value="Chittagong" className="bg-[#111113]">Chittagong</option>
+                    <option value="Sylhet" className="bg-[#111113]">Sylhet</option>
+                    <option value="Rajshahi" className="bg-[#111113]">Rajshahi</option>
+                    <option value="Khulna" className="bg-[#111113]">Khulna</option>
+                    <option value="Barishal" className="bg-[#111113]">Barishal</option>
+                    <option value="Rangpur" className="bg-[#111113]">Rangpur</option>
+                    <option value="Mymensingh" className="bg-[#111113]">Mymensingh</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-white/5 border-b border-white/10 text-[#B8B8C0] uppercase font-semibold text-[10px] tracking-wider">
+                    <tr>
+                      <th className="p-3">Node ID</th>
+                      <th className="p-3">POP Name</th>
+                      <th className="p-3">Division</th>
+                      <th className="p-3">Coordinates (Lat, Lng)</th>
+                      <th className="p-3">Capacity</th>
+                      <th className="p-3">Subscribers</th>
+                      <th className="p-3">Status</th>
+                      <th className="p-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {(homeMapConfig?.points || [])
+                      .filter(p => {
+                        const matchDiv = mapDivisionFilter === 'all' || p.division.toLowerCase() === mapDivisionFilter.toLowerCase();
+                        const matchQ = !mapPointSearch || p.name.toLowerCase().includes(mapPointSearch.toLowerCase()) || p.division.toLowerCase().includes(mapPointSearch.toLowerCase());
+                        return matchDiv && matchQ;
+                      })
+                      .map((pt) => (
+                        <tr key={pt.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="p-3 font-mono text-red-400 font-bold text-[11px]">{pt.id}</td>
+                          <td className="p-3">
+                            <div className="font-bold text-white text-xs">{pt.name}</div>
+                            {pt.nameBn && <div className="text-[11px] text-[#B8B8C0]">{pt.nameBn}</div>}
+                          </td>
+                          <td className="p-3 text-[#B8B8C0] font-medium">{pt.division}</td>
+                          <td className="p-3 font-mono text-[11px] text-[#B8B8C0]">
+                            {Number(pt.lat).toFixed(4)}, {Number(pt.lng).toFixed(4)}
+                          </td>
+                          <td className="p-3 font-semibold text-white">{pt.capacity || '10G Ring'}</td>
+                          <td className="p-3 text-emerald-400 font-medium">{pt.users || 'Active'}</td>
+                          <td className="p-3">
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${
+                              pt.status === 'Active'
+                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                : pt.status === 'Expanding'
+                                  ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                                  : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                            }`}>
+                              {pt.status}
+                            </span>
+                          </td>
+                          <td className="p-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => {
+                                  const next = pt.status === 'Active' ? 'Expanding' : pt.status === 'Expanding' ? 'Planned' : 'Active';
+                                  updateHomeMapPoint(pt.id, { status: next });
+                                }}
+                                title="Cycle Status"
+                                className="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] text-[#B8B8C0] hover:text-white transition-all cursor-pointer"
+                              >
+                                Toggle
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingMapPoint(pt);
+                                  setMapPointForm({
+                                    name: pt.name,
+                                    nameBn: pt.nameBn || '',
+                                    division: pt.division,
+                                    lat: pt.lat,
+                                    lng: pt.lng,
+                                    status: pt.status,
+                                    capacity: pt.capacity || '',
+                                    users: pt.users || ''
+                                  });
+                                  setShowAddMapPointModal(true);
+                                }}
+                                className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-[#B8B8C0] hover:text-white transition-all cursor-pointer"
+                                title="Edit Node"
+                              >
+                                <Edit2 size={13} />
+                              </button>
+                              <button
+                                onClick={() => deleteHomeMapPoint(pt.id)}
+                                className="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 hover:text-red-300 transition-all cursor-pointer"
+                                title="Delete Node"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </GlassCard>
+          </div>
+        )}
+
         {/* ── TAB 8: LIVE NOTICE & ANNOUNCEMENT BAR ── */}
         {activeTab === 'announcements' && (
           <div className="space-y-6 max-w-3xl">
@@ -1215,6 +1622,166 @@ export default function AdminDashboard() {
               <div className="pt-3 flex gap-2 justify-end">
                 <button type="button" onClick={() => setShowAddPackageModal(false)} className="px-4 py-2 rounded-xl bg-white/10 text-white">Cancel</button>
                 <GlassButton type="submit" className="py-2 px-5 text-xs font-semibold">Publish Plan Live</GlassButton>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: ADD / EDIT POP POINT ── */}
+      {showAddMapPointModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="glass-card-static w-full max-w-lg p-6 rounded-3xl border border-white/20">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <MapPin size={18} className="text-red-400" />
+                <h3 className="font-bold text-white text-base">
+                  {editingMapPoint ? `Edit POP Node: ${editingMapPoint.id}` : 'Add New Home Map POP Point'}
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowAddMapPointModal(false);
+                  setEditingMapPoint(null);
+                }}
+                className="text-[#B8B8C0] hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (editingMapPoint) {
+                  updateHomeMapPoint(editingMapPoint.id, mapPointForm);
+                } else {
+                  addHomeMapPoint(mapPointForm);
+                }
+                setShowAddMapPointModal(false);
+                setEditingMapPoint(null);
+              }}
+              className="space-y-3 text-xs"
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <FormInput
+                  label="POP Name (English) *"
+                  required
+                  placeholder="e.g. Dhanmondi Metro Hub"
+                  value={mapPointForm.name}
+                  onChange={(e) => setMapPointForm({ ...mapPointForm, name: e.target.value })}
+                />
+                <FormInput
+                  label="POP Name (Bangla)"
+                  placeholder="e.g. ধানমন্ডি মেট্রো হাব"
+                  value={mapPointForm.nameBn}
+                  onChange={(e) => setMapPointForm({ ...mapPointForm, nameBn: e.target.value })}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-[#B8B8C0] block mb-1">Division *</label>
+                  <select
+                    value={mapPointForm.division}
+                    onChange={(e) => setMapPointForm({ ...mapPointForm, division: e.target.value })}
+                    className="glass-input text-xs"
+                  >
+                    <option value="Dhaka" className="bg-[#111113]">Dhaka</option>
+                    <option value="Chittagong" className="bg-[#111113]">Chittagong</option>
+                    <option value="Sylhet" className="bg-[#111113]">Sylhet</option>
+                    <option value="Rajshahi" className="bg-[#111113]">Rajshahi</option>
+                    <option value="Khulna" className="bg-[#111113]">Khulna</option>
+                    <option value="Barishal" className="bg-[#111113]">Barishal</option>
+                    <option value="Rangpur" className="bg-[#111113]">Rangpur</option>
+                    <option value="Mymensingh" className="bg-[#111113]">Mymensingh</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-[#B8B8C0] block mb-1">Status</label>
+                  <select
+                    value={mapPointForm.status}
+                    onChange={(e) => setMapPointForm({ ...mapPointForm, status: e.target.value })}
+                    className="glass-input text-xs"
+                  >
+                    <option value="Active" className="bg-[#111113]">Active (Operational)</option>
+                    <option value="Expanding" className="bg-[#111113]">Expanding (Under Upgrade)</option>
+                    <option value="Planned" className="bg-[#111113]">Planned (Coming Soon)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <FormInput
+                  label="Latitude (e.g. 23.8103) *"
+                  type="number"
+                  step="0.0001"
+                  required
+                  value={mapPointForm.lat}
+                  onChange={(e) => setMapPointForm({ ...mapPointForm, lat: e.target.value })}
+                />
+                <FormInput
+                  label="Longitude (e.g. 90.4125) *"
+                  type="number"
+                  step="0.0001"
+                  required
+                  value={mapPointForm.lng}
+                  onChange={(e) => setMapPointForm({ ...mapPointForm, lng: e.target.value })}
+                />
+              </div>
+
+              {/* Quick Preset Buttons */}
+              <div>
+                <span className="text-[10px] text-[#B8B8C0] block mb-1">Quick Coordinates Preset:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { label: 'Dhaka', lat: 23.8103, lng: 90.4125 },
+                    { label: 'Chittagong', lat: 22.3569, lng: 91.8324 },
+                    { label: 'Sylhet', lat: 24.8949, lng: 91.8687 },
+                    { label: 'Rajshahi', lat: 24.3745, lng: 88.6042 },
+                    { label: 'Khulna', lat: 22.8456, lng: 89.5403 },
+                    { label: 'Barishal', lat: 22.7010, lng: 90.3535 },
+                  ].map((p) => (
+                    <button
+                      key={p.label}
+                      type="button"
+                      onClick={() => setMapPointForm(prev => ({ ...prev, lat: p.lat, lng: p.lng }))}
+                      className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-[10px] text-white transition-all cursor-pointer"
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <FormInput
+                  label="Bandwidth Capacity"
+                  placeholder="e.g. 20G Optical / 40G Hub"
+                  value={mapPointForm.capacity}
+                  onChange={(e) => setMapPointForm({ ...mapPointForm, capacity: e.target.value })}
+                />
+                <FormInput
+                  label="Connected Subscribers"
+                  placeholder="e.g. 3,500+ users"
+                  value={mapPointForm.users}
+                  onChange={(e) => setMapPointForm({ ...mapPointForm, users: e.target.value })}
+                />
+              </div>
+
+              <div className="pt-3 flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddMapPointModal(false);
+                    setEditingMapPoint(null);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-white/10 text-white"
+                >
+                  Cancel
+                </button>
+                <GlassButton type="submit" className="py-2 px-5 text-xs font-semibold">
+                  {editingMapPoint ? 'Save Changes' : 'Add POP Point'}
+                </GlassButton>
               </div>
             </form>
           </div>

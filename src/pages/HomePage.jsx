@@ -14,6 +14,7 @@ import { homePackages, stats, testimonials, whyChooseUs } from '../data/constant
 import PackageCard from '../components/PackageCard';
 import SpeedTestModal from '../components/SpeedTestModal';
 import OttEntertainment from '../components/OttEntertainment';
+import HomeMapSection from '../components/HomeMapSection';
 
 // ── Animated Speedometer Visual ────────────────────────────────────────────────
 function SpeedometerVisual({ onTestSpeed, isBn }) {
@@ -373,6 +374,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── Interactive Home Fiber Map Section ── */}
+      <HomeMapSection />
 
       {/* ── Testimonials ── */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
