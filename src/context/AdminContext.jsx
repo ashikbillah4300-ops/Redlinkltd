@@ -174,17 +174,23 @@ export function AdminProvider({ children }) {
 
   // ── Authentication Methods ──
   const adminLogin = (email, password) => {
-    if ((email === 'admin@redlink.com' || email === 'admin') && (password === 'admin123' || password === '1234')) {
-      const user = { name: 'Super Admin', email: 'admin@redlink.com', role: 'Head of Operations' };
+    const cleanUser = (email || '').trim().toLowerCase();
+    const cleanPass = (password || '').trim();
+
+    if (
+      (cleanUser === 'ashik' && cleanPass === 'ashik@2008') ||
+      (cleanUser === 'admin' && cleanPass === 'admin123')
+    ) {
+      const user = { name: 'Ashik', email: 'ashik@redlink.com', role: 'Master Administrator' };
       setIsAdminLoggedIn(true);
       setAdminUser(user);
       localStorage.setItem('redlink_admin_auth', 'true');
       localStorage.setItem('redlink_admin_user', JSON.stringify(user));
-      logAction('Admin Logged In');
-      toast.success('Welcome to RedLink Master Admin Panel!', { icon: '🛡️' });
+      logAction('Ashik Logged In');
+      toast.success('Welcome back, Ashik! Access Granted.', { icon: '🛡️' });
       return true;
     }
-    toast.error('Invalid admin credentials. Use admin / 1234');
+    toast.error('Invalid credentials! Username: ashik / Password: ashik@2008');
     return false;
   };
 

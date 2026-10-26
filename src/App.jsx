@@ -52,6 +52,7 @@ function MainLayout() {
     return (
       <Routes>
         <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route
           path="/admin"
           element={
@@ -60,6 +61,7 @@ function MainLayout() {
             </AdminProtectedRoute>
           }
         />
+        <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
     );
   }
