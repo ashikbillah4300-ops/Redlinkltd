@@ -102,16 +102,6 @@ export default function Navbar() {
                 {isLoggedIn ? (isBn ? 'পোর্টাল' : 'Portal') : (isBn ? 'লগইন' : 'Login')}
               </Link>
 
-              {/* Admin Portal Shortcut */}
-              <Link
-                to="/admin"
-                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-[#B8B8C0] hover:text-white hover:bg-white/10 transition-all cursor-pointer"
-                title="Master Admin Panel"
-              >
-                <Shield size={13} className="text-red-400" />
-                <span>Admin</span>
-              </Link>
-
               {/* Mobile Menu Toggle */}
               <button
                 className="lg:hidden w-10 h-10 rounded-xl bg-white/8 border border-white/12 flex items-center justify-center text-white"
@@ -196,14 +186,6 @@ export default function Navbar() {
             className="btn-primary w-full justify-center text-sm"
           >
             {isLoggedIn ? (isBn ? 'আমার পোর্টাল' : 'My Portal') : (isBn ? 'কাস্টমার লগইন' : 'Customer Login')}
-          </Link>
-          <Link
-            to="/admin"
-            onClick={() => setDrawerOpen(false)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-[#B8B8C0] hover:text-white transition-all"
-          >
-            <Shield size={14} className="text-red-400" />
-            <span>Master Admin Panel</span>
           </Link>
         </div>
       </div>

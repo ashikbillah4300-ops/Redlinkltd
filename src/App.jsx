@@ -10,7 +10,6 @@ import { AdminProvider, useAdmin } from './context/AdminContext';
 // Layout & Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import LiveNoticeBanner from './components/LiveNoticeBanner';
 import { PageWrapper, WhatsAppFloat } from './components/Layout';
 
 // Public Pages
@@ -67,7 +66,6 @@ function MainLayout() {
 
   return (
     <PageWrapper>
-      <LiveNoticeBanner />
       <Navbar />
       <main>
         <Routes>

@@ -12,7 +12,6 @@ const footerLinks = {
     { to: '/pay-bill', label: 'Pay Bill', labelBn: 'বিল পরিশোধ' },
     { to: '/coverage', label: 'Coverage', labelBn: 'কভারেজ' },
     { to: '/about', label: 'About Us', labelBn: 'আমাদের সম্পর্কে' },
-    { to: '/admin', label: 'Admin Console', labelBn: 'অ্যাডমিন প্যানেল' },
   ],
   services: [
     { to: '/business', label: 'Home Broadband', labelBn: 'হোম ব্রডব্যান্ড' },
