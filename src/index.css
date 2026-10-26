@@ -1,0 +1,390 @@
+@import "tailwindcss";
+
+/* ── Global Reset & Base ─────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Inter', sans-serif;
+  background-color: #0A0A0B;
+  color: #FFFFFF;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Glass Card System ───────────────────────────── */
+.glass-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(225,29,46,0.20);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(225,29,46,0.40);
+  box-shadow: 0 16px 48px rgba(225,29,46,0.30);
+}
+
+.glass-card-static {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(225,29,46,0.20);
+}
+
+/* ── Red Gradient Button ─────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #FF2D3F 0%, #B30F1F 100%);
+  color: #FFFFFF;
+  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(225,29,46,0.35);
+  font-family: 'Poppins', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #FF4D5F 0%, #D01525 100%);
+  box-shadow: 0 0 25px rgba(225,29,46,0.70);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #FFFFFF;
+  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,255,255,0.30);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-outline:hover {
+  border-color: #E11D2E;
+  color: #FF2D3F;
+  box-shadow: 0 0 15px rgba(225,29,46,0.35);
+  transform: translateY(-2px);
+}
+
+/* ── Glass Input ─────────────────────────────────── */
+.glass-input {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  color: #FFFFFF;
+  padding: 12px 16px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  width: 100%;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  outline: none;
+}
+
+.glass-input::placeholder { color: #6B6B78; }
+.glass-input:focus {
+  border-color: #E11D2E;
+  box-shadow: 0 0 0 3px rgba(225,29,46,0.20);
+}
+
+/* ── Navbar ──────────────────────────────────────── */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(10,10,11,0.80);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  transition: border-color 0.3s ease;
+}
+
+.navbar.scrolled {
+  border-bottom-color: rgba(225,29,46,0.50);
+}
+
+/* ── Animated Background Blobs ───────────────────── */
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blob-1 {
+  width: 500px;
+  height: 500px;
+  top: -100px;
+  left: -150px;
+  background: radial-gradient(circle, rgba(127,17,32,0.35) 0%, transparent 70%);
+  animation: blob 8s ease-in-out infinite;
+}
+
+.blob-2 {
+  width: 400px;
+  height: 400px;
+  bottom: 100px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(225,29,46,0.20) 0%, transparent 70%);
+  animation: blob 10s ease-in-out infinite 2s;
+}
+
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  top: 50%;
+  left: 50%;
+  background: radial-gradient(circle, rgba(127,17,32,0.15) 0%, transparent 70%);
+  animation: blob 12s ease-in-out infinite 4s;
+}
+
+@keyframes blob {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+/* ── Section Heading ─────────────────────────────── */
+.section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(225,29,46,0.15);
+  border: 1px solid rgba(225,29,46,0.30);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #FF2D3F;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Red gradient text ───────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #FF2D3F 0%, #FF8A94 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Shimmer skeleton ────────────────────────────── */
+.shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Scrollbar ───────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0A0A0B; }
+::-webkit-scrollbar-thumb { background: #E11D2E; border-radius: 3px; }
+
+/* ── Mobile Drawer ───────────────────────────────── */
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(320px, 85vw);
+  z-index: 9999;
+  background: rgba(10,10,11,0.97);
+  backdrop-filter: blur(24px);
+  border-left: 1px solid rgba(255,255,255,0.10);
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.mobile-drawer.open { transform: translateX(0); }
+
+/* ── Modal ───────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* ── Leaflet Dark Theme ──────────────────────────── */
+.leaflet-container {
+  background: #111113 !important;
+  border-radius: 16px;
+}
+
+/* ── Fade up animation class ─────────────────────── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Bangla font ─────────────────────────────────── */
+.font-bangla {
+  font-family: 'Hind Siliguri', sans-serif;
+}
+
+/* ── Package card popular badge ─────────────────── */
+.popular-badge {
+  background: linear-gradient(135deg, #FF2D3F 0%, #B30F1F 100%);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Tab Active ──────────────────────────────────── */
+.tab-active {
+  background: linear-gradient(135deg, #FF2D3F 0%, #B30F1F 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(225,29,46,0.35);
+}
+
+.tab-inactive {
+  background: rgba(255,255,255,0.06);
+  color: #B8B8C0;
+}
+.tab-inactive:hover {
+  background: rgba(255,255,255,0.10);
+  color: #FFF;
+}
+
+/* ── Status badges ───────────────────────────────── */
+.status-active {
+  background: rgba(34,197,94,0.15);
+  border: 1px solid rgba(34,197,94,0.35);
+  color: #4ADE80;
+}
+.status-suspended {
+  background: rgba(225,29,46,0.15);
+  border: 1px solid rgba(225,29,46,0.35);
+  color: #FF6B6B;
+}
+
+/* ── Accordion ───────────────────────────────────── */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.accordion-content.open {
+  max-height: 600px;
+}
+
+/* ── WhatsApp float button ───────────────────────── */
+.whatsapp-float {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 5000;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(37,211,102,0.50);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.20);
+}
+.whatsapp-float:hover {
+  transform: scale(1.12);
+  box-shadow: 0 8px 30px rgba(37,211,102,0.70);
+}
+
+/* ── Comparison table ────────────────────────────── */
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.comparison-table th,
+.comparison-table td {
+  padding: 14px 20px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  font-size: 14px;
+}
+.comparison-table th {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #B8B8C0;
+}
+.comparison-table tr:hover td {
+  background: rgba(255,255,255,0.03);
+}
+
+/* ── Coverage result states ─────────────────────── */
+.coverage-available {
+  background: rgba(34,197,94,0.10);
+  border: 1px solid rgba(34,197,94,0.30);
+  border-radius: 16px;
+}
+.coverage-unavailable {
+  background: rgba(225,29,46,0.08);
+  border: 1px solid rgba(225,29,46,0.25);
+  border-radius: 16px;
+}
+
+/* ── Chart tooltip ───────────────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: rgba(17,17,19,0.95) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.40) !important;
+}
+
+/* ── Payment method tiles ────────────────────────── */
+.payment-tile {
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.payment-tile:hover,
+.payment-tile.selected {
+  border-color: #E11D2E;
+  background: rgba(225,29,46,0.10);
+  box-shadow: 0 0 16px rgba(225,29,46,0.25);
+}
