@@ -39,14 +39,21 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-18">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group" aria-label="RedLink Ltd Home">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FF2D3F] to-[#B30F1F] flex items-center justify-center shadow-red-glow">
-                <Wifi size={18} className="text-white" />
+            <Link to="/" className="flex items-center gap-2.5 group" aria-label="RedLink Ltd Home">
+              <img 
+                src="/logo.png" 
+                alt="RedLink Logo" 
+                className="h-9 sm:h-10 w-9 sm:w-10 object-cover rounded-xl shadow-red-glow border border-white/15 group-hover:scale-105 transition-all flex-shrink-0" 
+              />
+              <div className="flex flex-col">
+                <span className="text-lg sm:text-xl font-bold font-poppins text-white leading-none">
+                  Red<span className="gradient-text">Link</span>
+                  <span className="text-xs text-[#B8B8C0] ml-1 font-normal hidden sm:inline">Ltd</span>
+                </span>
+                <span className="text-[9px] text-[#B8B8C0] tracking-wider uppercase font-medium hidden sm:block mt-0.5">
+                  The service company
+                </span>
               </div>
-              <span className="text-xl font-bold font-poppins text-white">
-                Red<span className="gradient-text">Link</span>
-                <span className="text-xs text-[#B8B8C0] ml-1 font-normal hidden sm:inline">Ltd</span>
-              </span>
             </Link>
 
             {/* Desktop Nav Links */}
@@ -124,11 +131,16 @@ export default function Navbar() {
       {/* Mobile Drawer */}
       <div className={`mobile-drawer lg:hidden ${drawerOpen ? 'open' : ''}`} aria-hidden={!drawerOpen}>
         <div className="flex items-center justify-between p-5 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#FF2D3F] to-[#B30F1F] flex items-center justify-center">
-              <Wifi size={16} className="text-white" />
+          <div className="flex items-center gap-2.5">
+            <img 
+              src="/logo.png" 
+              alt="RedLink Logo" 
+              className="w-9 h-9 rounded-xl object-cover border border-white/15 shadow-red-glow flex-shrink-0" 
+            />
+            <div className="flex flex-col">
+              <span className="font-bold text-white font-poppins text-base leading-tight">RedLink Ltd</span>
+              <span className="text-[9px] text-[#B8B8C0] uppercase tracking-wider font-medium">The service company</span>
             </div>
-            <span className="font-bold text-white font-poppins">RedLink Ltd</span>
           </div>
           <button
             onClick={() => setDrawerOpen(false)}

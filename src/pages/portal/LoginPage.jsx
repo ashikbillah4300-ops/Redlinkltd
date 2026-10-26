@@ -78,9 +78,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <FadeUp>
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-900 flex items-center justify-center mx-auto mb-4 shadow-red-glow">
-              <Lock size={28} className="text-white" />
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="RedLink Logo" 
+              className="w-20 h-20 rounded-2xl object-cover mx-auto mb-4 shadow-red-glow border border-white/15" 
+            />
             <h1 className={`text-3xl font-bold text-white mb-2 ${isBn ? 'font-bangla' : ''}`}>
               {isBn ? 'কাস্টমার পোর্টাল' : 'Customer Portal'}
             </h1>

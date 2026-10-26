@@ -35,13 +35,20 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF2D3F] to-[#B30F1F] flex items-center justify-center">
-                <Wifi size={20} className="text-white" />
+            <div className="flex items-center gap-3 mb-5">
+              <img 
+                src="/logo.png" 
+                alt="RedLink Logo" 
+                className="w-12 h-12 rounded-xl object-cover border border-white/15 shadow-red-glow flex-shrink-0" 
+              />
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold font-poppins text-white leading-tight">
+                  Red<span className="gradient-text">Link</span> Ltd
+                </span>
+                <span className="text-[10px] text-[#B8B8C0] uppercase tracking-wider font-medium">
+                  The service company
+                </span>
               </div>
-              <span className="text-2xl font-bold font-poppins text-white">
-                Red<span className="gradient-text">Link</span> Ltd
-              </span>
             </div>
             <p className={`text-[#B8B8C0] text-sm leading-relaxed mb-5 ${isBn ? 'font-bangla' : ''}`}>
               {isBn
