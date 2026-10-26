@@ -80,8 +80,39 @@ export default function AdminDashboard() {
   // Package Form State
   const [pkgForm, setPkgForm] = useState({
     name: '', nameBn: '', speed: 60, price: 1000, originalPrice: 1300, popular: false,
-    features: 'Unlimited Data, Free Dual-band Router, 24/7 Priority Support, BDIX 100 Mbps'
+    features: 'Unlimited Data\nFree Dual-band Router\n24/7 Priority Support\nBDIX 100 Mbps',
+    featuresBn: 'আনলিমিটেড ডেটা\nবিনামূল্যে ডুয়াল-ব্যান্ড রাউটার\n২৪/৭ সাপোর্ট'
   });
+
+  const handleOpenEditPackage = (pkg) => {
+    setEditingPackage(pkg);
+    setPkgForm({
+      name: pkg.name || '',
+      nameBn: pkg.nameBn || '',
+      speed: pkg.speed || 50,
+      price: pkg.price || 900,
+      originalPrice: pkg.originalPrice || '',
+      popular: Boolean(pkg.popular),
+      features: Array.isArray(pkg.features) ? pkg.features.join('\n') : (pkg.features || ''),
+      featuresBn: Array.isArray(pkg.featuresBn) ? pkg.featuresBn.join('\n') : (pkg.featuresBn || '')
+    });
+    setShowAddPackageModal(true);
+  };
+
+  const handleOpenCreatePackage = () => {
+    setEditingPackage(null);
+    setPkgForm({
+      name: '',
+      nameBn: '',
+      speed: 60,
+      price: 1000,
+      originalPrice: 1300,
+      popular: false,
+      features: 'Unlimited Data\nFree Dual-band Router\n24/7 Priority Support\nBDIX 100 Mbps',
+      featuresBn: 'আনলিমিটেড ডেটা\nবিনামূল্যে ডুয়াল-ব্যান্ড রাউটার\n২৪/৭ সাপোর্ট'
+    });
+    setShowAddPackageModal(true);
+  };
 
   // Calculate live KPI metrics
   const totalRevenue = payments
@@ -992,7 +1023,7 @@ export default function AdminDashboard() {
               </div>
 
               <GlassButton
-                onClick={() => setShowAddPackageModal(true)}
+                onClick={handleOpenCreatePackage}
                 className="py-2.5 px-4 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus size={15} />
@@ -1003,13 +1034,36 @@ export default function AdminDashboard() {
             {/* Packages Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {packages.map((pkg) => (
-                <GlassCard key={pkg.id} className="p-6 relative flex flex-col justify-between">
+                <GlassCard key={pkg.id} className="p-6 relative flex flex-col justify-between group hover:border-white/20 transition-all">
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-lg font-bold text-white">{pkg.name}</span>
-                      {pkg.popular && (
-                        <span className="popular-badge text-[10px]">Popular</span>
-                      )}
+                      <div>
+                        <span className="text-lg font-bold text-white block">{pkg.name}</span>
+                        {pkg.nameBn && <span className="text-xs text-[#B8B8C0] font-normal font-bangla">{pkg.nameBn}</span>}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {pkg.popular && (
+                          <span className="popular-badge text-[10px]">Popular</span>
+                        )}
+                        <button
+                          onClick={() => handleOpenEditPackage(pkg)}
+                          className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/15 flex items-center justify-center text-[#B8B8C0] hover:text-white transition-all cursor-pointer"
+                          title="Edit All Details"
+                        >
+                          <Edit2 size={13} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to delete "${pkg.name}"?`)) {
+                              deletePackage(pkg.id);
+                            }
+                          }}
+                          className="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/25 flex items-center justify-center text-red-400 hover:text-red-300 transition-all cursor-pointer"
+                          title="Delete Package"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="flex items-baseline gap-1 mb-4">
@@ -1037,23 +1091,22 @@ export default function AdminDashboard() {
 
                   <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-2">
                     <button
-                      onClick={() => {
-                        const newPrice = prompt(`Enter new price for ${pkg.name}:`, pkg.price);
-                        if (newPrice && !isNaN(newPrice)) {
-                          updatePackage(pkg.id, { price: Number(newPrice) });
-                        }
-                      }}
-                      className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs text-white font-medium flex items-center gap-1 cursor-pointer"
+                      onClick={() => handleOpenEditPackage(pkg)}
+                      className="px-3 py-2 rounded-xl bg-red-600/20 hover:bg-red-600/35 border border-red-500/30 hover:border-red-500/60 text-xs text-white font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all flex-1"
                     >
                       <Edit2 size={13} />
-                      Quick Edit Price
+                      Edit All Details
                     </button>
 
                     <button
                       onClick={() => {
                         updatePackage(pkg.id, { popular: !pkg.popular });
                       }}
-                      className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs text-red-400 font-medium cursor-pointer"
+                      className={`px-3 py-2 rounded-xl text-xs font-medium cursor-pointer transition-all ${
+                        pkg.popular
+                          ? 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30'
+                          : 'bg-white/5 hover:bg-white/10 text-[#B8B8C0] hover:text-white border border-white/10'
+                      }`}
                     >
                       {pkg.popular ? 'Unset Popular' : 'Set Popular'}
                     </button>
@@ -1927,56 +1980,157 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ── MODAL: ADD PACKAGE ── */}
+      {/* ── MODAL: ADD / EDIT PACKAGE ── */}
       {showAddPackageModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="glass-card-static w-full max-w-md p-6 rounded-3xl border border-white/20">
+          <div className="glass-card-static w-full max-w-lg p-6 sm:p-7 rounded-3xl border border-white/20 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
-              <h3 className="font-bold text-white text-lg">Create New Broadband Plan</h3>
-              <button onClick={() => setShowAddPackageModal(false)} className="text-[#B8B8C0] hover:text-white">✕</button>
+              <div className="flex items-center gap-2">
+                <Package size={18} className="text-red-400" />
+                <h3 className="font-bold text-white text-base">
+                  {editingPackage ? `Edit Package: ${editingPackage.name}` : 'Create New Broadband Plan'}
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowAddPackageModal(false);
+                  setEditingPackage(null);
+                }}
+                className="text-[#B8B8C0] hover:text-white"
+              >
+                ✕
+              </button>
             </div>
             <form onSubmit={(e) => {
               e.preventDefault();
-              addPackage({
-                name: pkgForm.name,
-                nameBn: pkgForm.nameBn || pkgForm.name,
-                speed: Number(pkgForm.speed),
-                price: Number(pkgForm.price),
-                originalPrice: pkgForm.originalPrice ? Number(pkgForm.originalPrice) : null,
-                popular: pkgForm.popular,
-                features: pkgForm.features.split(',').map(s => s.trim()).filter(Boolean),
-                featuresBn: ['আনলিমিটেড ডেটা', 'বিনামূল্যে ডুয়াল-ব্যান্ড রাউটার', '২৪/৭ সাপোর্ট']
-              });
+              const feats = (pkgForm.features || '')
+                .split(/[\n,]/)
+                .map(s => s.trim())
+                .filter(Boolean);
+              const featsBn = (pkgForm.featuresBn || '')
+                .split(/[\n,]/)
+                .map(s => s.trim())
+                .filter(Boolean);
+
+              if (editingPackage) {
+                updatePackage(editingPackage.id, {
+                  name: pkgForm.name,
+                  nameBn: pkgForm.nameBn || pkgForm.name,
+                  speed: Number(pkgForm.speed),
+                  price: Number(pkgForm.price),
+                  originalPrice: pkgForm.originalPrice ? Number(pkgForm.originalPrice) : null,
+                  popular: Boolean(pkgForm.popular),
+                  features: feats.length ? feats : (editingPackage.features || []),
+                  featuresBn: featsBn.length ? featsBn : (editingPackage.featuresBn || [])
+                });
+              } else {
+                addPackage({
+                  name: pkgForm.name,
+                  nameBn: pkgForm.nameBn || pkgForm.name,
+                  speed: Number(pkgForm.speed),
+                  price: Number(pkgForm.price),
+                  originalPrice: pkgForm.originalPrice ? Number(pkgForm.originalPrice) : null,
+                  popular: Boolean(pkgForm.popular),
+                  features: feats.length ? feats : ['Unlimited Data', 'Free Dual-band Router', '24/7 Priority Support'],
+                  featuresBn: featsBn.length ? featsBn : ['আনলিমিটেড ডেটা', 'বিনামূল্যে ডুয়াল-ব্যান্ড রাউটার', '২৪/৭ সাপোর্ট']
+                });
+              }
               setShowAddPackageModal(false);
-              setPkgForm({ name: '', nameBn: '', speed: 60, price: 1000, originalPrice: 1300, popular: false, features: 'Unlimited Data, Free Dual-band Router, 24/7 Priority Support, BDIX 100 Mbps' });
-            }} className="space-y-3 text-xs">
-              <FormInput label="Package Name (e.g. Turbo 60)" required value={pkgForm.name} onChange={(e) => setPkgForm({ ...pkgForm, name: e.target.value })} />
+              setEditingPackage(null);
+            }} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
-                <FormInput label="Speed (Mbps)" type="number" required value={pkgForm.speed} onChange={(e) => setPkgForm({ ...pkgForm, speed: e.target.value })} />
-                <FormInput label="Monthly Price (৳)" type="number" required value={pkgForm.price} onChange={(e) => setPkgForm({ ...pkgForm, price: e.target.value })} />
-              </div>
-              <FormInput label="Original Price (৳) (optional strike-through)" type="number" value={pkgForm.originalPrice} onChange={(e) => setPkgForm({ ...pkgForm, originalPrice: e.target.value })} />
-              <div>
-                <label className="text-xs text-[#B8B8C0] block mb-1">Features (comma separated)</label>
-                <textarea
-                  rows={2}
-                  value={pkgForm.features}
-                  onChange={(e) => setPkgForm({ ...pkgForm, features: e.target.value })}
-                  className="glass-input text-xs w-full"
+                <FormInput
+                  label="Package Name (English) *"
+                  required
+                  placeholder="e.g. Starter / Standard"
+                  value={pkgForm.name}
+                  onChange={(e) => setPkgForm({ ...pkgForm, name: e.target.value })}
+                />
+                <FormInput
+                  label="Package Name (Bangla)"
+                  placeholder="e.g. স্টার্টার / স্ট্যান্ডার্ড"
+                  value={pkgForm.nameBn}
+                  onChange={(e) => setPkgForm({ ...pkgForm, nameBn: e.target.value })}
                 />
               </div>
-              <div className="flex items-center gap-2 pt-1">
+
+              <div className="grid grid-cols-3 gap-3">
+                <FormInput
+                  label="Speed (Mbps) *"
+                  type="number"
+                  required
+                  value={pkgForm.speed}
+                  onChange={(e) => setPkgForm({ ...pkgForm, speed: e.target.value })}
+                />
+                <FormInput
+                  label="Monthly Price (৳) *"
+                  type="number"
+                  required
+                  value={pkgForm.price}
+                  onChange={(e) => setPkgForm({ ...pkgForm, price: e.target.value })}
+                />
+                <FormInput
+                  label="Original Price (৳ strike)"
+                  type="number"
+                  placeholder="e.g. 650"
+                  value={pkgForm.originalPrice}
+                  onChange={(e) => setPkgForm({ ...pkgForm, originalPrice: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-[#B8B8C0] font-medium block mb-1">
+                  Features List (English - One feature per line or comma-separated)
+                </label>
+                <textarea
+                  rows={4}
+                  value={pkgForm.features}
+                  onChange={(e) => setPkgForm({ ...pkgForm, features: e.target.value })}
+                  placeholder="Unlimited Data&#10;BDIX / FTP Access&#10;Free Installation&#10;Dual-Band Router"
+                  className="glass-input text-xs w-full font-sans"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-[#B8B8C0] font-medium block mb-1">
+                  Features List (Bangla - One feature per line or comma-separated)
+                </label>
+                <textarea
+                  rows={3}
+                  value={pkgForm.featuresBn || ''}
+                  onChange={(e) => setPkgForm({ ...pkgForm, featuresBn: e.target.value })}
+                  placeholder="আনলিমিটেড ডেটা&#10;বিডিআইএক্স / এফটিপি এক্সেস&#10;বিনামূল্যে ইন্সটলেশন"
+                  className="glass-input text-xs w-full font-sans"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/8">
                 <input
                   type="checkbox"
                   id="popularCheck"
                   checked={pkgForm.popular}
                   onChange={(e) => setPkgForm({ ...pkgForm, popular: e.target.checked })}
+                  className="w-4 h-4 rounded text-red-600 focus:ring-0 cursor-pointer"
                 />
-                <label htmlFor="popularCheck" className="text-xs text-white">Feature as 'Most Popular' badge</label>
+                <label htmlFor="popularCheck" className="text-xs text-white cursor-pointer select-none">
+                  Highlight as <strong>'Popular'</strong> badge on card
+                </label>
               </div>
-              <div className="pt-3 flex gap-2 justify-end">
-                <button type="button" onClick={() => setShowAddPackageModal(false)} className="px-4 py-2 rounded-xl bg-white/10 text-white">Cancel</button>
-                <GlassButton type="submit" className="py-2 px-5 text-xs font-semibold">Publish Plan Live</GlassButton>
+
+              <div className="pt-3 flex gap-2 justify-end border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddPackageModal(false);
+                    setEditingPackage(null);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-white/10 text-white hover:bg-white/15 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <GlassButton type="submit" className="py-2 px-5 text-xs font-semibold cursor-pointer">
+                  {editingPackage ? 'Save Package Changes' : 'Publish Plan Live'}
+                </GlassButton>
               </div>
             </form>
           </div>
