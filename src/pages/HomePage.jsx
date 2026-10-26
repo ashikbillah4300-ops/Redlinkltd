@@ -17,7 +17,13 @@ import OttEntertainment from '../components/OttEntertainment';
 import HomeMapSection from '../components/HomeMapSection';
 
 // ── Animated Speedometer Visual ────────────────────────────────────────────────
-function SpeedometerVisual({ onTestSpeed, isBn }) {
+function SpeedometerVisual({ onTestSpeed, isBn, heroConfig }) {
+  const displaySpeed = heroConfig?.visualSpeed || '100';
+  const displayUnit = heroConfig?.visualUnit || 'Mbps Fiber';
+  const displayCta = isBn ? (heroConfig?.visualCtaBn || 'স্পিড টেস্ট চালান') : (heroConfig?.visualCta || 'Click to Test');
+  const displayUptime = heroConfig?.visualUptime || '99.9%';
+  const displayPing = heroConfig?.visualPing || '<5ms';
+
   return (
     <div className="relative flex items-center justify-center">
       <motion.div
@@ -51,11 +57,11 @@ function SpeedometerVisual({ onTestSpeed, isBn }) {
           animate={{ scale: 1 }}
           transition={{ duration: 0.8, delay: 0.5, type: 'spring' }}
         >
-          <div className="text-5xl md:text-6xl font-black gradient-text font-poppins">100</div>
-          <div className="text-[#B8B8C0] text-sm font-medium text-center">Mbps Fiber</div>
+          <div className="text-5xl md:text-6xl font-black gradient-text font-poppins">{displaySpeed}</div>
+          <div className="text-[#B8B8C0] text-sm font-medium text-center">{displayUnit}</div>
           <div className="flex items-center justify-center gap-1 mt-1">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-green-400 text-xs font-mono">{isBn ? 'স্পিড টেস্ট চালান' : 'Click to Test'}</span>
+            <span className="text-green-400 text-xs font-mono">{displayCta}</span>
           </div>
         </motion.div>
       </button>
@@ -79,7 +85,7 @@ function SpeedometerVisual({ onTestSpeed, isBn }) {
         transition={{ delay: 0.8 }}
       >
         <div className="text-xs text-[#B8B8C0]">Uptime</div>
-        <div className="text-lg font-bold text-green-400">99.9%</div>
+        <div className="text-lg font-bold text-green-400">{displayUptime}</div>
       </motion.div>
       <motion.div
         className="absolute -bottom-6 -left-6 glass-card-static px-4 py-2 rounded-xl"
@@ -88,7 +94,7 @@ function SpeedometerVisual({ onTestSpeed, isBn }) {
         transition={{ delay: 1 }}
       >
         <div className="text-xs text-[#B8B8C0]">Ping</div>
-        <div className="text-lg font-bold text-red-400">&lt;5ms</div>
+        <div className="text-lg font-bold text-red-400">{displayPing}</div>
       </motion.div>
     </div>
   );
@@ -169,9 +175,28 @@ const quickActions = [
 // ── Main Export ────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const { isBn } = useLang();
-  const { packages: livePackages } = useAdmin();
+  const { packages: livePackages, heroConfig } = useAdmin();
   const [showSpeedTest, setShowSpeedTest] = useState(false);
   const displayPackages = livePackages && livePackages.length > 0 ? livePackages.slice(0, 3) : homePackages;
+
+  const badgeText = isBn ? (heroConfig?.badgeBn || '🚀 বাংলাদেশের সেরা ইন্টারনেট') : (heroConfig?.badge || "🚀 Bangladesh's #1 Fiber ISP");
+  const title1 = isBn ? (heroConfig?.titleLine1Bn || 'অতি-দ্রুত ইন্টারনেট।') : (heroConfig?.titleLine1 || 'Ultra-Fast Internet.');
+  const titleHighlight = isBn ? (heroConfig?.titleHighlightBn || 'জিরো বিঘ্ন।') : (heroConfig?.titleHighlight || 'Zero Interruption.');
+  const subtitle = isBn ? (heroConfig?.subtitleBn || 'বাংলাদেশ জুড়ে বিশ্বস্ত ফাইবার নেটওয়ার্ক। ২৪/৭ সাপোর্ট, কোনো লুকানো চার্জ নেই।') : (heroConfig?.subtitle || 'Reliable fiber broadband across Bangladesh. Experience speeds up to 100 Mbps with 99.9% uptime guarantee and round-the-clock support.');
+
+  const btn1Text = isBn ? (heroConfig?.btnPrimaryTextBn || 'প্যাকেজ দেখুন') : (heroConfig?.btnPrimaryText || 'View Packages');
+  const btn1Link = heroConfig?.btnPrimaryLink || '/packages';
+  const btn2Text = isBn ? (heroConfig?.btnSecondaryTextBn || 'বিল পরিশোধ') : (heroConfig?.btnSecondaryText || 'Pay Bill');
+  const btn2Link = heroConfig?.btnSecondaryLink || '/pay-bill';
+
+  const showSpeedBtn = heroConfig?.showSpeedTestBtn !== false;
+  const speedBtnText = isBn ? (heroConfig?.speedTestBtnTextBn || 'স্পিড টেস্ট') : (heroConfig?.speedTestBtnText || 'Live Speed Test');
+
+  const trustBadges = [
+    { icon: heroConfig?.badge1Icon || '⚡', text: isBn ? (heroConfig?.badge1TextBn || '৯৯.৯% আপটাইম') : (heroConfig?.badge1Text || '99.9% Uptime') },
+    { icon: heroConfig?.badge2Icon || '🛡️', text: isBn ? (heroConfig?.badge2TextBn || '২৪/৭ সাপোর্ট') : (heroConfig?.badge2Text || '24/7 Support') },
+    { icon: heroConfig?.badge3Icon || '💸', text: isBn ? (heroConfig?.badge3TextBn || 'কোনো লুকানো চার্জ নেই') : (heroConfig?.badge3Text || 'No Hidden Fees') },
+  ];
 
   return (
     <div>
@@ -186,43 +211,35 @@ export default function HomePage() {
               transition={{ duration: 0.8, ease: 'easeOut' }}
             >
               <span className="section-tag mb-6 inline-block">
-                🚀 {isBn ? 'বাংলাদেশের সেরা ইন্টারনেট' : "Bangladesh's #1 Fiber ISP"}
+                {badgeText}
               </span>
               <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-poppins leading-tight text-white mb-6 ${isBn ? 'font-bangla' : ''}`}>
-                {isBn ? (
-                  <>অতি-দ্রুত ইন্টারনেট।<br /><span className="gradient-text">জিরো বিঘ্ন।</span></>
-                ) : (
-                  <>Ultra-Fast Internet.<br /><span className="gradient-text">Zero Interruption.</span></>
-                )}
+                {title1}<br /><span className="gradient-text">{titleHighlight}</span>
               </h1>
               <p className={`text-[#B8B8C0] text-lg md:text-xl leading-relaxed mb-8 max-w-lg ${isBn ? 'font-bangla' : ''}`}>
-                {isBn
-                  ? 'বাংলাদেশ জুড়ে বিশ্বস্ত ফাইবার নেটওয়ার্ক। ২৪/৭ সাপোর্ট, কোনো লুকানো চার্জ নেই।'
-                  : 'Reliable fiber broadband across Bangladesh. Experience speeds up to 100 Mbps with 99.9% uptime guarantee and round-the-clock support.'}
+                {subtitle}
               </p>
               <div className="flex flex-wrap items-center gap-4">
-                <Link to="/packages" className="btn-primary text-base px-7 py-3.5">
-                  {isBn ? 'প্যাকেজ দেখুন' : 'View Packages'} <ArrowRight size={18} />
+                <Link to={btn1Link} className="btn-primary text-base px-7 py-3.5">
+                  {btn1Text} <ArrowRight size={18} />
                 </Link>
-                <Link to="/pay-bill" className="btn-outline text-base px-7 py-3.5">
-                  {isBn ? 'বিল পরিশোধ' : 'Pay Bill'} <CreditCard size={18} />
+                <Link to={btn2Link} className="btn-outline text-base px-7 py-3.5">
+                  {btn2Text} <CreditCard size={18} />
                 </Link>
-                <button
-                  onClick={() => setShowSpeedTest(true)}
-                  className="px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-red-500/30 hover:border-red-500/60 text-white font-medium text-base flex items-center gap-2 transition-all cursor-pointer group"
-                >
-                  <Zap size={18} className="text-red-400 group-hover:scale-125 transition-transform" />
-                  <span>{isBn ? 'স্পিড টেস্ট' : 'Live Speed Test'}</span>
-                </button>
+                {showSpeedBtn && (
+                  <button
+                    onClick={() => setShowSpeedTest(true)}
+                    className="px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-red-500/30 hover:border-red-500/60 text-white font-medium text-base flex items-center gap-2 transition-all cursor-pointer group"
+                  >
+                    <Zap size={18} className="text-red-400 group-hover:scale-125 transition-transform" />
+                    <span>{speedBtnText}</span>
+                  </button>
+                )}
               </div>
 
               {/* Trust badges */}
               <div className="flex flex-wrap gap-4 mt-8">
-                {[
-                  { icon: '⚡', text: isBn ? '৯৯.৯% আপটাইম' : '99.9% Uptime' },
-                  { icon: '🛡️', text: isBn ? '২৪/৭ সাপোর্ট' : '24/7 Support' },
-                  { icon: '💸', text: isBn ? 'কোনো লুকানো চার্জ নেই' : 'No Hidden Fees' },
-                ].map((b) => (
+                {trustBadges.map((b) => (
                   <div key={b.text} className="flex items-center gap-2 text-sm text-[#B8B8C0]">
                     <span>{b.icon}</span>
                     <span className={isBn ? 'font-bangla' : ''}>{b.text}</span>
@@ -239,7 +256,7 @@ export default function HomePage() {
               transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
             >
               <div className="glass-card p-6 sm:p-10 rounded-3xl w-full max-w-sm mx-auto flex items-center justify-center">
-                <SpeedometerVisual onTestSpeed={() => setShowSpeedTest(true)} isBn={isBn} />
+                <SpeedometerVisual onTestSpeed={() => setShowSpeedTest(true)} isBn={isBn} heroConfig={heroConfig} />
               </div>
             </motion.div>
           </div>

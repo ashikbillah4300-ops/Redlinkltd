@@ -87,6 +87,41 @@ export const INITIAL_HOME_MAP_CONFIG = {
   ]
 };
 
+export const INITIAL_HERO_CONFIG = {
+  badge: "🚀 Bangladesh's #1 Fiber ISP",
+  badgeBn: "🚀 বাংলাদেশের সেরা ইন্টারনেট",
+  titleLine1: "Ultra-Fast Internet.",
+  titleLine1Bn: "অতি-দ্রুত ইন্টারনেট।",
+  titleHighlight: "Zero Interruption.",
+  titleHighlightBn: "জিরো বিঘ্ন।",
+  subtitle: "Reliable fiber broadband across Bangladesh. Experience speeds up to 100 Mbps with 99.9% uptime guarantee and round-the-clock support.",
+  subtitleBn: "বাংলাদেশ জুড়ে বিশ্বস্ত ফাইবার নেটওয়ার্ক। ২৪/৭ সাপোর্ট, কোনো লুকানো চার্জ নেই।",
+  btnPrimaryText: "View Packages",
+  btnPrimaryTextBn: "প্যাকেজ দেখুন",
+  btnPrimaryLink: "/packages",
+  btnSecondaryText: "Pay Bill",
+  btnSecondaryTextBn: "বিল পরিশোধ",
+  btnSecondaryLink: "/pay-bill",
+  showSpeedTestBtn: true,
+  speedTestBtnText: "Live Speed Test",
+  speedTestBtnTextBn: "স্পিড টেস্ট",
+  badge1Icon: "⚡",
+  badge1Text: "99.9% Uptime",
+  badge1TextBn: "৯৯.৯% আপটাইম",
+  badge2Icon: "🛡️",
+  badge2Text: "24/7 Support",
+  badge2TextBn: "২৪/৭ সাপোর্ট",
+  badge3Icon: "💸",
+  badge3Text: "No Hidden Fees",
+  badge3TextBn: "কোনো লুকানো চার্জ নেই",
+  visualSpeed: "100",
+  visualUnit: "Mbps Fiber",
+  visualPing: "<5ms",
+  visualUptime: "99.9%",
+  visualCta: "Click to Test",
+  visualCtaBn: "স্পিড টেস্ট চালান"
+};
+
 export function AdminProvider({ children }) {
   // Load state from localStorage or initial seed
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
@@ -143,6 +178,11 @@ export function AdminProvider({ children }) {
     return saved ? JSON.parse(saved) : INITIAL_HOME_MAP_CONFIG;
   });
 
+  const [heroConfig, setHeroConfig] = useState(() => {
+    const saved = localStorage.getItem('redlink_admin_hero_config');
+    return saved ? JSON.parse(saved) : INITIAL_HERO_CONFIG;
+  });
+
   const [auditLogs, setAuditLogs] = useState(() => {
     const saved = localStorage.getItem('redlink_admin_audit');
     return saved ? JSON.parse(saved) : [
@@ -187,6 +227,10 @@ export function AdminProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('redlink_admin_home_map', JSON.stringify(homeMapConfig));
   }, [homeMapConfig]);
+
+  useEffect(() => {
+    localStorage.setItem('redlink_admin_hero_config', JSON.stringify(heroConfig));
+  }, [heroConfig]);
 
   useEffect(() => {
     localStorage.setItem('redlink_admin_audit', JSON.stringify(auditLogs));
@@ -426,6 +470,19 @@ export function AdminProvider({ children }) {
     toast.success('Home Map reset to default template');
   };
 
+  // ── Home Hero Setup CMS ──
+  const updateHeroConfig = (fields) => {
+    setHeroConfig((prev) => ({ ...prev, ...fields }));
+    logAction('Updated Home Hero Banner Content & Visuals');
+    toast.success('Home Hero section updated live!');
+  };
+
+  const resetHeroConfig = () => {
+    setHeroConfig(INITIAL_HERO_CONFIG);
+    logAction('Reset Home Hero section to default');
+    toast.success('Hero section restored to default');
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -462,6 +519,9 @@ export function AdminProvider({ children }) {
         updateHomeMapPoint,
         deleteHomeMapPoint,
         resetHomeMapConfig,
+        heroConfig,
+        updateHeroConfig,
+        resetHeroConfig,
         auditLogs
       }}
     >

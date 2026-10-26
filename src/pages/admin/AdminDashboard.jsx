@@ -38,6 +38,7 @@ export default function AdminDashboard() {
     networkNodes, updateNodeStatus,
     homeMapConfig, updateHomeMapConfig,
     addHomeMapPoint, updateHomeMapPoint, deleteHomeMapPoint, resetHomeMapConfig,
+    heroConfig, updateHeroConfig, resetHeroConfig,
     auditLogs
   } = useAdmin();
 
@@ -98,6 +99,7 @@ export default function AdminDashboard() {
 
   const navItems = [
     { id: 'overview', label: 'Overview & KPIs', icon: LayoutDashboard },
+    { id: 'hero', label: 'Home Hero & Banner', icon: Sparkles },
     { id: 'users', label: 'Subscribers / Users', icon: Users, badge: users.length },
     { id: 'payments', label: 'Payments & Invoices', icon: CreditCard },
     { id: 'packages', label: 'Live Packages CMS', icon: Package, badge: packages.length },
@@ -388,6 +390,359 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </GlassCard>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB: HOME HERO & BANNER SETUP ── */}
+        {activeTab === 'hero' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Sparkles size={20} className="text-red-400" />
+                  <h3 className="font-bold text-white text-lg">Home Hero & Banner Setup (হোম ব্যানার ও টেক্সট সেটআপ)</h3>
+                </div>
+                <p className="text-xs text-[#B8B8C0]">
+                  Edit the main hero banner headline, description, action buttons, trust badges, and speedometer visuals shown on the homepage.
+                </p>
+              </div>
+              <button
+                onClick={resetHeroConfig}
+                className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#B8B8C0] hover:text-white text-xs transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+              >
+                <RefreshCw size={13} />
+                Restore Defaults
+              </button>
+            </div>
+
+            {/* Live Hero Banner Preview Card */}
+            <GlassCard className="p-6 relative overflow-hidden border border-red-500/20 bg-gradient-to-br from-black/80 via-[#0e0e12]/80 to-red-950/20">
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  <span className="font-bold text-white text-xs uppercase tracking-wider">Live Homepage Preview</span>
+                </div>
+                <span className="text-[11px] text-[#B8B8C0]">Changes reflect instantly on the public website</span>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                <div className="lg:col-span-2 space-y-3">
+                  <span className="section-tag inline-block text-xs py-1 px-3">
+                    {heroConfig?.badge || "🚀 Bangladesh's #1 Fiber ISP"}
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-black font-poppins text-white leading-tight">
+                    {heroConfig?.titleLine1 || "Ultra-Fast Internet."}<br />
+                    <span className="gradient-text">{heroConfig?.titleHighlight || "Zero Interruption."}</span>
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[#B8B8C0] leading-relaxed max-w-xl">
+                    {heroConfig?.subtitle || "Reliable fiber broadband across Bangladesh. Experience speeds up to 100 Mbps with 99.9% uptime guarantee."}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                    <span className="btn-primary text-xs px-4 py-2 pointer-events-none">
+                      {heroConfig?.btnPrimaryText || "View Packages"} →
+                    </span>
+                    <span className="btn-outline text-xs px-4 py-2 pointer-events-none">
+                      {heroConfig?.btnSecondaryText || "Pay Bill"}
+                    </span>
+                    {heroConfig?.showSpeedTestBtn !== false && (
+                      <span className="px-3 py-2 rounded-xl bg-white/5 border border-red-500/30 text-white text-xs flex items-center gap-1.5 pointer-events-none">
+                        <Zap size={13} className="text-red-400" />
+                        {heroConfig?.speedTestBtnText || "Live Speed Test"}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-3 pt-2 text-[11px] text-[#B8B8C0]">
+                    <span>{heroConfig?.badge1Icon || "⚡"} {heroConfig?.badge1Text || "99.9% Uptime"}</span>
+                    <span>{heroConfig?.badge2Icon || "🛡️"} {heroConfig?.badge2Text || "24/7 Support"}</span>
+                    <span>{heroConfig?.badge3Icon || "💸"} {heroConfig?.badge3Text || "No Hidden Fees"}</span>
+                  </div>
+                </div>
+
+                {/* Speedometer preview box */}
+                <div className="lg:col-span-1 flex justify-center">
+                  <div className="p-5 rounded-2xl glass-card-static border border-red-500/30 text-center relative w-48 h-48 flex flex-col items-center justify-center">
+                    <div className="text-3xl font-black gradient-text font-poppins">
+                      {heroConfig?.visualSpeed || "100"}
+                    </div>
+                    <div className="text-[#B8B8C0] text-xs font-medium">
+                      {heroConfig?.visualUnit || "Mbps Fiber"}
+                    </div>
+                    <div className="flex items-center gap-1 mt-1 text-[10px] text-green-400 font-mono">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                      <span>{heroConfig?.visualCta || "Click to Test"}</span>
+                    </div>
+                    <span className="absolute -top-2 -right-2 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30">
+                      {heroConfig?.visualUptime || "99.9%"}
+                    </span>
+                    <span className="absolute -bottom-2 -left-2 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30">
+                      {heroConfig?.visualPing || "<5ms"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </GlassCard>
+
+            {/* Configuration Tabs & Form Controls */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Card 1: Badges & Main Headlines */}
+              <GlassCard className="p-6 space-y-4">
+                <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
+                  1. Headlines & Top Badge (হেডলাইন ও ব্যাজ)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormInput
+                    label="Top Badge Text (English)"
+                    value={heroConfig?.badge || ''}
+                    onChange={(e) => updateHeroConfig({ badge: e.target.value })}
+                    placeholder="🚀 Bangladesh's #1 Fiber ISP"
+                  />
+                  <FormInput
+                    label="Top Badge Text (Bangla)"
+                    value={heroConfig?.badgeBn || ''}
+                    onChange={(e) => updateHeroConfig({ badgeBn: e.target.value })}
+                    placeholder="🚀 বাংলাদেশের সেরা ইন্টারনেট"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormInput
+                    label="Headline Line 1 (English)"
+                    value={heroConfig?.titleLine1 || ''}
+                    onChange={(e) => updateHeroConfig({ titleLine1: e.target.value })}
+                    placeholder="Ultra-Fast Internet."
+                  />
+                  <FormInput
+                    label="Headline Line 1 (Bangla)"
+                    value={heroConfig?.titleLine1Bn || ''}
+                    onChange={(e) => updateHeroConfig({ titleLine1Bn: e.target.value })}
+                    placeholder="অতি-দ্রুত ইন্টারনেট।"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormInput
+                    label="Highlight Line 2 (English - Red Gradient)"
+                    value={heroConfig?.titleHighlight || ''}
+                    onChange={(e) => updateHeroConfig({ titleHighlight: e.target.value })}
+                    placeholder="Zero Interruption."
+                  />
+                  <FormInput
+                    label="Highlight Line 2 (Bangla - Red Gradient)"
+                    value={heroConfig?.titleHighlightBn || ''}
+                    onChange={(e) => updateHeroConfig({ titleHighlightBn: e.target.value })}
+                    placeholder="জিরো বিঘ্ন।"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-[#B8B8C0] font-medium block mb-1">Hero Description / Subtitle (English)</label>
+                  <textarea
+                    rows={2}
+                    value={heroConfig?.subtitle || ''}
+                    onChange={(e) => updateHeroConfig({ subtitle: e.target.value })}
+                    className="glass-input text-xs w-full"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-[#B8B8C0] font-medium block mb-1">Hero Description / Subtitle (Bangla)</label>
+                  <textarea
+                    rows={2}
+                    value={heroConfig?.subtitleBn || ''}
+                    onChange={(e) => updateHeroConfig({ subtitleBn: e.target.value })}
+                    className="glass-input text-xs w-full"
+                  />
+                </div>
+              </GlassCard>
+
+              {/* Card 2: Action Buttons & Navigation */}
+              <GlassCard className="p-6 space-y-4">
+                <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
+                  2. Action Buttons & Navigation (অ্যাকশন বাটন)
+                </span>
+                
+                {/* Primary Button */}
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/8 space-y-3">
+                  <span className="text-[11px] text-red-400 font-bold uppercase tracking-wider block">Primary Button (Red)</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <FormInput
+                      label="Label (English)"
+                      value={heroConfig?.btnPrimaryText || ''}
+                      onChange={(e) => updateHeroConfig({ btnPrimaryText: e.target.value })}
+                    />
+                    <FormInput
+                      label="Label (Bangla)"
+                      value={heroConfig?.btnPrimaryTextBn || ''}
+                      onChange={(e) => updateHeroConfig({ btnPrimaryTextBn: e.target.value })}
+                    />
+                  </div>
+                  <FormInput
+                    label="Target Link Destination"
+                    value={heroConfig?.btnPrimaryLink || '/packages'}
+                    onChange={(e) => updateHeroConfig({ btnPrimaryLink: e.target.value })}
+                  />
+                </div>
+
+                {/* Secondary Button */}
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/8 space-y-3">
+                  <span className="text-[11px] text-[#B8B8C0] font-bold uppercase tracking-wider block">Secondary Button (Outline)</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <FormInput
+                      label="Label (English)"
+                      value={heroConfig?.btnSecondaryText || ''}
+                      onChange={(e) => updateHeroConfig({ btnSecondaryText: e.target.value })}
+                    />
+                    <FormInput
+                      label="Label (Bangla)"
+                      value={heroConfig?.btnSecondaryTextBn || ''}
+                      onChange={(e) => updateHeroConfig({ btnSecondaryTextBn: e.target.value })}
+                    />
+                  </div>
+                  <FormInput
+                    label="Target Link Destination"
+                    value={heroConfig?.btnSecondaryLink || '/pay-bill'}
+                    onChange={(e) => updateHeroConfig({ btnSecondaryLink: e.target.value })}
+                  />
+                </div>
+
+                {/* Speed Test Button */}
+                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/8 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-white font-bold uppercase tracking-wider">Speed Test Button</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={heroConfig?.showSpeedTestBtn !== false}
+                        onChange={(e) => updateHeroConfig({ showSpeedTestBtn: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
+                    </label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <FormInput
+                      label="Label (English)"
+                      value={heroConfig?.speedTestBtnText || ''}
+                      onChange={(e) => updateHeroConfig({ speedTestBtnText: e.target.value })}
+                    />
+                    <FormInput
+                      label="Label (Bangla)"
+                      value={heroConfig?.speedTestBtnTextBn || ''}
+                      onChange={(e) => updateHeroConfig({ speedTestBtnTextBn: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </GlassCard>
+
+              {/* Card 3: Speedometer Visual Card Metrics */}
+              <GlassCard className="p-6 space-y-4">
+                <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
+                  3. Right Visual Card & Speedometer Metrics (স্পিডোমিটার মেট্রিক্স)
+                </span>
+                <div className="grid grid-cols-2 gap-3">
+                  <FormInput
+                    label="Showcase Speed Number"
+                    value={heroConfig?.visualSpeed || '100'}
+                    onChange={(e) => updateHeroConfig({ visualSpeed: e.target.value })}
+                    placeholder="100"
+                  />
+                  <FormInput
+                    label="Speed Unit Label"
+                    value={heroConfig?.visualUnit || 'Mbps Fiber'}
+                    onChange={(e) => updateHeroConfig({ visualUnit: e.target.value })}
+                    placeholder="Mbps Fiber"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <FormInput
+                    label="Ping Latency Tag"
+                    value={heroConfig?.visualPing || '<5ms'}
+                    onChange={(e) => updateHeroConfig({ visualPing: e.target.value })}
+                    placeholder="<5ms"
+                  />
+                  <FormInput
+                    label="Uptime Metric Tag"
+                    value={heroConfig?.visualUptime || '99.9%'}
+                    onChange={(e) => updateHeroConfig({ visualUptime: e.target.value })}
+                    placeholder="99.9%"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <FormInput
+                    label="Action Label (English)"
+                    value={heroConfig?.visualCta || 'Click to Test'}
+                    onChange={(e) => updateHeroConfig({ visualCta: e.target.value })}
+                    placeholder="Click to Test"
+                  />
+                  <FormInput
+                    label="Action Label (Bangla)"
+                    value={heroConfig?.visualCtaBn || 'স্পিড টেস্ট চালান'}
+                    onChange={(e) => updateHeroConfig({ visualCtaBn: e.target.value })}
+                    placeholder="স্পিড টেস্ট চালান"
+                  />
+                </div>
+              </GlassCard>
+
+              {/* Card 4: Trust Badges (Bottom 3 Feature Pills) */}
+              <GlassCard className="p-6 space-y-4">
+                <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
+                  4. Trust Badges & Guarantees (৩টি ট্রাস্ট ব্যাজ)
+                </span>
+                
+                {/* Badge 1 */}
+                <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/8 items-end">
+                  <FormInput
+                    label="Icon"
+                    value={heroConfig?.badge1Icon || '⚡'}
+                    onChange={(e) => updateHeroConfig({ badge1Icon: e.target.value })}
+                  />
+                  <FormInput
+                    label="Text (English)"
+                    value={heroConfig?.badge1Text || '99.9% Uptime'}
+                    onChange={(e) => updateHeroConfig({ badge1Text: e.target.value })}
+                  />
+                  <FormInput
+                    label="Text (Bangla)"
+                    value={heroConfig?.badge1TextBn || '৯৯.৯% আপটাইম'}
+                    onChange={(e) => updateHeroConfig({ badge1TextBn: e.target.value })}
+                  />
+                </div>
+
+                {/* Badge 2 */}
+                <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/8 items-end">
+                  <FormInput
+                    label="Icon"
+                    value={heroConfig?.badge2Icon || '🛡️'}
+                    onChange={(e) => updateHeroConfig({ badge2Icon: e.target.value })}
+                  />
+                  <FormInput
+                    label="Text (English)"
+                    value={heroConfig?.badge2Text || '24/7 Support'}
+                    onChange={(e) => updateHeroConfig({ badge2Text: e.target.value })}
+                  />
+                  <FormInput
+                    label="Text (Bangla)"
+                    value={heroConfig?.badge2TextBn || '২৪/৭ সাপোর্ট'}
+                    onChange={(e) => updateHeroConfig({ badge2TextBn: e.target.value })}
+                  />
+                </div>
+
+                {/* Badge 3 */}
+                <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/8 items-end">
+                  <FormInput
+                    label="Icon"
+                    value={heroConfig?.badge3Icon || '💸'}
+                    onChange={(e) => updateHeroConfig({ badge3Icon: e.target.value })}
+                  />
+                  <FormInput
+                    label="Text (English)"
+                    value={heroConfig?.badge3Text || 'No Hidden Fees'}
+                    onChange={(e) => updateHeroConfig({ badge3Text: e.target.value })}
+                  />
+                  <FormInput
+                    label="Text (Bangla)"
+                    value={heroConfig?.badge3TextBn || 'কোনো লুকানো চার্জ নেই'}
+                    onChange={(e) => updateHeroConfig({ badge3TextBn: e.target.value })}
+                  />
                 </div>
               </GlassCard>
             </div>
