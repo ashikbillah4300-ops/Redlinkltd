@@ -6,17 +6,10 @@ import toast from 'react-hot-toast';
 
 import { GlassCard, GlassButton, FormInput, FormTextarea, FormSelect, SectionHeading, Accordion, FadeUp } from '../components/ui/index';
 import { useLang } from '../context/LangContext';
+import { useAdmin } from '../context/AdminContext';
 import { faqs } from '../data/constants';
 import { apiCreateTicket } from '../services/api';
 import SpeedTestModal from '../components/SpeedTestModal';
-
-const contactCards = [
-  { icon: Phone, label: 'Hotline', labelBn: 'হটলাইন', value: '16500', value2: '+880 1700-000000', href: 'tel:16500', color: 'text-blue-400', bg: 'from-blue-500/20 to-blue-900/20' },
-  { icon: MessageCircle, label: 'WhatsApp', labelBn: 'হোয়াটসঅ্যাপ', value: '+880 1700-000000', href: 'https://wa.me/8801700000000', color: 'text-green-400', bg: 'from-green-500/20 to-green-900/20' },
-  { icon: Mail, label: 'Email', labelBn: 'ইমেইল', value: 'support@redlinkltd.com', href: 'mailto:support@redlinkltd.com', color: 'text-red-400', bg: 'from-red-500/20 to-red-900/20' },
-  { icon: MapPin, label: 'Office', labelBn: 'অফিস', value: 'House 45, Road 12, Dhanmondi, Dhaka-1209', href: 'https://maps.google.com', color: 'text-yellow-400', bg: 'from-yellow-500/20 to-yellow-900/20' },
-  { icon: Clock, label: 'Working Hours', labelBn: 'কার্যঘণ্টা', value: 'Sat–Thu: 9AM–9PM', value2: 'Fri: 10AM–6PM | Emergency: 24/7', color: 'text-purple-400', bg: 'from-purple-500/20 to-purple-900/20' },
-];
 
 const categories = [
   { id: 'billing', label: 'Billing', labelBn: 'বিলিং' },
@@ -27,10 +20,27 @@ const categories = [
 
 export default function SupportPage() {
   const { isBn } = useLang();
+  const { siteSettings } = useAdmin();
   const [showSpeedTest, setShowSpeedTest] = useState(false);
   const [form, setForm] = useState({ name: '', mobile: '', email: '', category: 'technical', subject: '', message: '' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const rawNumber = siteSettings?.whatsapp || '8801700000000';
+  const digitsOnly = rawNumber.replace(/[^0-9]/g, '');
+  const cleanNumber = digitsOnly.startsWith('880')
+    ? digitsOnly
+    : digitsOnly.startsWith('0')
+      ? `88${digitsOnly}`
+      : digitsOnly ? `880${digitsOnly}` : '8801700000000';
+
+  const contactCards = [
+    { icon: Phone, label: 'Hotline', labelBn: 'হটলাইন', value: siteSettings?.hotline || '16500', value2: siteSettings?.whatsapp || '+880 1700-000000', href: `tel:${siteSettings?.hotline || '16500'}`, color: 'text-blue-400', bg: 'from-blue-500/20 to-blue-900/20' },
+    { icon: MessageCircle, label: 'WhatsApp', labelBn: 'হোয়াটসঅ্যাপ', value: siteSettings?.whatsapp || '+880 1700-000000', href: `https://wa.me/${cleanNumber}?text=Hi%20RedLink%2C%20I%20need%20support`, color: 'text-green-400', bg: 'from-green-500/20 to-green-900/20' },
+    { icon: Mail, label: 'Email', labelBn: 'ইমেইল', value: siteSettings?.supportEmail || 'support@redlinkltd.com', href: `mailto:${siteSettings?.supportEmail || 'support@redlinkltd.com'}`, color: 'text-red-400', bg: 'from-red-500/20 to-red-900/20' },
+    { icon: MapPin, label: 'Office', labelBn: 'অফিস', value: siteSettings?.headOffice || 'House 45, Road 12, Dhanmondi, Dhaka-1209', href: 'https://maps.google.com', color: 'text-yellow-400', bg: 'from-yellow-500/20 to-yellow-900/20' },
+    { icon: Clock, label: 'Working Hours', labelBn: 'কার্যঘণ্টা', value: 'Sat–Thu: 9AM–9PM', value2: 'Fri: 10AM–6PM | Emergency: 24/7', color: 'text-purple-400', bg: 'from-purple-500/20 to-purple-900/20' },
+  ];
 
   const validate = () => {
     const e = {};
