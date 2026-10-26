@@ -7,7 +7,7 @@ import {
   MapPin, Megaphone, Activity, Settings, Shield, LogOut, Search,
   Plus, Filter, CheckCircle2, AlertTriangle, Clock, RefreshCw,
   Edit2, Trash2, Eye, ArrowUpRight, TrendingUp, Download, Globe,
-  Phone, Mail, Server, Menu, X, Sparkles, Check, Globe2, Radio, Navigation
+  Phone, Mail, Server, Menu, X, Sparkles, Check, Globe2, Radio, Navigation, Zap
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
