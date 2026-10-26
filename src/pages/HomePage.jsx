@@ -234,7 +234,7 @@ export default function HomePage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
             >
-              <div className="glass-card p-10 rounded-3xl" style={{ minWidth: 320 }}>
+              <div className="glass-card p-6 sm:p-10 rounded-3xl w-full max-w-sm mx-auto flex items-center justify-center">
                 <SpeedometerVisual onTestSpeed={() => setShowSpeedTest(true)} isBn={isBn} />
               </div>
             </motion.div>

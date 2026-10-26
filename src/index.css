@@ -319,24 +319,36 @@ body {
 /* ── WhatsApp float button ───────────────────────── */
 .whatsapp-float {
   position: fixed;
-  bottom: 28px;
-  right: 28px;
-  z-index: 5000;
-  width: 58px;
-  height: 58px;
+  bottom: 24px;
+  right: 24px;
+  z-index: 40;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(37,211,102,0.50);
+  box-shadow: 0 4px 20px rgba(37,211,102,0.40);
   cursor: pointer;
   transition: all 0.3s ease;
   border: 1px solid rgba(255,255,255,0.20);
 }
 .whatsapp-float:hover {
-  transform: scale(1.12);
-  box-shadow: 0 8px 30px rgba(37,211,102,0.70);
+  transform: scale(1.10);
+  box-shadow: 0 8px 30px rgba(37,211,102,0.60);
+}
+@media (max-width: 640px) {
+  .whatsapp-float {
+    bottom: 16px;
+    right: 16px;
+    width: 46px;
+    height: 46px;
+  }
+  .whatsapp-float svg {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 /* ── Comparison table ────────────────────────────── */
