@@ -96,21 +96,16 @@ function SpeedometerVisual({ onTestSpeed, isBn }) {
 
 // ── Stats Counter Row ──────────────────────────────────────────────────────────
 function StatCounter({ stat, isBn }) {
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
   return (
-    <div ref={ref} className="text-center">
+    <div className="text-center">
       <div className="text-4xl md:text-5xl font-black font-poppins gradient-text">
-        {inView ? (
-          <CountUp
-            end={stat.value}
-            decimals={stat.decimals || 0}
-            duration={2.5}
-            separator=","
-            suffix={stat.suffix}
-          />
-        ) : (
-          <span>0{stat.suffix}</span>
-        )}
+        <CountUp
+          end={stat.value}
+          decimals={stat.decimals || 0}
+          duration={2}
+          separator=","
+          suffix={stat.suffix}
+        />
       </div>
       <div className={`text-[#B8B8C0] mt-1 font-medium ${isBn ? 'font-bangla' : ''}`}>
         {isBn ? stat.labelBn : stat.label}

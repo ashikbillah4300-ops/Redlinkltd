@@ -212,14 +212,8 @@ export const LoadingSkeleton = ({ lines = 3, className = '' }) => (
 );
 
 // ── FadeUp wrapper ────────────────────────────────────────────────────────────
-export const FadeUp = ({ children, delay = 0, className = '' }) => (
-  <motion.div
-    className={className}
-    initial={{ opacity: 0, y: 15 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, amount: 0.02 }}
-    transition={{ duration: 0.35, delay: Math.min(delay, 0.2), ease: 'easeOut' }}
-  >
+export const FadeUp = ({ children, className = '' }) => (
+  <div className={className}>
     {children}
-  </motion.div>
+  </div>
 );
