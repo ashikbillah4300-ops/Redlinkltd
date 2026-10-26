@@ -6,6 +6,7 @@ import { Tabs, SectionHeading, GlassCard, FadeUp } from '../components/ui/index'
 import PackageCard from '../components/PackageCard';
 import OttEntertainment from '../components/OttEntertainment';
 import { useLang } from '../context/LangContext';
+import { useAdmin } from '../context/AdminContext';
 import { homePackages, corporatePackages } from '../data/constants';
 
 // Comparison table columns
@@ -66,8 +67,9 @@ function ComparisonTable({ packages, features, isBn }) {
 export default function PackagesPage() {
   const [activeTab, setActiveTab] = useState('home');
   const { isBn } = useLang();
+  const { packages: liveHomePackages } = useAdmin();
 
-  const packages = activeTab === 'home' ? homePackages : corporatePackages;
+  const packages = activeTab === 'home' ? (liveHomePackages && liveHomePackages.length > 0 ? liveHomePackages : homePackages) : corporatePackages;
 
   return (
     <div className="py-12 px-4 sm:px-6 lg:px-8">

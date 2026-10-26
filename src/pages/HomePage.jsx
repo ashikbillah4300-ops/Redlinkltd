@@ -9,6 +9,7 @@ import {
 
 import { GlassCard, SectionHeading, FadeUp } from '../components/ui/index';
 import { useLang } from '../context/LangContext';
+import { useAdmin } from '../context/AdminContext';
 import { homePackages, stats, testimonials, whyChooseUs } from '../data/constants';
 import PackageCard from '../components/PackageCard';
 import SpeedTestModal from '../components/SpeedTestModal';
@@ -167,7 +168,9 @@ const quickActions = [
 // ── Main Export ────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const { isBn } = useLang();
+  const { packages: livePackages } = useAdmin();
   const [showSpeedTest, setShowSpeedTest] = useState(false);
+  const displayPackages = livePackages && livePackages.length > 0 ? livePackages.slice(0, 3) : homePackages;
 
   return (
     <div>
@@ -298,7 +301,7 @@ export default function HomePage() {
             />
           </FadeUp>
           <div className="grid md:grid-cols-3 gap-6">
-            {homePackages.map((pkg, i) => (
+            {displayPackages.map((pkg, i) => (
               <FadeUp key={pkg.id} delay={i * 0.12}>
                 <PackageCard pkg={pkg} isBn={isBn} />
               </FadeUp>

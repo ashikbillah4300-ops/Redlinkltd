@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Wifi, Phone, Mail, MapPin, MessageCircle, Activity } from 'lucide-react';
 import { useLang } from '../context/LangContext';
+import { useAdmin } from '../context/AdminContext';
 import NetworkDiagnosticModal from './NetworkDiagnosticModal';
 
 const footerLinks = {
@@ -11,6 +12,7 @@ const footerLinks = {
     { to: '/pay-bill', label: 'Pay Bill', labelBn: 'বিল পরিশোধ' },
     { to: '/coverage', label: 'Coverage', labelBn: 'কভারেজ' },
     { to: '/about', label: 'About Us', labelBn: 'আমাদের সম্পর্কে' },
+    { to: '/admin', label: 'Admin Console', labelBn: 'অ্যাডমিন প্যানেল' },
   ],
   services: [
     { to: '/business', label: 'Home Broadband', labelBn: 'হোম ব্রডব্যান্ড' },
@@ -23,6 +25,7 @@ const footerLinks = {
 
 export default function Footer() {
   const { isBn } = useLang();
+  const { siteSettings } = useAdmin();
   const [diagOpen, setDiagOpen] = useState(false);
 
   return (
@@ -110,18 +113,18 @@ export default function Footer() {
               <li className="flex items-start gap-3">
                 <Phone size={15} className="text-red-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <a href="tel:16500" className="text-[#B8B8C0] text-sm hover:text-white block">16500</a>
-                  <a href="tel:+8801700000000" className="text-[#B8B8C0] text-sm hover:text-white block">+880 1700-000000</a>
+                  <a href={`tel:${siteSettings?.hotline || '16500'}`} className="text-[#B8B8C0] text-sm hover:text-white block font-semibold">{siteSettings?.hotline || '16500'}</a>
+                  <a href={`tel:${siteSettings?.whatsapp || '+8801700000000'}`} className="text-[#B8B8C0] text-xs hover:text-white block">{siteSettings?.whatsapp || '+880 1700-000000'}</a>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <Mail size={15} className="text-red-400 mt-0.5 flex-shrink-0" />
-                <a href="mailto:support@redlinkltd.com" className="text-[#B8B8C0] text-sm hover:text-white break-all">support@redlinkltd.com</a>
+                <a href={`mailto:${siteSettings?.supportEmail || 'support@redlinkltd.com'}`} className="text-[#B8B8C0] text-sm hover:text-white break-all">{siteSettings?.supportEmail || 'support@redlinkltd.com'}</a>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin size={15} className="text-red-400 mt-0.5 flex-shrink-0" />
                 <span className={`text-[#B8B8C0] text-sm ${isBn ? 'font-bangla' : ''}`}>
-                  {isBn ? 'হাউজ ৪৫, রোড ১২, ধানমন্ডি, ঢাকা-১২০৯' : 'House 45, Road 12, Dhanmondi, Dhaka-1209'}
+                  {siteSettings?.headOffice || (isBn ? 'হাউজ ৪৫, রোড ১২, ধানমন্ডি, ঢাকা-১২০৯' : 'House 45, Road 12, Dhanmondi, Dhaka-1209')}
                 </span>
               </li>
             </ul>
