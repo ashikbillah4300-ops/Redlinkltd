@@ -96,7 +96,7 @@ function SpeedometerVisual({ onTestSpeed, isBn }) {
 
 // ── Stats Counter Row ──────────────────────────────────────────────────────────
 function StatCounter({ stat, isBn }) {
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.4 });
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
   return (
     <div ref={ref} className="text-center">
       <div className="text-4xl md:text-5xl font-black font-poppins gradient-text">
@@ -185,7 +185,7 @@ export default function HomePage() {
   return (
     <div>
       {/* ── Hero ── */}
-      <section className="min-h-[90vh] flex items-center py-16 px-4 sm:px-6 lg:px-8">
+      <section className="min-h-[75vh] md:min-h-[82vh] flex items-center py-10 md:py-14 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Text */}
