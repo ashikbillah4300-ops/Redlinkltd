@@ -93,7 +93,7 @@ export default function PackagesPage() {
             <Tabs
               tabs={[
                 { id: 'home', label: isBn ? 'হোম ব্রডব্যান্ড' : 'Home Broadband' },
-                { id: 'corporate', label: isBn ? 'কর্পোরেট' : 'Corporate' },
+                { id: 'corporate', label: isBn ? 'রিসেলার' : 'Reseller' },
               ]}
               active={activeTab}
               onChange={setActiveTab}
@@ -128,18 +128,18 @@ export default function PackagesPage() {
           </FadeUp>
         )}
 
-        {/* Corporate Info Box */}
+        {/* Reseller Info Box */}
         {activeTab === 'corporate' && (
           <FadeUp>
             <GlassCard className="p-8 text-center mt-8">
-              <div className="text-4xl mb-4">🏢</div>
+              <div className="text-4xl mb-4">🤝</div>
               <h3 className={`text-2xl font-bold text-white mb-3 ${isBn ? 'font-bangla' : ''}`}>
-                {isBn ? 'কাস্টম সমাধান দরকার?' : 'Need a Custom Solution?'}
+                {isBn ? 'রিসেলার পার্টনারশিপ বা কাস্টম সমাধান দরকার?' : 'Need Reseller Bandwidth or Custom Solution?'}
               </h3>
               <p className={`text-[#B8B8C0] max-w-md mx-auto mb-6 ${isBn ? 'font-bangla' : ''}`}>
                 {isBn
-                  ? 'আমাদের এন্টারপ্রাইজ দল আপনার নির্দিষ্ট প্রয়োজনীয়তা অনুযায়ী কাস্টম প্যাকেজ তৈরি করবে।'
-                  : 'Our enterprise team will tailor a custom package to your exact requirements — bandwidth, SLA, and more.'}
+                  ? 'আমাদের সাথে রিসেলার পার্টনার হিসেবে যুক্ত হতে বা পাইকারি ব্যান্ডউইথ নিতে সরাসরি যোগাযোগ করুন।'
+                  : 'Partner with us as an ISP reseller or get wholesale dedicated bandwidth tailored to your business.'}
               </p>
               <a href="tel:+8801700000000" className="btn-primary">
                 📞 {isBn ? 'আমাদের কল করুন' : 'Call Us Now'}
