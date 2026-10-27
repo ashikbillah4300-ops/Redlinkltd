@@ -35,7 +35,7 @@ const INITIAL_TICKETS = [
 ];
 
 const INITIAL_SITE_SETTINGS = {
-  companyName: 'RedLink Ltd',
+  companyName: 'RedLink Technologies',
   tagline: 'The service company',
   hotline: '16500',
   whatsapp: '+880 1700-000000',

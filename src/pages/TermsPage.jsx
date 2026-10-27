@@ -5,11 +5,11 @@ import { useLang } from '../context/LangContext';
 const sections = [
   {
     title: '1. Acceptance of Terms',
-    content: 'By subscribing to RedLink Ltd services, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.',
+    content: 'By subscribing to RedLink Technologies services, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.',
   },
   {
     title: '2. Service Description',
-    content: 'RedLink Ltd provides broadband internet access, including but not limited to fiber optic broadband, wireless broadband, and associated network services to residential and commercial customers across Bangladesh.',
+    content: 'RedLink Technologies provides broadband internet access, including but not limited to fiber optic broadband, wireless broadband, and associated network services to residential and commercial customers across Bangladesh.',
   },
   {
     title: '3. Billing & Payment',
@@ -29,11 +29,11 @@ const sections = [
   },
   {
     title: '7. Termination',
-    content: 'Either party may terminate the service agreement with 30 days written notice. RedLink Ltd reserves the right to terminate service immediately for breach of these terms, non-payment, or illegal use.',
+    content: 'Either party may terminate the service agreement with 30 days written notice. RedLink Technologies reserves the right to terminate service immediately for breach of these terms, non-payment, or illegal use.',
   },
   {
     title: '8. Limitation of Liability',
-    content: 'RedLink Ltd\'s liability is limited to the monthly subscription fee paid. We are not liable for indirect, consequential, or special damages arising from service interruptions or data loss.',
+    content: 'RedLink Technologies\' liability is limited to the monthly subscription fee paid. We are not liable for indirect, consequential, or special damages arising from service interruptions or data loss.',
   },
 ];
 

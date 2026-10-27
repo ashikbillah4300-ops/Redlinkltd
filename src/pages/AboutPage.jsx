@@ -4,7 +4,7 @@ import { GlassCard, SectionHeading, FadeUp } from '../components/ui/index';
 import { useLang } from '../context/LangContext';
 
 const timeline = [
-  { year: '2018', event: 'RedLink Ltd founded in Dhaka with 500 initial customers.', eventBn: 'রেডলিংক লিমিটেড ঢাকায় ৫০০ গ্রাহক নিয়ে প্রতিষ্ঠিত।' },
+  { year: '2018', event: 'RedLink Technologies founded in Dhaka with 500 initial customers.', eventBn: 'রেডলিংক টেকনোলজিস ঢাকায় ৫০০ গ্রাহক নিয়ে প্রতিষ্ঠিত।' },
   { year: '2020', event: 'Expanded to Chittagong — 5,000 customers milestone.', eventBn: 'চট্টগ্রামে সম্প্রসারিত — ৫,০০০ গ্রাহকের মাইলফলক।' },
   { year: '2022', event: 'IIG direct connection established. Corporate division launched.', eventBn: 'IIG সরাসরি সংযোগ স্থাপিত। কর্পোরেট বিভাগ চালু।' },
   { year: '2024', event: 'Reached 15,000+ customers. Wi-Fi 6 infrastructure rollout.', eventBn: '১৫,০০০+ গ্রাহক। Wi-Fi 6 অবকাঠামো চালু।' },
@@ -30,8 +30,8 @@ export default function AboutPage() {
             tagBn="রেডলিংক সম্পর্কে"
             title="Connecting Bangladesh, One Home at a Time"
             titleBn="একটি একটি করে ঘর সংযুক্ত করছি"
-            subtitle="Founded in 2018, RedLink Ltd has grown to become one of Bangladesh's most trusted Internet Service Providers, delivering fiber-fast connectivity with a commitment to reliability and customer service."
-            subtitleBn="২০১৮ সালে প্রতিষ্ঠিত রেডলিংক লিমিটেড বাংলাদেশের অন্যতম বিশ্বস্ত ইন্টারনেট সেবা প্রদানকারী।"
+            subtitle="Founded in 2018, RedLink Technologies has grown to become one of Bangladesh's most trusted Internet Service Providers, delivering fiber-fast connectivity with a commitment to reliability and customer service."
+            subtitleBn="২০১৮ সালে প্রতিষ্ঠিত রেডলিংক টেকনোলজিস বাংলাদেশের অন্যতম বিশ্বস্ত ইন্টারনেট সেবা প্রদানকারী।"
             isBn={isBn}
           />
         </FadeUp>

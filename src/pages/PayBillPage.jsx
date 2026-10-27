@@ -65,7 +65,7 @@ const paymentMethods = [
     id: 'bank', label: 'Bank Transfer', color: '#059669', emoji: '🏛️',
     steps: [
       'Bank: Dutch-Bangla Bank Limited (DBBL)',
-      'Account Name: RedLink Ltd',
+      'Account Name: RedLink Technologies',
       'Account No: 1234567890',
       'Routing: 090270497',
       'Use your Customer ID as the reference/narration',
@@ -114,8 +114,8 @@ function MethodAccordion({ method, isBn }) {
 function Receipt({ txn, bill }) {
   const handleDownload = () => {
     const content = `
-REDLINK LTD - PAYMENT RECEIPT
-==============================
+REDLINK TECHNOLOGIES - PAYMENT RECEIPT
+======================================
 Transaction ID: ${txn.transactionId}
 Date: ${new Date(txn.timestamp).toLocaleString('en-BD')}
 Customer ID: ${bill.customerId}

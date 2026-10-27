@@ -364,7 +364,7 @@ export default function AdminDashboard() {
               {navItems.find(n => n.id === activeTab)?.label}
             </h1>
             <p className="text-xs text-[#B8B8C0] mt-1">
-              Live Content & Network Operations Management for RedLink Ltd
+              Live Content & Network Operations Management for RedLink Technologies
             </p>
           </div>
 

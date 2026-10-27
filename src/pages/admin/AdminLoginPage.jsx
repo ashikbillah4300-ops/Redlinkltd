@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
             Admin Panel
           </h2>
           <p className="text-sm font-semibold text-blue-200 mt-1">
-            RedLink Ltd
+            RedLink Technologies
           </p>
           <p className="text-xs text-blue-300/80 mt-1 font-normal tracking-wide">
             Secure Administration Access

@@ -45,7 +45,7 @@ export default function Footer() {
               />
               <div className="flex flex-col">
                 <span className="text-2xl font-bold font-poppins text-white leading-tight">
-                  Red<span className="gradient-text">Link</span> Ltd
+                  Red<span className="gradient-text">Link</span> Technologies
                 </span>
                 <span className="text-[10px] text-[#B8B8C0] uppercase tracking-wider font-medium">
                   The service company
@@ -155,7 +155,7 @@ export default function Footer() {
         <div className="mt-12 pt-6 border-t border-white/8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
             <p className={`text-[#6B6B78] text-sm ${isBn ? 'font-bangla' : ''}`}>
-              © 2025 RedLink Ltd. {isBn ? 'সর্বস্বত্ব সংরক্ষিত।' : 'All rights reserved.'}
+              © 2025 RedLink Technologies. {isBn ? 'সর্বস্বত্ব সংরক্ষিত।' : 'All rights reserved.'}
             </p>
             <span className="hidden sm:inline text-white/20">|</span>
             <span className="text-xs text-[#8A8A96] flex items-center gap-1">
