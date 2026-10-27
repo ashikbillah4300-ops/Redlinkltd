@@ -104,8 +104,8 @@ function MainLayout() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AdminProvider>
+    <AdminProvider>
+      <AuthProvider>
         <LangProvider>
           <BrowserRouter>
             <MainLayout />
@@ -137,7 +137,7 @@ export default function App() {
             />
           </BrowserRouter>
         </LangProvider>
-      </AdminProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </AdminProvider>
   );
 }

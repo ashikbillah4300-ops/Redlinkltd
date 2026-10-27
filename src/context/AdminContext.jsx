@@ -5,13 +5,189 @@ import { homePackages as initialHomePackages, corporatePackages as initialCorpPa
 
 const AdminContext = createContext();
 
-// Initial Seed Data
+// Initial Seed Data with full billing ledger & credentials
 const INITIAL_USERS = [
-  { id: 'RL-001234', name: 'Mohammad Karim', nameBn: 'মোহাম্মদ করিম', mobile: '01712345678', email: 'karim@example.com', address: 'House 12, Road 5, Mirpur-1, Dhaka', package: 'Standard 50 Mbps', speed: 50, dueAmount: 900, status: 'Active', joinDate: '2024-03-15', ip: '103.237.79.11' },
-  { id: 'RL-005678', name: 'Fatema Begum', nameBn: 'ফাতেমা বেগম', mobile: '01898765432', email: 'fatema@example.com', address: 'Sector 4, Uttara, Dhaka', package: 'Starter 20 Mbps', speed: 20, dueAmount: 500, status: 'Active', joinDate: '2024-05-10', ip: '103.237.79.44' },
-  { id: 'RL-007890', name: 'Tanvir Ahmed', nameBn: 'তানভীর আহমেদ', mobile: '01911223344', email: 'tanvir@techbd.com', address: 'GEC Circle, Chittagong', package: 'Ultra 100 Mbps', speed: 100, dueAmount: 0, status: 'Active', joinDate: '2024-01-20', ip: '103.237.79.88' },
-  { id: 'RL-009123', name: 'Shafiul Islam', nameBn: 'শফিউল ইসলাম', mobile: '01655667788', email: 'shafiul@corp.net', address: 'Agrabad C/A, Chittagong', package: 'Business Pro 500 Mbps', speed: 500, dueAmount: 8000, status: 'Suspended', joinDate: '2023-11-05', ip: '103.237.80.12' },
-  { id: 'RL-003412', name: 'Nusrat Jahan', nameBn: 'নুসরাত জাহান', mobile: '01799887766', email: 'nusrat@gmail.com', address: 'Zindabazar, Sylhet', package: 'Standard 50 Mbps', speed: 50, dueAmount: 0, status: 'Active', joinDate: '2024-07-12', ip: '103.237.81.05' },
+  {
+    id: 'RL-001234',
+    name: 'Mohammad Karim',
+    nameBn: 'মোহাম্মদ করিম',
+    mobile: '01712345678',
+    email: 'karim@gmail.com',
+    password: '1234',
+    address: 'House 12, Road 5, Mirpur-1, Dhaka',
+    package: 'Standard 50 Mbps',
+    speed: 50,
+    monthlyFee: 900,
+    dueAmount: 900,
+    status: 'Active',
+    joinDate: '2024-03-15',
+    billingDate: '05',
+    ip: '103.237.79.11',
+    mac: 'E4:8D:8C:44:91:02',
+    opticalPower: '-18.4 dBm',
+    invoices: [
+      { id: 'INV-2026-10', month: 'October 2026', monthBn: 'অক্টোবর ২০২৬', dueDate: '2026-10-05', amount: 900, status: 'Due', period: '01 Oct 2026 - 31 Oct 2026' },
+      { id: 'INV-2026-09', month: 'September 2026', monthBn: 'সেপ্টেম্বর ২০২৬', dueDate: '2026-09-05', amount: 900, status: 'Paid', paidDate: '2026-09-04 14:20', method: 'bKash', trxId: 'BK9X77A102', period: '01 Sep 2026 - 30 Sep 2026' },
+      { id: 'INV-2026-08', month: 'August 2026', monthBn: 'আগস্ট ২০২৬', dueDate: '2026-08-05', amount: 900, status: 'Paid', paidDate: '2026-08-03 18:11', method: 'Nagad', trxId: 'NG4B11C908', period: '01 Aug 2026 - 31 Aug 2026' },
+      { id: 'INV-2026-07', month: 'July 2026', monthBn: 'জুলাই ২০২৬', dueDate: '2026-07-05', amount: 900, status: 'Paid', paidDate: '2026-07-05 10:45', method: 'Card', trxId: 'CRD8812301', period: '01 Jul 2026 - 31 Jul 2026' },
+      { id: 'INV-2026-06', month: 'June 2026', monthBn: 'জুন ২০২৬', dueDate: '2026-06-05', amount: 900, status: 'Paid', paidDate: '2026-06-04 11:30', method: 'bKash', trxId: 'BK7K89M432', period: '01 Jun 2026 - 30 Jun 2026' },
+    ],
+    upcomingBill: {
+      id: 'INV-2026-11-NEXT',
+      month: 'November 2026',
+      monthBn: 'নভেম্বর ২০২৬',
+      cycleStart: '2026-11-01',
+      dueDate: '2026-11-05',
+      estimatedAmount: 900,
+      status: 'Upcoming Cycle',
+      description: 'Monthly broadband recurring charges'
+    },
+    upgradeRequest: null
+  },
+  {
+    id: 'RL-005678',
+    name: 'Fatema Begum',
+    nameBn: 'ফাতেমা বেগম',
+    mobile: '01898765432',
+    email: 'fatema@gmail.com',
+    password: '1234',
+    address: 'Sector 4, Uttara, Dhaka',
+    package: 'Starter 20 Mbps',
+    speed: 20,
+    monthlyFee: 500,
+    dueAmount: 500,
+    status: 'Active',
+    joinDate: '2024-05-10',
+    billingDate: '01',
+    ip: '103.237.79.44',
+    mac: 'BC:92:4B:21:77:18',
+    opticalPower: '-19.1 dBm',
+    invoices: [
+      { id: 'INV-2026-10', month: 'October 2026', monthBn: 'অক্টোবর ২০২৬', dueDate: '2026-10-01', amount: 500, status: 'Due', period: '01 Oct 2026 - 31 Oct 2026' },
+      { id: 'INV-2026-09', month: 'September 2026', monthBn: 'সেপ্টেম্বর ২০২৬', dueDate: '2026-09-01', amount: 500, status: 'Paid', paidDate: '2026-09-01 16:15', method: 'bKash', trxId: 'BK5P990142', period: '01 Sep 2026 - 30 Sep 2026' },
+      { id: 'INV-2026-08', month: 'August 2026', monthBn: 'আগস্ট ২০২৬', dueDate: '2026-08-01', amount: 500, status: 'Paid', paidDate: '2026-08-02 12:10', method: 'Nagad', trxId: 'NG2A991011', period: '01 Aug 2026 - 31 Aug 2026' },
+    ],
+    upcomingBill: {
+      id: 'INV-2026-11-NEXT',
+      month: 'November 2026',
+      monthBn: 'নভেম্বর ২০২৬',
+      cycleStart: '2026-11-01',
+      dueDate: '2026-11-01',
+      estimatedAmount: 500,
+      status: 'Upcoming Cycle',
+      description: 'Monthly broadband recurring charges'
+    },
+    upgradeRequest: {
+      targetPackage: 'Standard 50 Mbps',
+      targetSpeed: 50,
+      targetPrice: 900,
+      requestedAt: '2026-10-26 15:10',
+      status: 'Pending Approval'
+    }
+  },
+  {
+    id: 'RL-007890',
+    name: 'Tanvir Ahmed',
+    nameBn: 'তানভীর আহমেদ',
+    mobile: '01911223344',
+    email: 'tanvir@gmail.com',
+    password: '1234',
+    address: 'GEC Circle, Chittagong',
+    package: 'Ultra 100 Mbps',
+    speed: 100,
+    monthlyFee: 1500,
+    dueAmount: 0,
+    status: 'Active',
+    joinDate: '2024-01-20',
+    billingDate: '10',
+    ip: '103.237.79.88',
+    mac: 'A0:B1:C2:D3:E4:F5',
+    opticalPower: '-17.2 dBm',
+    invoices: [
+      { id: 'INV-2026-10', month: 'October 2026', monthBn: 'অক্টোবর ২০২৬', dueDate: '2026-10-10', amount: 1500, status: 'Paid', paidDate: '2026-10-08 19:40', method: 'Nagad', trxId: 'NG4B11C908', period: '01 Oct 2026 - 31 Oct 2026' },
+      { id: 'INV-2026-09', month: 'September 2026', monthBn: 'সেপ্টেম্বর ২০২৬', dueDate: '2026-09-10', amount: 1500, status: 'Paid', paidDate: '2026-09-09 11:20', method: 'bKash', trxId: 'BK3M882190', period: '01 Sep 2026 - 30 Sep 2026' },
+      { id: 'INV-2026-08', month: 'August 2026', monthBn: 'আগস্ট ২০২৬', dueDate: '2026-08-10', amount: 1500, status: 'Paid', paidDate: '2026-08-10 14:05', method: 'Card', trxId: 'CRD7712390', period: '01 Aug 2026 - 31 Aug 2026' },
+    ],
+    upcomingBill: {
+      id: 'INV-2026-11-NEXT',
+      month: 'November 2026',
+      monthBn: 'নভেম্বর ২০২৬',
+      cycleStart: '2026-11-01',
+      dueDate: '2026-11-10',
+      estimatedAmount: 1500,
+      status: 'Upcoming Cycle',
+      description: 'Monthly broadband recurring charges'
+    },
+    upgradeRequest: null
+  },
+  {
+    id: 'RL-009123',
+    name: 'Shafiul Islam',
+    nameBn: 'শফিউল ইসলাম',
+    mobile: '01655667788',
+    email: 'shafiul@gmail.com',
+    password: '1234',
+    address: 'Agrabad C/A, Chittagong',
+    package: 'Business Pro 500 Mbps',
+    speed: 500,
+    monthlyFee: 8000,
+    dueAmount: 8000,
+    status: 'Suspended',
+    joinDate: '2023-11-05',
+    billingDate: '15',
+    ip: '103.237.80.12',
+    mac: 'CC:46:D6:55:01:99',
+    opticalPower: '-22.4 dBm',
+    invoices: [
+      { id: 'INV-2026-10', month: 'October 2026', monthBn: 'অক্টোবর ২০২৬', dueDate: '2026-10-15', amount: 8000, status: 'Due', period: '01 Oct 2026 - 31 Oct 2026' },
+      { id: 'INV-2026-09', month: 'September 2026', monthBn: 'সেপ্টেম্বর ২০২৬', dueDate: '2026-09-15', amount: 8000, status: 'Paid', paidDate: '2026-09-14 17:30', method: 'Bank Transfer', trxId: 'DBBL-99120', period: '01 Sep 2026 - 30 Sep 2026' },
+    ],
+    upcomingBill: {
+      id: 'INV-2026-11-NEXT',
+      month: 'November 2026',
+      monthBn: 'নভেম্বর ২০২৬',
+      cycleStart: '2026-11-01',
+      dueDate: '2026-11-15',
+      estimatedAmount: 8000,
+      status: 'Upcoming Cycle',
+      description: 'Dedicated business fiber recurring charges'
+    },
+    upgradeRequest: null
+  },
+  {
+    id: 'RL-003412',
+    name: 'Nusrat Jahan',
+    nameBn: 'নুসরাত জাহান',
+    mobile: '01799887766',
+    email: 'nusrat@gmail.com',
+    password: '1234',
+    address: 'Zindabazar, Sylhet',
+    package: 'Standard 50 Mbps',
+    speed: 50,
+    monthlyFee: 900,
+    dueAmount: 0,
+    status: 'Active',
+    joinDate: '2024-07-12',
+    billingDate: '05',
+    ip: '103.237.81.05',
+    mac: 'FA:81:44:EE:32:01',
+    opticalPower: '-18.1 dBm',
+    invoices: [
+      { id: 'INV-2026-10', month: 'October 2026', monthBn: 'অক্টোবর ২০২৬', dueDate: '2026-10-05', amount: 900, status: 'Paid', paidDate: '2026-10-03 14:20', method: 'Card', trxId: 'CRD8812301', period: '01 Oct 2026 - 31 Oct 2026' },
+      { id: 'INV-2026-09', month: 'September 2026', monthBn: 'সেপ্টেম্বর ২০২৬', dueDate: '2026-09-05', amount: 900, status: 'Paid', paidDate: '2026-09-04 11:15', method: 'bKash', trxId: 'BK4P771200', period: '01 Sep 2026 - 30 Sep 2026' },
+    ],
+    upcomingBill: {
+      id: 'INV-2026-11-NEXT',
+      month: 'November 2026',
+      monthBn: 'নভেম্বর ২০২৬',
+      cycleStart: '2026-11-01',
+      dueDate: '2026-11-05',
+      estimatedAmount: 900,
+      status: 'Upcoming Cycle',
+      description: 'Monthly broadband recurring charges'
+    },
+    upgradeRequest: null
+  },
 ];
 
 const INITIAL_PAYMENTS = [
@@ -238,7 +414,44 @@ export function AdminProvider({ children }) {
 
   const [users, setUsers] = useState(() => {
     const saved = localStorage.getItem('redlink_admin_users');
-    return saved ? JSON.parse(saved) : INITIAL_USERS;
+    if (!saved) return INITIAL_USERS;
+    try {
+      const parsed = JSON.parse(saved);
+      // Migrate and enrich existing records
+      return parsed.map((u) => {
+        const speed = Number(u.speed) || (u.package?.includes('100') ? 100 : u.package?.includes('20') ? 20 : 50);
+        const fee = Number(u.monthlyFee) || (speed >= 100 ? 1500 : speed <= 20 ? 500 : 900);
+        const due = u.dueAmount !== undefined ? Number(u.dueAmount) : 0;
+        return {
+          password: u.password || '1234',
+          email: u.email || `${u.name?.toLowerCase().replace(/\s+/g, '') || 'user'}@gmail.com`,
+          monthlyFee: fee,
+          billingDate: u.billingDate || '05',
+          ip: u.ip || `103.237.79.${Math.floor(10 + Math.random() * 200)}`,
+          mac: u.mac || 'E4:8D:8C:44:91:02',
+          opticalPower: u.opticalPower || '-18.4 dBm',
+          invoices: (Array.isArray(u.invoices) && u.invoices.length > 0) ? u.invoices : [
+            { id: 'INV-2026-10', month: 'October 2026', monthBn: 'অক্টোবর ২০২৬', dueDate: `2026-10-${u.billingDate || '05'}`, amount: due > 0 ? due : fee, status: due > 0 ? 'Due' : 'Paid', paidDate: due > 0 ? null : '2026-10-04 14:20', method: due > 0 ? null : 'bKash', trxId: due > 0 ? null : 'BK9X77A102', period: '01 Oct 2026 - 31 Oct 2026' },
+            { id: 'INV-2026-09', month: 'September 2026', monthBn: 'সেপ্টেম্বর ২০২৬', dueDate: `2026-09-${u.billingDate || '05'}`, amount: fee, status: 'Paid', paidDate: '2026-09-04 14:20', method: 'bKash', trxId: 'BK9X77A102', period: '01 Sep 2026 - 30 Sep 2026' },
+            { id: 'INV-2026-08', month: 'August 2026', monthBn: 'আগস্ট ২০২৬', dueDate: `2026-08-${u.billingDate || '05'}`, amount: fee, status: 'Paid', paidDate: '2026-08-03 18:11', method: 'Nagad', trxId: 'NG4B11C908', period: '01 Aug 2026 - 31 Aug 2026' },
+          ],
+          upcomingBill: u.upcomingBill || {
+            id: 'INV-2026-11-NEXT',
+            month: 'November 2026',
+            monthBn: 'নভেম্বর ২০২৬',
+            cycleStart: '2026-11-01',
+            dueDate: `2026-11-${u.billingDate || '05'}`,
+            estimatedAmount: fee,
+            status: 'Upcoming Cycle',
+            description: 'Monthly broadband recurring charges'
+          },
+          upgradeRequest: u.upgradeRequest || null,
+          ...u,
+        };
+      });
+    } catch {
+      return INITIAL_USERS;
+    }
   });
 
   const [payments, setPayments] = useState(() => {
@@ -421,15 +634,148 @@ export function AdminProvider({ children }) {
 
   // ── User Management ──
   const addUser = (userData) => {
+    const custId = userData.id && userData.id.trim()
+      ? userData.id.trim().toUpperCase()
+      : `RL-${Math.floor(100000 + Math.random() * 900000)}`;
+    const fee = Number(userData.monthlyFee) || (userData.package?.includes('100') ? 1500 : userData.package?.includes('20') ? 500 : 900);
+    const speed = Number(userData.speed) || (userData.package?.includes('100') ? 100 : userData.package?.includes('20') ? 20 : 50);
+    const due = userData.dueAmount !== undefined && userData.dueAmount !== '' ? Number(userData.dueAmount) : fee;
+    const bDate = userData.billingDate || '05';
+
     const newUser = {
-      ...userData,
-      id: `RL-${Math.floor(100000 + Math.random() * 900000)}`,
+      id: custId,
+      name: userData.name || 'New Customer',
+      nameBn: userData.nameBn || userData.name || 'নতুন গ্রাহক',
+      mobile: userData.mobile || '',
+      email: userData.email || `${userData.name?.toLowerCase().replace(/\s+/g, '') || 'user'}@gmail.com`,
+      password: userData.password || '1234',
+      address: userData.address || '',
+      package: userData.package || 'Standard 50 Mbps',
+      speed: speed,
+      monthlyFee: fee,
+      dueAmount: due,
+      billingDate: bDate,
+      status: 'Active',
       joinDate: new Date().toISOString().split('T')[0],
-      status: 'Active'
+      ip: userData.ip || `103.237.79.${Math.floor(10 + Math.random() * 240)}`,
+      mac: userData.mac || `E4:8D:8C:${Math.floor(10 + Math.random() * 89)}:${Math.floor(10 + Math.random() * 89)}:${Math.floor(10 + Math.random() * 89)}`,
+      opticalPower: '-18.4 dBm',
+      invoices: [
+        {
+          id: `INV-${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
+          month: new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' }),
+          monthBn: `${new Date().getFullYear()} চলতি মাস`,
+          dueDate: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${bDate}`,
+          amount: due,
+          status: due > 0 ? 'Due' : 'Paid',
+          paidDate: due > 0 ? null : new Date().toLocaleString(),
+          method: due > 0 ? null : 'bKash',
+          trxId: due > 0 ? null : `BK${Date.now().toString().slice(-8)}`,
+          period: `01 ${new Date().toLocaleString('en-US', { month: 'short' })} ${new Date().getFullYear()} - 30 ${new Date().toLocaleString('en-US', { month: 'short' })} ${new Date().getFullYear()}`
+        },
+        {
+          id: `INV-${new Date().getFullYear()}-${String(new Date().getMonth()).padStart(2, '0')}`,
+          month: 'Previous Month',
+          monthBn: 'পূর্ববর্তী মাস',
+          dueDate: `${new Date().getFullYear()}-${String(new Date().getMonth()).padStart(2, '0')}-${bDate}`,
+          amount: fee,
+          status: 'Paid',
+          paidDate: `${new Date().getFullYear()}-${String(new Date().getMonth()).padStart(2, '0')}-04 12:30`,
+          method: 'bKash',
+          trxId: `BK${(Date.now() - 2500000000).toString().slice(-8)}`,
+          period: `Last Month Cycle`
+        }
+      ],
+      upcomingBill: {
+        id: `INV-${new Date().getFullYear()}-${String(new Date().getMonth() + 2).padStart(2, '0')}-NEXT`,
+        month: 'Next Billing Cycle',
+        monthBn: 'পরবর্তী মাসের বিল',
+        cycleStart: `${new Date().getFullYear()}-${String(new Date().getMonth() + 2).padStart(2, '0')}-01`,
+        dueDate: `${new Date().getFullYear()}-${String(new Date().getMonth() + 2).padStart(2, '0')}-${bDate}`,
+        estimatedAmount: fee,
+        status: 'Upcoming Cycle',
+        description: 'Monthly broadband recurring charges'
+      },
+      upgradeRequest: null,
+      ...userData,
     };
+
     setUsers((prev) => [newUser, ...prev]);
-    logAction(`Created customer account for ${newUser.name} (${newUser.id})`);
-    toast.success(`User ${newUser.name} added successfully!`);
+    logAction(`Created customer account for ${newUser.name} (${newUser.id}) [Login: ${newUser.email} / Pass: ${newUser.password}]`);
+    toast.success(`Customer ID ${newUser.id} generated successfully!`);
+    return newUser;
+  };
+
+  const approveUpgrade = (userId) => {
+    setUsers((prev) => prev.map((u) => {
+      if (u.id === userId && u.upgradeRequest) {
+        const req = u.upgradeRequest;
+        const newPkg = req.targetPackage || u.package;
+        const newSpeed = Number(req.targetSpeed) || u.speed;
+        const newFee = Number(req.targetPrice) || u.monthlyFee;
+        logAction(`Approved package upgrade for ${u.id} (${u.name}) to ${newPkg} (${newSpeed} Mbps)`);
+        toast.success(`Package upgrade approved for ${u.name}! Upgraded to ${newPkg}`);
+        return {
+          ...u,
+          package: newPkg,
+          speed: newSpeed,
+          monthlyFee: newFee,
+          upgradeRequest: null,
+          upcomingBill: {
+            ...u.upcomingBill,
+            estimatedAmount: newFee,
+            description: `Upgraded to ${newPkg} (${newSpeed} Mbps)`
+          }
+        };
+      }
+      return u;
+    }));
+  };
+
+  const recordCustomerBillPayment = (customerId, amount, method = 'bKash', trxId = '') => {
+    const payTrx = trxId || `TXN-${Math.floor(1000 + Math.random() * 9000)}`;
+    const payDate = new Date().toLocaleString();
+
+    setUsers((prev) => prev.map((u) => {
+      if (u.id === customerId) {
+        const newDue = Math.max(0, (u.dueAmount || 0) - Number(amount));
+        const updatedInvoices = (u.invoices || []).map((inv, idx) => {
+          if (idx === 0 || inv.status === 'Due') {
+            return {
+              ...inv,
+              status: 'Paid',
+              paidDate: payDate,
+              method: method,
+              trxId: payTrx
+            };
+          }
+          return inv;
+        });
+
+        return {
+          ...u,
+          dueAmount: newDue,
+          invoices: updatedInvoices
+        };
+      }
+      return u;
+    }));
+
+    // Record in global payments ledger
+    const foundUser = users.find(u => u.id === customerId);
+    const newPayment = {
+      id: payTrx,
+      customerId,
+      name: foundUser?.name || 'Subscriber',
+      amount: Number(amount),
+      method,
+      date: payDate,
+      status: 'Paid',
+      trxId: payTrx
+    };
+    setPayments((prev) => [newPayment, ...prev]);
+    logAction(`Customer ${customerId} paid ৳${amount} via ${method} (${payTrx})`);
+    return newPayment;
   };
 
   const updateUser = (id, updatedFields) => {
@@ -759,6 +1105,8 @@ export function AdminProvider({ children }) {
         updateUser,
         toggleUserStatus,
         deleteUser,
+        approveUpgrade,
+        recordCustomerBillPayment,
         payments,
         recordPayment,
         updatePaymentStatus,

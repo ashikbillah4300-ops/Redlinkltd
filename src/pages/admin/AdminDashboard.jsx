@@ -30,7 +30,7 @@ const createAdminMapIcon = (status = 'Active') => {
 export default function AdminDashboard() {
   const {
     adminUser, adminLogout,
-    users, addUser, updateUser, toggleUserStatus, deleteUser,
+    users, addUser, updateUser, toggleUserStatus, deleteUser, approveUpgrade, recordCustomerBillPayment,
     payments, recordPayment, updatePaymentStatus,
     packages, updatePackage, addPackage, deletePackage,
     leads, updateLeadStatus,
@@ -47,6 +47,9 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Helper to generate formatted customer IDs (RL-XXXXXX)
+  const generateNewCustomerId = () => `RL-${Math.floor(100000 + Math.random() * 900000)}`;
 
   // Modals
   const [showAddUserModal, setShowAddUserModal] = useState(false);
@@ -69,9 +72,21 @@ export default function AdminDashboard() {
     name: '', nameBn: '', division: 'Dhaka', lat: 23.8103, lng: 90.4125, status: 'Active', capacity: '20G Optical', users: '2,500+'
   });
 
-  // New User Form State
+  // New User Form State with auto ID generator, Gmail, and credentials
   const [newUserForm, setNewUserForm] = useState({
-    name: '', nameBn: '', mobile: '', email: '', address: '', package: 'Standard 50 Mbps', speed: 50, dueAmount: 900
+    id: `RL-${Math.floor(100000 + Math.random() * 900000)}`,
+    name: '',
+    nameBn: '',
+    mobile: '',
+    email: '',
+    password: '1234',
+    address: '',
+    package: 'Standard 50 Mbps',
+    speed: 50,
+    monthlyFee: 900,
+    dueAmount: 900,
+    billingDate: '05',
+    ip: '103.237.79.55'
   });
 
   // Hero Banners Setup State
@@ -1785,8 +1800,8 @@ export default function AdminDashboard() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-white/5 border-b border-white/10 text-[#B8B8C0] uppercase font-semibold text-[10px] tracking-wider">
                   <tr>
-                    <th className="p-4">Customer</th>
-                    <th className="p-4">Contact</th>
+                    <th className="p-4">Customer ID & Name</th>
+                    <th className="p-4">Contact & Login Credentials</th>
                     <th className="p-4">Package & Speed</th>
                     <th className="p-4">Assigned IP</th>
                     <th className="p-4">Due Amount</th>
@@ -1797,9 +1812,10 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-white/5">
                   {users
                     .filter(u => {
-                      const matchSearch = u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
-                        u.id.toLowerCase().includes(userSearch.toLowerCase()) ||
-                        u.mobile.includes(userSearch) ||
+                      const matchSearch = (u.name || '').toLowerCase().includes(userSearch.toLowerCase()) ||
+                        (u.id || '').toLowerCase().includes(userSearch.toLowerCase()) ||
+                        (u.email || '').toLowerCase().includes(userSearch.toLowerCase()) ||
+                        (u.mobile || '').includes(userSearch) ||
                         (u.ip && u.ip.includes(userSearch));
                       const matchStatus = userStatusFilter === 'all' || u.status === userStatusFilter;
                       return matchSearch && matchStatus;
@@ -1807,27 +1823,97 @@ export default function AdminDashboard() {
                     .map((user) => (
                       <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
                         <td className="p-4">
-                          <span className="font-bold text-white block">{user.name}</span>
-                          <span className="text-[10px] font-mono text-red-400">{user.id}</span>
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className="font-mono text-xs font-bold text-red-400 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
+                              {user.id}
+                            </span>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(user.id);
+                                toast.success(`Copied Customer ID: ${user.id}`);
+                              }}
+                              className="text-[#B8B8C0] hover:text-white cursor-pointer"
+                              title="Copy Customer ID"
+                            >
+                              <Copy size={11} />
+                            </button>
+                          </div>
+                          <span className="font-bold text-white block text-sm">{user.name}</span>
+                          {user.nameBn && <span className="text-[10px] text-[#B8B8C0]">{user.nameBn}</span>}
                         </td>
+
                         <td className="p-4 text-[#B8B8C0]">
-                          <div>{user.mobile}</div>
-                          <div className="text-[10px] truncate max-w-[150px]">{user.address}</div>
+                          <div className="text-white font-medium">{user.mobile}</div>
+                          <div className="text-[11px] text-blue-400 truncate max-w-[170px]">
+                            {user.email || 'customer@gmail.com'}
+                          </div>
+                          <div className="mt-1 flex items-center gap-1">
+                            <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded border border-white/10 font-mono text-[#B8B8C0]">
+                              PIN: <strong className="text-white">{user.password || '1234'}</strong>
+                            </span>
+                            <button
+                              onClick={() => {
+                                const creds = `RedLink Customer Credentials:\nCustomer ID: ${user.id}\nGmail: ${user.email}\nPassword: ${user.password || '1234'}\nPortal: https://redlinkltd.vercel.app/portal/login`;
+                                navigator.clipboard.writeText(creds);
+                                toast.success(`Copied login credentials for ${user.name}! Ready to share via SMS/WhatsApp.`, { icon: '📋' });
+                              }}
+                              className="text-[10px] text-red-400 hover:text-red-300 font-semibold cursor-pointer underline flex items-center gap-0.5"
+                              title="Copy Login Details for Customer"
+                            >
+                              <Copy size={10} /> Copy Login
+                            </button>
+                          </div>
                         </td>
+
                         <td className="p-4">
                           <span className="font-semibold text-white block">{user.package}</span>
-                          <span className="text-[10px] text-emerald-400 font-mono">{user.speed} Mbps Fiber</span>
-                        </td>
-                        <td className="p-4 font-mono text-[11px] text-[#B8B8C0]">
-                          {user.ip || '103.237.79.xx'}
-                        </td>
-                        <td className="p-4">
-                          {user.dueAmount > 0 ? (
-                            <span className="text-red-400 font-bold font-mono">৳{user.dueAmount}</span>
-                          ) : (
-                            <span className="text-emerald-400 font-medium">Paid</span>
+                          <span className="text-[10px] text-emerald-400 font-mono">{user.speed} Mbps Fiber • ৳{user.monthlyFee || 900}/mo</span>
+
+                          {/* Upgrade Request Badge & Action */}
+                          {user.upgradeRequest && (
+                            <div className="mt-1.5 p-1.5 rounded-lg bg-red-950/40 border border-red-500/30 flex items-center justify-between gap-1.5">
+                              <div>
+                                <span className="text-[9px] text-red-400 font-bold block uppercase flex items-center gap-1">
+                                  <Zap size={10} /> Upgrade Requested
+                                </span>
+                                <span className="text-[10px] text-white font-semibold">
+                                  {user.upgradeRequest.targetPackage} ({user.upgradeRequest.targetSpeed}M)
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => approveUpgrade(user.id)}
+                                className="px-2 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-[10px] font-bold shadow-red-glow transition-all cursor-pointer whitespace-nowrap"
+                                title="Approve Package Upgrade Now"
+                              >
+                                Approve
+                              </button>
+                            </div>
                           )}
                         </td>
+
+                        <td className="p-4 font-mono text-[11px] text-[#B8B8C0]">
+                          <span className="text-white font-medium block">{user.ip || '103.237.79.xx'}</span>
+                          <span className="text-[9px] text-[#6B6B78]">{user.mac || 'E4:8D:8C:xx:xx'}</span>
+                        </td>
+
+                        <td className="p-4">
+                          {user.dueAmount > 0 ? (
+                            <div>
+                              <span className="text-red-400 font-bold font-mono text-sm block">৳{user.dueAmount}</span>
+                              <button
+                                onClick={() => recordCustomerBillPayment(user.id, user.dueAmount, 'bKash')}
+                                className="text-[9px] text-emerald-400 hover:underline cursor-pointer font-medium"
+                              >
+                                Mark Paid
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-emerald-400 font-medium flex items-center gap-1">
+                              <CheckCircle2 size={12} /> Paid
+                            </span>
+                          )}
+                        </td>
+
                         <td className="p-4">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                             user.status === 'Active' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
@@ -1835,6 +1921,7 @@ export default function AdminDashboard() {
                             {user.status}
                           </span>
                         </td>
+
                         <td className="p-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
@@ -2853,40 +2940,224 @@ export default function AdminDashboard() {
         )}
       </main>
 
-      {/* ── MODAL: ADD NEW CUSTOMER ── */}
+      {/* ── MODAL: GENERATE CUSTOMER ID & ACCOUNT ── */}
       {showAddUserModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="glass-card-static w-full max-w-lg p-6 rounded-3xl border border-white/20">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+          <div className="glass-card-static w-full max-w-xl p-6 sm:p-7 rounded-3xl border border-white/20 shadow-2xl my-8">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
-              <h3 className="font-bold text-white text-lg">Add New Fiber Customer</h3>
-              <button onClick={() => setShowAddUserModal(false)} className="text-[#B8B8C0] hover:text-white">✕</button>
+              <div>
+                <h3 className="font-bold text-white text-base sm:text-lg flex items-center gap-2">
+                  <Sparkles size={18} className="text-red-400" />
+                  <span>Generate Customer ID & Account</span>
+                </h3>
+                <p className="text-xs text-[#B8B8C0] mt-0.5">
+                  Create subscriber profile with instant Customer ID, Gmail authentication & login credentials
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAddUserModal(false)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
             </div>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              addUser(newUserForm);
-              setShowAddUserModal(false);
-              setNewUserForm({ name: '', nameBn: '', mobile: '', email: '', address: '', package: 'Standard 50 Mbps', speed: 50, dueAmount: 900 });
-            }} className="space-y-3 text-xs">
-              <FormInput label="Full Name" required value={newUserForm.name} onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })} />
-              <FormInput label="Mobile Number" required value={newUserForm.mobile} onChange={(e) => setNewUserForm({ ...newUserForm, mobile: e.target.value })} />
-              <FormInput label="Email Address" value={newUserForm.email} onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })} />
-              <FormInput label="Installation Address" required value={newUserForm.address} onChange={(e) => setNewUserForm({ ...newUserForm, address: e.target.value })} />
-              <div className="grid grid-cols-2 gap-3">
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                addUser(newUserForm);
+                setShowAddUserModal(false);
+                const nextId = generateNewCustomerId();
+                setNewUserForm({
+                  id: nextId,
+                  name: '',
+                  nameBn: '',
+                  mobile: '',
+                  email: '',
+                  password: '1234',
+                  address: '',
+                  package: 'Standard 50 Mbps',
+                  speed: 50,
+                  monthlyFee: 900,
+                  dueAmount: 900,
+                  billingDate: '05',
+                  ip: `103.237.79.${Math.floor(10 + Math.random() * 240)}`
+                });
+              }}
+              className="space-y-3.5 text-xs"
+            >
+              {/* Generated Customer ID Banner */}
+              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-red-950/40 to-black border border-red-500/30 flex items-center justify-between gap-3">
                 <div>
-                  <label className="text-xs text-[#B8B8C0] block mb-1">Package Plan</label>
+                  <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider block">
+                    Auto-Generated Customer ID
+                  </span>
+                  <span className="text-lg font-black text-white font-mono tracking-widest block">
+                    {newUserForm.id}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newId = generateNewCustomerId();
+                      setNewUserForm({ ...newUserForm, id: newId });
+                      toast.success(`Generated new ID: ${newId}`);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    title="Generate another unique Customer ID"
+                  >
+                    <RefreshCw size={13} /> Re-roll ID
+                  </button>
+                </div>
+              </div>
+
+              {/* Name Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <FormInput
+                  label="Customer Full Name (English)"
+                  required
+                  placeholder="e.g. Mohammad Rahim"
+                  value={newUserForm.name}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    const autoEmail = newUserForm.email ? newUserForm.email : `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`;
+                    setNewUserForm({ ...newUserForm, name, email: autoEmail });
+                  }}
+                />
+                <FormInput
+                  label="Name (Bengali / বাংলা নাম)"
+                  placeholder="e.g. মোহাম্মদ রহিম"
+                  value={newUserForm.nameBn}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, nameBn: e.target.value })}
+                />
+              </div>
+
+              {/* Contact & Gmail Login Creds */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <FormInput
+                    label="Mobile Number"
+                    required
+                    placeholder="017XXXXXXXX"
+                    value={newUserForm.mobile}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, mobile: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <FormInput
+                    label="Customer Gmail (for Login)"
+                    required
+                    type="email"
+                    placeholder="user@gmail.com"
+                    value={newUserForm.email}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <FormInput
+                    label="Login Password / PIN"
+                    required
+                    placeholder="Default: 1234"
+                    value={newUserForm.password}
+                    onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Package, Speed, Monthly Fee */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-[#B8B8C0] block mb-1">Assigned Package</label>
                   <select
                     value={newUserForm.package}
-                    onChange={(e) => setNewUserForm({ ...newUserForm, package: e.target.value })}
+                    onChange={(e) => {
+                      const sel = packages.find(p => p.name === e.target.value);
+                      const speed = sel ? Number(sel.speed) : 50;
+                      const fee = sel ? Number(sel.price) : 900;
+                      setNewUserForm({
+                        ...newUserForm,
+                        package: e.target.value,
+                        speed,
+                        monthlyFee: fee,
+                        dueAmount: fee
+                      });
+                    }}
                     className="glass-input text-xs"
                   >
-                    {packages.map(p => <option key={p.id} value={p.name} className="bg-[#111113]">{p.name} ({p.speed}M)</option>)}
+                    {packages.map(p => (
+                      <option key={p.id} value={p.name} className="bg-[#111113]">
+                        {p.name} ({p.speed}M) - ৳{p.price}
+                      </option>
+                    ))}
                   </select>
                 </div>
-                <FormInput label="Initial Due (৳)" type="number" value={newUserForm.dueAmount} onChange={(e) => setNewUserForm({ ...newUserForm, dueAmount: e.target.value })} />
+
+                <FormInput
+                  label="Monthly Fee (৳)"
+                  type="number"
+                  value={newUserForm.monthlyFee}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, monthlyFee: e.target.value, dueAmount: e.target.value })}
+                />
+
+                <FormInput
+                  label="Initial Due Amount (৳)"
+                  type="number"
+                  value={newUserForm.dueAmount}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, dueAmount: e.target.value })}
+                />
               </div>
+
+              {/* Billing Date, IP, Address */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <FormInput
+                  label="Billing Cycle Date (Day of Month)"
+                  placeholder="e.g. 05"
+                  value={newUserForm.billingDate}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, billingDate: e.target.value })}
+                />
+                <FormInput
+                  label="Assigned Static IP"
+                  placeholder="103.237.79.xx"
+                  value={newUserForm.ip}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, ip: e.target.value })}
+                />
+              </div>
+
+              <FormInput
+                label="Installation / House Address"
+                required
+                placeholder="House, Road, Area, City"
+                value={newUserForm.address}
+                onChange={(e) => setNewUserForm({ ...newUserForm, address: e.target.value })}
+              />
+
+              {/* Live Credentials Preview Box */}
+              <div className="p-3.5 rounded-2xl bg-black/60 border border-white/10 text-xs">
+                <span className="text-[10px] uppercase font-bold text-red-400 block mb-1">
+                  📋 Ready-to-Use Customer Login Credentials:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px] text-[#B8B8C0]">
+                  <div>Customer ID: <strong className="text-white">{newUserForm.id}</strong></div>
+                  <div className="truncate">Gmail: <strong className="text-white">{newUserForm.email || 'customer@gmail.com'}</strong></div>
+                  <div>Password: <strong className="text-white">{newUserForm.password || '1234'}</strong></div>
+                </div>
+              </div>
+
               <div className="pt-3 flex gap-2 justify-end">
-                <button type="button" onClick={() => setShowAddUserModal(false)} className="px-4 py-2 rounded-xl bg-white/10 text-white">Cancel</button>
-                <GlassButton type="submit" className="py-2 px-5 text-xs font-semibold">Create Customer</GlassButton>
+                <button
+                  type="button"
+                  onClick={() => setShowAddUserModal(false)}
+                  className="px-4 py-2.5 rounded-xl bg-white/10 text-white cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <GlassButton
+                  type="submit"
+                  className="py-2.5 px-6 text-xs font-bold shadow-red-glow cursor-pointer"
+                >
+                  Generate Customer ID & Save
+                </GlassButton>
               </div>
             </form>
           </div>
