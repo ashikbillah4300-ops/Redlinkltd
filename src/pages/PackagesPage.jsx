@@ -92,7 +92,7 @@ export default function PackagesPage() {
           <div className="flex justify-center mb-10">
             <Tabs
               tabs={[
-                { id: 'home', label: isBn ? 'হোম ব্রডব্যান্ড' : 'Home Broadband' },
+                { id: 'home', label: isBn ? 'হোম প্যাকেজ' : 'Home Package' },
                 { id: 'corporate', label: isBn ? 'রিসেলার' : 'Reseller' },
               ]}
               active={activeTab}
