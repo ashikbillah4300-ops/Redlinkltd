@@ -2,10 +2,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Eye, EyeOff, Lock, Mail, Hash, ShieldCheck, ArrowRight,
-  Smartphone, UserCheck, Sparkles, CheckCircle2, HelpCircle
-} from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, Hash, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { GlassCard, GlassButton, FormInput, FadeUp } from '../../components/ui/index';
@@ -33,44 +30,7 @@ export default function LoginPage() {
   const [otp, setOtp] = useState('');
   const [otpStep, setOtpStep] = useState(1);
 
-  // Quick Demo credentials auto-fill
-  const demoAccounts = [
-    {
-      name: 'Mohammad Karim',
-      nameBn: 'মোহাম্মদ করিম',
-      id: 'RL-001234',
-      email: 'karim@gmail.com',
-      pkg: '50 Mbps',
-      due: 900
-    },
-    {
-      name: 'Fatema Begum',
-      nameBn: 'ফাতেমা বেগম',
-      id: 'RL-005678',
-      email: 'fatema@gmail.com',
-      pkg: '20 Mbps',
-      due: 500
-    },
-    {
-      name: 'Tanvir Ahmed',
-      nameBn: 'তানভীর আহমেদ',
-      id: 'RL-007890',
-      email: 'tanvir@gmail.com',
-      pkg: '100 Mbps',
-      due: 0
-    }
-  ];
 
-  const handleFillDemo = (demo) => {
-    if (loginMethod === 'email') {
-      setEmail(demo.email);
-    } else {
-      setCustomerId(demo.id);
-    }
-    setPassword('1234');
-    setErrors({});
-    toast.success(`Filled credentials for ${demo.name}! (PIN: 1234)`, { icon: '🔑' });
-  };
 
   // Submit Handler for Customer ID & Gmail Login
   const handleLogin = async (e) => {
@@ -287,7 +247,12 @@ export default function LoginPage() {
                   <label className="text-xs font-semibold text-[#B8B8C0]">
                     {isBn ? 'পাসওয়ার্ড / পিন' : 'Password / PIN'}
                   </label>
-                  <span className="text-[10px] text-[#B8B8C0]">Demo PIN: <strong className="text-white">1234</strong></span>
+                  <Link
+                    to="/support"
+                    className="text-[11px] text-red-400 hover:text-red-300 transition-colors"
+                  >
+                    {isBn ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot Password?'}
+                  </Link>
                 </div>
                 <div className="relative">
                   <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B8B8C0]" />
@@ -327,48 +292,12 @@ export default function LoginPage() {
               </GlassButton>
             </form>
 
-            {/* Quick Demo Credentials Helper */}
-            <div className="mt-6 pt-5 border-t border-white/10">
-              <div className="flex items-center justify-between mb-2.5">
-                <span className="text-[11px] font-bold text-white flex items-center gap-1.5 uppercase tracking-wider">
-                  <Sparkles size={13} className="text-red-400" />
-                  {isBn ? 'টেস্ট করার জন্য ক্লিক করুন' : 'Quick Demo Accounts'}
-                </span>
-                <span className="text-[10px] text-emerald-400 font-medium">Default PIN: 1234</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                {demoAccounts.map((acc) => (
-                  <button
-                    key={acc.id}
-                    type="button"
-                    onClick={() => handleFillDemo(acc)}
-                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-red-500/40 text-left transition-all cursor-pointer group"
-                  >
-                    <div className="text-xs font-bold text-white group-hover:text-red-400 truncate">
-                      {isBn ? acc.nameBn : acc.name}
-                    </div>
-                    <div className="text-[10px] font-mono text-[#B8B8C0] truncate">
-                      {loginMethod === 'email' ? acc.email : acc.id}
-                    </div>
-                    <div className="text-[9px] text-emerald-400 mt-0.5">
-                      {acc.pkg} • ৳{acc.due > 0 ? `${acc.due} due` : 'Paid'}
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {/* Admin Note Badge */}
-              <div className="mt-4 p-3 rounded-xl bg-red-950/30 border border-red-500/20 flex items-start gap-2.5 text-left">
-                <HelpCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
-                <div className="text-[11px] text-[#B8B8C0] leading-relaxed">
-                  <strong className="text-white">Admin-Managed Users:</strong> All customer accounts and Customer IDs are created from the{' '}
-                  <Link to="/admin/login" className="text-red-400 hover:underline font-semibold">
-                    Admin Panel
-                  </Link>
-                  . Any newly generated user can log in here instantly with either their ID or Gmail!
-                </div>
-              </div>
+            {/* Assistance note */}
+            <div className="mt-6 pt-5 border-t border-white/10 text-center">
+              <p className="text-xs text-[#B8B8C0]">
+                {isBn ? 'লগইন করতে কোনো সমস্যা হলে কল করুন:' : 'Need login assistance? Call 24/7 Hotline:'}{' '}
+                <strong className="text-white">16500</strong>
+              </p>
             </div>
           </GlassCard>
 
