@@ -466,16 +466,6 @@ export default function HomePage() {
                 })}
               </div>
 
-              <div className="flex items-center gap-2 text-xs">
-                <Link
-                  to="/admin"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-red-600/20 border border-white/10 hover:border-red-500/40 text-[#B8B8C0] hover:text-white transition-all text-xs"
-                  title="Go to Admin Panel to add banners or change scroll seconds"
-                >
-                  <Sparkles size={13} className="text-red-400" />
-                  <span>{isBn ? 'ব্যানার সেটআপ (অ্যাডমিন)' : 'Hero Banner Setup (Admin)'}</span>
-                </Link>
-              </div>
             </div>
           )}
 
