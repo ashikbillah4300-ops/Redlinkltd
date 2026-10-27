@@ -17,151 +17,27 @@ import SpeedTestModal from '../components/SpeedTestModal';
 import OttEntertainment from '../components/OttEntertainment';
 import HomeMapSection from '../components/HomeMapSection';
 
-// ── Animated Speedometer Visual ────────────────────────────────────────────────
-function SpeedometerVisual({ onTestSpeed, isBn, banner }) {
-  const displaySpeed = banner?.visualSpeed || '100';
-  const displayUnit = banner?.visualUnit || 'Mbps Fiber';
-  const displayCta = isBn ? (banner?.visualCtaBn || 'স্পিড টেস্ট চালান') : (banner?.visualCta || 'Click to Test');
-  const displayUptime = banner?.visualUptime || '99.9%';
-  const displayPing = banner?.visualPing || '<5ms';
-  const glow = banner?.themeGlow || 'red';
-
-  const glowShadow = glow === 'blue'
-    ? '0 0 45px rgba(14,165,233,0.38), 0 8px 32px rgba(14,165,233,0.22)'
-    : glow === 'purple'
-    ? '0 0 45px rgba(168,85,247,0.38), 0 8px 32px rgba(168,85,247,0.22)'
-    : glow === 'emerald'
-    ? '0 0 45px rgba(16,185,129,0.38), 0 8px 32px rgba(16,185,129,0.22)'
-    : '0 0 45px rgba(225,29,46,0.38), 0 8px 32px rgba(225,29,46,0.22)';
-
-  const tickColor = glow === 'blue'
-    ? 'from-cyan-500/70'
-    : glow === 'purple'
-    ? 'from-purple-500/70'
-    : glow === 'emerald'
-    ? 'from-emerald-500/70'
-    : 'from-red-500/70';
-
-  const dotBg = glow === 'blue'
-    ? 'bg-cyan-500 shadow-[0_0_14px_rgba(14,165,233,0.9)]'
-    : glow === 'purple'
-    ? 'bg-purple-500 shadow-[0_0_14px_rgba(168,85,247,0.9)]'
-    : glow === 'emerald'
-    ? 'bg-emerald-500 shadow-[0_0_14px_rgba(16,185,129,0.9)]'
-    : 'bg-red-500 shadow-red-glow';
-
-  const pingColor = glow === 'blue'
-    ? 'text-cyan-400'
-    : glow === 'purple'
-    ? 'text-purple-400'
-    : glow === 'emerald'
-    ? 'text-emerald-400'
-    : 'text-red-400';
-
-  const speedTextClass = glow === 'blue'
-    ? 'bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 bg-clip-text text-transparent font-poppins font-black'
-    : glow === 'purple'
-    ? 'bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent font-poppins font-black'
-    : glow === 'emerald'
-    ? 'bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent font-poppins font-black'
-    : 'gradient-text font-poppins font-black';
-
-  return (
-    <div className="relative flex items-center justify-center">
-      <motion.div
-        className="relative w-64 h-64 md:w-72 md:h-72"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        style={{ position: 'absolute' }}
-      >
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={i}
-            className={`absolute w-1 h-8 bg-gradient-to-b ${tickColor} to-transparent rounded-full`}
-            style={{
-              top: '0',
-              left: '50%',
-              transformOrigin: '50% 140px',
-              transform: `translateX(-50%) rotate(${i * 30}deg)`,
-            }}
-          />
-        ))}
-      </motion.div>
-
-      <button
-        onClick={onTestSpeed}
-        className="glass-card-static rounded-full w-48 h-48 md:w-56 md:h-56 flex flex-col items-center justify-center relative z-10 cursor-pointer group hover:scale-105 transition-all text-center focus:outline-none"
-        style={{ boxShadow: glowShadow }}
-        title="Click to run live speed test"
-      >
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.6, type: 'spring' }}
-        >
-          <div className={`text-5xl md:text-6xl ${speedTextClass}`}>{displaySpeed}</div>
-          <div className="text-[#B8B8C0] text-sm font-medium text-center">{displayUnit}</div>
-          <div className="flex items-center justify-center gap-1 mt-1">
-            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-green-400 text-xs font-mono">{displayCta}</span>
-          </div>
-        </motion.div>
-      </button>
-
-      {/* Orbit dots */}
-      <motion.div
-        className="absolute w-64 h-64 md:w-72 md:h-72"
-        animate={{ rotate: -360 }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-      >
-        <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${dotBg}`} />
-        <div className="absolute bottom-4 right-4 w-2 h-2 rounded-full bg-white/40" />
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-red-500/70" />
-      </motion.div>
-
-      {/* Mini stat cards */}
-      <motion.div
-        className="absolute -top-6 -right-6 glass-card-static px-4 py-2 rounded-xl"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <div className="text-xs text-[#B8B8C0]">Uptime</div>
-        <div className="text-lg font-bold text-green-400">{displayUptime}</div>
-      </motion.div>
-      <motion.div
-        className="absolute -bottom-6 -left-6 glass-card-static px-4 py-2 rounded-xl"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <div className="text-xs text-[#B8B8C0]">Ping</div>
-        <div className={`text-lg font-bold ${pingColor}`}>{displayPing}</div>
-      </motion.div>
-    </div>
-  );
-}
-
 // ── Custom Image Right Visual ──────────────────────────────────────────────────
 function BannerGraphicVisual({ banner, onTestSpeed }) {
+  const fallbackImg = 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1600&auto=format&fit=crop';
   return (
     <div className="relative group cursor-pointer max-w-md w-full" onClick={onTestSpeed}>
-      <div className="glass-card p-3 rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative">
+      <div className="glass-card p-3 rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative">
         <img
-          src={banner.imageUrl || '/logo.png'}
-          alt={banner.name || 'Banner'}
-          className="w-full h-64 sm:h-80 object-cover rounded-2xl group-hover:scale-105 transition-transform duration-500"
+          src={banner?.imageUrl || fallbackImg}
+          alt={banner?.name || 'Banner'}
+          className="w-full h-56 sm:h-80 object-cover rounded-xl sm:rounded-2xl group-hover:scale-105 transition-transform duration-500"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent rounded-2xl flex items-end p-5">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent rounded-xl sm:rounded-2xl flex items-end p-4 sm:p-5">
           <div className="flex items-center justify-between w-full">
             <div>
-              <span className="text-xs font-bold text-red-400 uppercase tracking-wider block">
-                {banner.visualUnit || 'High Speed Fiber'}
+              <span className="text-[10px] sm:text-xs font-bold text-red-400 uppercase tracking-wider block">
+                {banner?.visualUnit || 'High Speed Fiber'}
               </span>
-              <p className="text-white text-xl font-black font-poppins">{banner.visualSpeed || '100'} Mbps</p>
+              <p className="text-white text-base sm:text-xl font-black font-poppins">{banner?.visualSpeed || '100'} Mbps</p>
             </div>
-            <span className="px-3 py-1.5 rounded-xl bg-red-600/80 hover:bg-red-600 text-white text-xs font-medium backdrop-blur-md transition-colors flex items-center gap-1.5">
-              <Zap size={13} /> {banner.visualCta || 'Test Speed'}
+            <span className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-red-600/80 hover:bg-red-600 text-white text-xs font-medium backdrop-blur-md transition-colors flex items-center gap-1.5">
+              <Zap size={13} /> {banner?.visualCta || 'Test Speed'}
             </span>
           </div>
         </div>
@@ -634,15 +510,9 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Right Column: Speedometer Visual or Custom Visual Card */}
+                  {/* Right Column: Custom Visual Card */}
                   <div className="flex justify-center lg:justify-end">
-                    {currentBanner?.rightVisualType === 'image' && currentBanner?.imageUrl ? (
-                      <BannerGraphicVisual banner={currentBanner} onTestSpeed={() => setShowSpeedTest(true)} />
-                    ) : (
-                      <div className="glass-card p-5 sm:p-10 rounded-2xl sm:rounded-3xl w-full max-w-sm mx-auto flex items-center justify-center relative">
-                        <SpeedometerVisual onTestSpeed={() => setShowSpeedTest(true)} isBn={isBn} banner={currentBanner} />
-                      </div>
-                    )}
+                    <BannerGraphicVisual banner={currentBanner} onTestSpeed={() => setShowSpeedTest(true)} />
                   </div>
                 </div>
               )}

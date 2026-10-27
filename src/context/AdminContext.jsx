@@ -120,7 +120,7 @@ export const DEFAULT_HERO_BANNERS = [
     badge3Icon: "💸",
     badge3Text: "No Hidden Fees",
     badge3TextBn: "কোনো লুকানো চার্জ নেই",
-    rightVisualType: 'speedometer', // 'speedometer' | 'image'
+    rightVisualType: 'image',
     visualSpeed: "100",
     visualUnit: "Mbps Fiber",
     visualPing: "<5ms",
@@ -133,7 +133,7 @@ export const DEFAULT_HERO_BANNERS = [
     id: 'banner-2',
     name: 'Gaming & 4K Streaming Turbo',
     active: true,
-    layout: 'hero',
+    layout: 'image',
     themeGlow: 'blue',
     badge: "🎮 Ultra-Low Ping For Gamers",
     badgeBn: "🎮 গেমারদের জন্য বিশেষ আল্ট্রা-লো পিং",
@@ -161,7 +161,7 @@ export const DEFAULT_HERO_BANNERS = [
     badge3Icon: "🔥",
     badge3Text: "Free Dual-Band Router",
     badge3TextBn: "ফ্রি ডুয়াল-ব্যান্ড রাউটার",
-    rightVisualType: 'speedometer',
+    rightVisualType: 'image',
     visualSpeed: "200",
     visualUnit: "Mbps Turbo",
     visualPing: "<2ms",
@@ -174,7 +174,7 @@ export const DEFAULT_HERO_BANNERS = [
     id: 'banner-3',
     name: 'Corporate & SME Dedicated Fiber',
     active: true,
-    layout: 'hero',
+    layout: 'image',
     themeGlow: 'purple',
     badge: "🏢 Enterprise High Availability",
     badgeBn: "🏢 এন্টারপ্রাইজ ডেডিকেটেড ফাইবার",
@@ -202,7 +202,7 @@ export const DEFAULT_HERO_BANNERS = [
     badge3Icon: "🛡️",
     badge3Text: "Dedicated Account Mgr",
     badge3TextBn: "ডেডিকেটেড একাউন্ট ম্যানেজার",
-    rightVisualType: 'speedometer',
+    rightVisualType: 'image',
     visualSpeed: "500",
     visualUnit: "Mbps Corporate",
     visualPing: "<1ms",
@@ -214,6 +214,7 @@ export const DEFAULT_HERO_BANNERS = [
 ];
 
 export const INITIAL_HERO_CONFIG = {
+  version: 4,
   autoScroll: true,
   autoScrollInterval: 4, // in seconds!
   pauseOnHover: false,
@@ -283,11 +284,11 @@ export function AdminProvider({ children }) {
   const [heroConfig, setHeroConfig] = useState(() => {
     try {
       const saved = localStorage.getItem('redlink_admin_hero_config');
-      if (!saved) return { ...INITIAL_HERO_CONFIG, version: 3 };
+      if (!saved) return { ...INITIAL_HERO_CONFIG, version: 4 };
       const parsed = JSON.parse(saved);
 
-      // Detect old or stale banners where all items are identical
-      const isStale = !parsed.version || parsed.version < 3 ||
+      // Detect old or stale banners where all items are identical or version < 4
+      const isStale = !parsed.version || parsed.version < 4 ||
         (Array.isArray(parsed.banners) && parsed.banners.length >= 2 &&
          parsed.banners.every((b) => b.titleLine1 === parsed.banners[0].titleLine1 && b.visualSpeed === parsed.banners[0].visualSpeed));
 
@@ -295,10 +296,17 @@ export function AdminProvider({ children }) {
         ? parsed.banners
         : DEFAULT_HERO_BANNERS;
 
+      // Ensure no banner retains speedometer visual
+      banners = banners.map((b) => ({
+        ...b,
+        layout: b.layout === 'hero' && b.rightVisualType === 'speedometer' ? 'image' : b.layout,
+        rightVisualType: 'image'
+      }));
+
       return {
         ...INITIAL_HERO_CONFIG,
         ...parsed,
-        version: 3,
+        version: 4,
         banners,
         autoScroll: parsed.autoScroll !== undefined ? parsed.autoScroll : true,
         autoScrollInterval: Number(parsed.autoScrollInterval) > 0 ? Number(parsed.autoScrollInterval) : 4,
@@ -308,7 +316,7 @@ export function AdminProvider({ children }) {
         transitionEffect: parsed.transitionEffect || 'slide'
       };
     } catch {
-      return { ...INITIAL_HERO_CONFIG, version: 3 };
+      return { ...INITIAL_HERO_CONFIG, version: 4 };
     }
   });
 
@@ -662,7 +670,7 @@ export function AdminProvider({ children }) {
       badge3Icon: "💸",
       badge3Text: "No Hidden Fees",
       badge3TextBn: "কোনো লুকানো চার্জ নেই",
-      rightVisualType: 'speedometer',
+      rightVisualType: 'image',
       visualSpeed: "150",
       visualUnit: "Mbps Fiber",
       visualPing: "<3ms",

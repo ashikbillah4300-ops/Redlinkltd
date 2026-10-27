@@ -1446,11 +1446,11 @@ export default function AdminDashboard() {
                         {/* Option 4: Hero Ambient Background Wallpaper */}
                         <div
                           onClick={() => {
-                            updateHeroBanner(currentEditingBanner.id, { layout: 'hero', rightVisualType: 'speedometer', bgImage: true });
+                            updateHeroBanner(currentEditingBanner.id, { layout: 'hero', rightVisualType: 'image', bgImage: true });
                             toast.success('হোমপেজ মোড: হিরো ব্যাকগ্রাউন্ড ইমেজ', { icon: '🌌' });
                           }}
                           className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
-                            currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'speedometer'
+                            currentEditingBanner.layout === 'hero' && currentEditingBanner.bgImage
                               ? 'bg-red-950/40 border-red-500 shadow-[0_0_15px_rgba(225,29,46,0.3)] ring-1 ring-red-500'
                               : 'bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]'
                           }`}
@@ -1458,21 +1458,21 @@ export default function AdminDashboard() {
                           <div>
                             <div className="flex items-center justify-between mb-1">
                               <span className="font-bold text-white text-xs">🌌 Hero Background</span>
-                              {currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'speedometer' && (
+                              {currentEditingBanner.layout === 'hero' && currentEditingBanner.bgImage && (
                                 <span className="w-2 h-2 rounded-full bg-red-500" />
                               )}
                             </div>
                             <span className="text-[11px] font-semibold text-red-400 block mb-1">হিরো ব্যাকগ্রাউন্ড</span>
                             <p className="text-[10px] text-[#B8B8C0] leading-relaxed">
-                              ব্যাকগ্রাউন্ডে ছবি থাকবে, সাথে বামে টেক্সট ও ডানে লাইভ স্পিডোমিটার ডায়াল।
+                              ব্যাকগ্রাউন্ডে ছবি থাকবে, সাথে বামে টেক্সট ও ডানে ছবির ভিজ্যুয়াল কার্ড।
                             </p>
                           </div>
                           <span className={`text-[10px] font-bold py-1 px-2 rounded-lg text-center ${
-                            currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'speedometer'
+                            currentEditingBanner.layout === 'hero' && currentEditingBanner.bgImage
                               ? 'bg-red-600 text-white'
                               : 'bg-white/5 text-[#B8B8C0]'
                           }`}>
-                            {currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'speedometer' ? '✓ নির্বাচিত (Active)' : 'নির্বাচন করুন'}
+                            {currentEditingBanner.layout === 'hero' && currentEditingBanner.bgImage ? '✓ নির্বাচিত (Active)' : 'নির্বাচন করুন'}
                           </span>
                         </div>
                       </div>
