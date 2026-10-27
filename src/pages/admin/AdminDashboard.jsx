@@ -77,20 +77,103 @@ export default function AdminDashboard() {
   // Hero Banners Setup State
   const [selectedBannerId, setSelectedBannerId] = useState(null);
   const [adminPreviewIndex, setAdminPreviewIndex] = useState(0);
+  const [isUploadingBannerImg, setIsUploadingBannerImg] = useState(false);
 
-  const handleBannerImageUpload = (e, bannerId) => {
+  // Ready-to-use high-quality preset ISP banners
+  const PRESET_BANNER_IMAGES = [
+    {
+      name: 'Ultra Fiber Optical',
+      titleBn: 'অপটিক্যাল ফাইবার',
+      url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1600&auto=format&fit=crop',
+      theme: 'red'
+    },
+    {
+      name: 'Gaming & Low Ping',
+      titleBn: 'টার্বো গেমিং',
+      url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1600&auto=format&fit=crop',
+      theme: 'blue'
+    },
+    {
+      name: 'Corporate Server Link',
+      titleBn: 'কর্পোরেট সার্ভার',
+      url: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1600&auto=format&fit=crop',
+      theme: 'purple'
+    },
+    {
+      name: 'Home 4K Entertainment',
+      titleBn: 'স্মার্ট হোম স্ট্রিমিং',
+      url: 'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?q=80&w=1600&auto=format&fit=crop',
+      theme: 'emerald'
+    }
+  ];
+
+  // High-performance client-side image compressor (fits images cleanly into ~70-130KB data URL)
+  const compressBannerImage = (file, maxWidth = 1600, maxHeight = 900, quality = 0.82) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleBannerImageUpload = async (e, bannerId, preferredDisplayMode) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error('Image size must be less than 2MB');
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('অনুগ্রহ করে একটি ছবি ফাইল নির্বাচন করুন (JPG, PNG, WebP)');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
-      updateHeroBanner(bannerId, { imageUrl: uploadEvent.target.result });
-      toast.success('Banner image uploaded successfully!');
-    };
-    reader.readAsDataURL(file);
+
+    try {
+      setIsUploadingBannerImg(true);
+      const toastId = toast.loading('ব্যানার ছবি অপ্টিমাইজ ও আপলোড হচ্ছে...');
+      const compressedDataUrl = await compressBannerImage(file);
+
+      const updateData = { imageUrl: compressedDataUrl };
+      if (preferredDisplayMode === 'image') {
+        updateData.layout = 'image';
+      } else if (preferredDisplayMode === 'visual') {
+        updateData.layout = 'hero';
+        updateData.rightVisualType = 'image';
+      }
+
+      updateHeroBanner(bannerId, updateData);
+      toast.dismiss(toastId);
+      toast.success('ব্যানারের ছবি সফলভাবে আপলোড হয়েছে! হোমপেজে দেখতে পাবেন।', { icon: '🖼️' });
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      toast.error('ছবি প্রসেসিংয়ে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
+    } finally {
+      setIsUploadingBannerImg(false);
+      if (e.target) e.target.value = '';
+    }
   };
 
   // Record Payment Form State
@@ -689,74 +772,141 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Banner Content Preview */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-                  <div className="lg:col-span-2 space-y-3">
-                    <span className="section-tag inline-block text-xs py-1 px-3">
-                      {previewBanner?.badge || "🚀 Bangladesh's #1 Fiber ISP"}
-                    </span>
-                    <h2 className="text-2xl sm:text-3xl font-black font-poppins text-white leading-tight">
-                      {previewBanner?.titleLine1 || "Ultra-Fast Internet."}<br />
-                      <span className={previewHighlightClass}>
-                        {previewBanner?.titleHighlight || "Zero Interruption."}
-                      </span>
-                    </h2>
-                    <p className="text-xs sm:text-sm text-[#B8B8C0] leading-relaxed max-w-xl">
-                      {previewBanner?.subtitle || "Reliable fiber broadband across Bangladesh. Experience speeds up to 100 Mbps with 99.9% uptime guarantee."}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2.5 pt-1">
-                      <span className="btn-primary text-xs px-4 py-2 pointer-events-none">
-                        {previewBanner?.btnPrimaryText || "View Packages"} →
-                      </span>
-                      <span className="btn-outline text-xs px-4 py-2 pointer-events-none">
-                        {previewBanner?.btnSecondaryText || "Pay Bill"}
-                      </span>
-                      {previewBanner?.showSpeedTestBtn !== false && (
-                        <span className="px-3 py-2 rounded-xl bg-white/5 border border-red-500/30 text-white text-xs flex items-center gap-1.5 pointer-events-none">
-                          <Zap size={13} className="text-red-400" />
-                          {previewBanner?.speedTestBtnText || "Live Speed Test"}
+                {previewBanner?.layout === 'image' && previewBanner?.imageUrl ? (
+                  previewBanner?.hideText ? (
+                    /* Pure Full Graphic Poster Preview */
+                    <div className="relative rounded-2xl overflow-hidden min-h-[220px] sm:min-h-[260px] flex flex-col justify-end p-5 border border-white/10 group shadow-xl">
+                      <img
+                        src={previewBanner.imageUrl}
+                        alt="Banner Preview"
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+                      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <span className="section-tag inline-block text-[10px] py-0.5 px-2 mb-1">
+                            {previewBanner.badge || 'PROMO POSTER'}
+                          </span>
+                          <h3 className="text-white font-bold text-base line-clamp-1">
+                            {previewBanner.name || 'Graphic Banner'}
+                          </h3>
+                        </div>
+                        <span className="btn-primary text-xs px-4 py-2 pointer-events-none">
+                          {previewBanner.btnPrimaryText || 'View Packages'} →
                         </span>
-                      )}
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-3 pt-2 text-[11px] text-[#B8B8C0]">
-                      <span>{previewBanner?.badge1Icon || "⚡"} {previewBanner?.badge1Text || "99.9% Uptime"}</span>
-                      <span>{previewBanner?.badge2Icon || "🛡️"} {previewBanner?.badge2Text || "24/7 Support"}</span>
-                      <span>{previewBanner?.badge3Icon || "💸"} {previewBanner?.badge3Text || "No Hidden Fees"}</span>
-                    </div>
-                  </div>
-
-                  {/* Right side visual preview */}
-                  <div className="lg:col-span-1 flex justify-center">
-                    {previewBanner?.rightVisualType === 'image' && previewBanner?.imageUrl ? (
-                      <div className="w-48 h-48 rounded-2xl overflow-hidden border border-white/10 relative group">
-                        <img src={previewBanner.imageUrl} alt="Banner" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                          <span className="text-xs font-bold text-white px-2.5 py-1 rounded-md bg-black/60">
-                            {previewBanner.visualSpeed || '100'} Mbps
+                  ) : (
+                    /* Full Promotional Graphic Banner Preview */
+                    <div className="relative rounded-2xl overflow-hidden min-h-[240px] sm:min-h-[280px] flex items-center p-6 border border-white/10 shadow-xl">
+                      <img
+                        src={previewBanner.imageUrl}
+                        alt="Banner Preview"
+                        className="absolute inset-0 w-full h-full object-cover opacity-80"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/75 to-black/35 pointer-events-none" />
+                      <div className="relative z-10 max-w-xl space-y-2.5">
+                        <span className="section-tag inline-block text-[10px] py-0.5 px-2">
+                          {previewBanner.badge || "🚀 Special Offer"}
+                        </span>
+                        <h2 className="text-2xl sm:text-3xl font-black font-poppins text-white leading-tight">
+                          {previewBanner.titleLine1 || "Headline"}<br />
+                          <span className={previewHighlightClass}>{previewBanner.titleHighlight}</span>
+                        </h2>
+                        <p className="text-xs text-[#D8D8E2] line-clamp-2 max-w-md">
+                          {previewBanner.subtitle}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <span className="btn-primary text-xs px-4 py-2 pointer-events-none">
+                            {previewBanner.btnPrimaryText || "View Packages"} →
+                          </span>
+                          <span className="btn-outline text-xs px-4 py-2 pointer-events-none">
+                            {previewBanner.btnSecondaryText || "Pay Bill"}
                           </span>
                         </div>
                       </div>
-                    ) : (
-                      <div className="p-5 rounded-2xl glass-card-static border border-red-500/30 text-center relative w-48 h-48 flex flex-col items-center justify-center">
-                        <div className="text-3xl font-black gradient-text font-poppins">
-                          {previewBanner?.visualSpeed || "100"}
-                        </div>
-                        <div className="text-[#B8B8C0] text-xs font-medium">
-                          {previewBanner?.visualUnit || "Mbps Fiber"}
-                        </div>
-                        <div className="flex items-center gap-1 mt-1 text-[10px] text-green-400 font-mono">
-                          <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                          <span>{previewBanner?.visualCta || "Click to Test"}</span>
-                        </div>
-                        <span className="absolute -top-2 -right-2 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30">
-                          {previewBanner?.visualUptime || "99.9%"}
-                        </span>
-                        <span className="absolute -bottom-2 -left-2 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30">
-                          {previewBanner?.visualPing || "<5ms"}
-                        </span>
+                    </div>
+                  )
+                ) : (
+                  /* Rich 2-Column Hero Preview */
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center relative overflow-hidden rounded-2xl p-2">
+                    {previewBanner?.imageUrl && (
+                      <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
+                        <img src={previewBanner.imageUrl} alt="" className="w-full h-full object-cover opacity-10 filter blur-[2px]" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
                       </div>
                     )}
+                    <div className="lg:col-span-2 space-y-3">
+                      <span className="section-tag inline-block text-xs py-1 px-3">
+                        {previewBanner?.badge || "🚀 Bangladesh's #1 Fiber ISP"}
+                      </span>
+                      <h2 className="text-2xl sm:text-3xl font-black font-poppins text-white leading-tight">
+                        {previewBanner?.titleLine1 || "Ultra-Fast Internet."}<br />
+                        <span className={previewHighlightClass}>
+                          {previewBanner?.titleHighlight || "Zero Interruption."}
+                        </span>
+                      </h2>
+                      <p className="text-xs sm:text-sm text-[#B8B8C0] leading-relaxed max-w-xl">
+                        {previewBanner?.subtitle || "Reliable fiber broadband across Bangladesh. Experience speeds up to 100 Mbps with 99.9% uptime guarantee."}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                        <span className="btn-primary text-xs px-4 py-2 pointer-events-none">
+                          {previewBanner?.btnPrimaryText || "View Packages"} →
+                        </span>
+                        <span className="btn-outline text-xs px-4 py-2 pointer-events-none">
+                          {previewBanner?.btnSecondaryText || "Pay Bill"}
+                        </span>
+                        {previewBanner?.showSpeedTestBtn !== false && (
+                          <span className="px-3 py-2 rounded-xl bg-white/5 border border-red-500/30 text-white text-xs flex items-center gap-1.5 pointer-events-none">
+                            <Zap size={13} className="text-red-400" />
+                            {previewBanner?.speedTestBtnText || "Live Speed Test"}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-3 pt-2 text-[11px] text-[#B8B8C0]">
+                        <span>{previewBanner?.badge1Icon || "⚡"} {previewBanner?.badge1Text || "99.9% Uptime"}</span>
+                        <span>{previewBanner?.badge2Icon || "🛡️"} {previewBanner?.badge2Text || "24/7 Support"}</span>
+                        <span>{previewBanner?.badge3Icon || "💸"} {previewBanner?.badge3Text || "No Hidden Fees"}</span>
+                      </div>
+                    </div>
+
+                    {/* Right side visual preview */}
+                    <div className="lg:col-span-1 flex justify-center">
+                      {previewBanner?.rightVisualType === 'image' && previewBanner?.imageUrl ? (
+                        <div className="w-48 h-48 rounded-2xl overflow-hidden border border-white/10 relative group shadow-lg">
+                          <img src={previewBanner.imageUrl} alt="Banner" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end p-3">
+                            <div className="flex items-center justify-between w-full">
+                              <span className="text-xs font-bold text-white px-2 py-0.5 rounded bg-black/60">
+                                {previewBanner.visualSpeed || '100'} Mbps
+                              </span>
+                              <span className="text-[10px] text-red-400 font-bold uppercase">Image Visual</span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-5 rounded-2xl glass-card-static border border-red-500/30 text-center relative w-48 h-48 flex flex-col items-center justify-center">
+                          <div className="text-3xl font-black gradient-text font-poppins">
+                            {previewBanner?.visualSpeed || "100"}
+                          </div>
+                          <div className="text-[#B8B8C0] text-xs font-medium">
+                            {previewBanner?.visualUnit || "Mbps Fiber"}
+                          </div>
+                          <div className="flex items-center gap-1 mt-1 text-[10px] text-green-400 font-mono">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                            <span>{previewBanner?.visualCta || "Click to Test"}</span>
+                          </div>
+                          <span className="absolute -top-2 -right-2 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30">
+                            {previewBanner?.visualUptime || "99.9%"}
+                          </span>
+                          <span className="absolute -bottom-2 -left-2 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30">
+                            {previewBanner?.visualPing || "<5ms"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </GlassCard>
 
               {/* ── CARD 3: BANNERS MANAGEMENT LIST (সকল ব্যানারের তালিকা ও ক্রম) ── */}
@@ -825,6 +975,51 @@ export default function AdminDashboard() {
                           >
                             {banner.active !== false ? 'Active' : 'Disabled'}
                           </button>
+                        </div>
+
+                        {/* Banner Image Thumbnail & Quick Upload */}
+                        <div className="relative w-full h-24 rounded-xl overflow-hidden border border-white/10 group/thumb bg-black/60 flex items-center justify-center">
+                          {banner.imageUrl ? (
+                            <>
+                              <img
+                                src={banner.imageUrl}
+                                alt={banner.name || 'Banner'}
+                                className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end justify-between p-2">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/80 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                                  <CheckCircle2 size={10} /> Image Set
+                                </span>
+                                <label
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="text-[10px] px-2 py-0.5 rounded bg-red-600/90 hover:bg-red-600 text-white font-medium cursor-pointer transition-colors flex items-center gap-1 shadow"
+                                  title="Change Banner Image"
+                                >
+                                  <Upload size={10} /> Change
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => handleBannerImageUpload(e, banner.id)}
+                                  />
+                                </label>
+                              </div>
+                            </>
+                          ) : (
+                            <label
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-full h-full flex flex-col items-center justify-center gap-1 text-[11px] text-[#B8B8C0] hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer border border-dashed border-white/20 rounded-xl"
+                            >
+                              <ImageIcon size={18} className="text-red-400" />
+                              <span className="font-medium">+ Upload Image (ছবি দিন)</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => handleBannerImageUpload(e, banner.id, 'image')}
+                              />
+                            </label>
+                          )}
                         </div>
 
                         {/* Middle info */}
@@ -939,78 +1134,350 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Banner Identity & Layout Selector */}
-                  <GlassCard className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                    <FormInput
-                      label="Banner Display Label (Admin Reference)"
-                      value={currentEditingBanner.name || ''}
-                      onChange={(e) => updateHeroBanner(currentEditingBanner.id, { name: e.target.value })}
-                      placeholder="e.g. Slide 1: Ultra-Fast Internet"
-                    />
-
-                    <div>
-                      <label className="text-xs text-[#B8B8C0] font-medium block mb-1.5">Banner Layout Type</label>
-                      <select
-                        value={currentEditingBanner.layout || 'hero'}
-                        onChange={(e) => updateHeroBanner(currentEditingBanner.id, { layout: e.target.value })}
-                        className="glass-input text-xs w-full py-2.5"
-                      >
-                        <option value="hero" className="bg-[#121216] text-white">Rich Hero Layout (টেক্সট + বাটন + স্পিডোমিটার)</option>
-                        <option value="image" className="bg-[#121216] text-white">Full Promotional Banner (ফুল ইমেজ ব্যানার)</option>
-                      </select>
+                  {/* Banner Identity */}
+                  <GlassCard className="p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="w-full sm:w-2/3">
+                      <FormInput
+                        label="Banner Display Label (ব্যানারের নাম - অ্যাডমিন রেফারেন্স)"
+                        value={currentEditingBanner.name || ''}
+                        onChange={(e) => updateHeroBanner(currentEditingBanner.id, { name: e.target.value })}
+                        placeholder="e.g. Slide 1: Ultra-Fast Internet"
+                      />
                     </div>
-
-                    <div>
-                      <label className="text-xs text-[#B8B8C0] font-medium block mb-1.5">Right Visual Type</label>
-                      <select
-                        value={currentEditingBanner.rightVisualType || 'speedometer'}
-                        onChange={(e) => updateHeroBanner(currentEditingBanner.id, { rightVisualType: e.target.value })}
-                        className="glass-input text-xs w-full py-2.5"
+                    <div className="flex items-center gap-2 self-start sm:self-auto pt-2 sm:pt-4">
+                      <span className="text-xs text-[#B8B8C0]">Banner Status:</span>
+                      <button
+                        type="button"
+                        onClick={() => updateHeroBanner(currentEditingBanner.id, { active: currentEditingBanner.active === false ? true : false })}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                          currentEditingBanner.active !== false
+                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                            : 'bg-white/5 text-gray-400 border-white/10'
+                        }`}
                       >
-                        <option value="speedometer" className="bg-[#121216] text-white">Interactive Speedometer Dial</option>
-                        <option value="image" className="bg-[#121216] text-white">Custom Graphic / Image Card</option>
-                      </select>
+                        {currentEditingBanner.active !== false ? '✅ Active on Homepage' : '⏸️ Disabled'}
+                      </button>
                     </div>
                   </GlassCard>
 
-                  {/* If image banner or custom image right visual */}
-                  {(currentEditingBanner.layout === 'image' || currentEditingBanner.rightVisualType === 'image') && (
-                    <GlassCard className="p-6 space-y-4 border border-red-500/20">
-                      <div className="flex items-center gap-2 pb-2 border-b border-white/10">
-                        <ImageIcon size={16} className="text-red-400" />
-                        <span className="font-bold text-white text-sm">Banner Image Upload & URL</span>
+                  {/* ── ALWAYS-VISIBLE BANNER IMAGE & HOMEPAGE DISPLAY STUDIO ── */}
+                  <GlassCard className="p-6 space-y-6 border border-red-500/30 bg-gradient-to-br from-red-950/20 via-black/80 to-[#0e0e12]">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-white/10">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-xl bg-red-600/20 border border-red-500/30 text-red-400">
+                          <ImageIcon size={20} />
+                        </div>
+                        <div>
+                          <span className="font-bold text-white text-base block">
+                            Banner Image & Homepage Display (ব্যানার ইমেজ আপলোড ও হোমপেজ ডিসপ্লে সেটআপ)
+                          </span>
+                          <span className="text-xs text-[#B8B8C0]">
+                            প্রতিটি ব্যানারে নিজস্ব ছবি আপলোড করুন এবং হোমপেজে কীভাবে দেখাবে তা পছন্দ করুন।
+                          </span>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                        <div className="space-y-3">
-                          <FormInput
-                            label="Image URL (Direct link or upload below)"
-                            value={currentEditingBanner.imageUrl || ''}
-                            onChange={(e) => updateHeroBanner(currentEditingBanner.id, { imageUrl: e.target.value })}
-                            placeholder="https://example.com/banner.jpg"
-                          />
-                          <div>
-                            <label className="text-xs text-[#B8B8C0] font-medium block mb-1.5">
-                              Upload Image File (কম্পিউটার থেকে ছবি দিন)
-                            </label>
+
+                      {currentEditingBanner.imageUrl && (
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 self-start sm:self-auto">
+                          <CheckCircle2 size={13} /> Image Active on Home
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Image Upload & Input Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                      {/* Left: Upload Dropzone & Controls (7 Cols) */}
+                      <div className="lg:col-span-7 space-y-4">
+                        {/* Drag and drop / Click upload button */}
+                        <div>
+                          <label className="text-xs text-white font-semibold block mb-2 flex items-center gap-1.5">
+                            <Upload size={14} className="text-red-400" />
+                            <span>Upload Image from Device (কম্পিউটার বা ফোন থেকে ছবি আপলোড করুন):</span>
+                          </label>
+                          <label
+                            className={`border-2 border-dashed rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                              isUploadingBannerImg
+                                ? 'border-red-500 bg-red-500/10 opacity-75'
+                                : 'border-white/20 hover:border-red-500 hover:bg-white/[0.04]'
+                            }`}
+                          >
                             <input
                               type="file"
                               accept="image/*"
-                              onChange={(e) => handleBannerImageUpload(e, currentEditingBanner.id)}
-                              className="text-xs text-[#B8B8C0] file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer"
+                              disabled={isUploadingBannerImg}
+                              onChange={(e) => handleBannerImageUpload(e, currentEditingBanner.id, 'image')}
+                              className="hidden"
                             />
+                            <div className="w-12 h-12 rounded-full bg-red-600/20 border border-red-500/40 text-red-400 flex items-center justify-center mb-2.5 shadow-lg">
+                              {isUploadingBannerImg ? (
+                                <RefreshCw size={22} className="animate-spin" />
+                              ) : (
+                                <Upload size={22} />
+                              )}
+                            </div>
+                            <p className="text-sm font-bold text-white mb-1">
+                              {isUploadingBannerImg ? 'ছবি আপলোড ও অপ্টিমাইজ হচ্ছে...' : 'ছবি বেছে নিতে এখানে ক্লিক করুন'}
+                            </p>
+                            <p className="text-xs text-[#B8B8C0]">
+                              JPG, PNG, WebP ফরম্যাট সমর্থিত • স্বয়ংক্রিয়ভাবে ব্রাউজারে অপ্টিমাইজ হবে
+                            </p>
+                            <span className="mt-3 px-3 py-1 rounded-lg bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition-colors shadow">
+                              + ব্রাউজ ফাইল (Browse Image)
+                            </span>
+                          </label>
+                        </div>
+
+                        {/* Direct Image URL input */}
+                        <div>
+                          <label className="text-xs text-[#B8B8C0] font-medium block mb-1.5">
+                            অথবা সরাসরি ছবির লিংক দিন (Direct Image URL):
+                          </label>
+                          <FormInput
+                            value={currentEditingBanner.imageUrl || ''}
+                            onChange={(e) => updateHeroBanner(currentEditingBanner.id, { imageUrl: e.target.value })}
+                            placeholder="https://example.com/your-banner-image.jpg"
+                          />
+                        </div>
+
+                        {/* Ready-made ISP Preset Images */}
+                        <div>
+                          <label className="text-xs text-[#B8B8C0] font-medium block mb-2">
+                            ⚡ দ্রুত ব্যবহারের জন্য রেডিমেড ব্যানার ছবি (Click to apply preset):
+                          </label>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {PRESET_BANNER_IMAGES.map((preset, idx) => {
+                              const isCurrent = currentEditingBanner.imageUrl === preset.url;
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => {
+                                    updateHeroBanner(currentEditingBanner.id, {
+                                      imageUrl: preset.url,
+                                      themeGlow: preset.theme
+                                    });
+                                    toast.success(`Preset "${preset.titleBn}" applied!`, { icon: '🖼️' });
+                                  }}
+                                  className={`p-2 rounded-xl border text-left transition-all cursor-pointer group relative overflow-hidden ${
+                                    isCurrent
+                                      ? 'border-red-500 bg-red-950/40 ring-1 ring-red-500'
+                                      : 'border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/30'
+                                  }`}
+                                >
+                                  <div className="w-full h-12 rounded-lg overflow-hidden mb-1.5 bg-black/50">
+                                    <img src={preset.url} alt={preset.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                  </div>
+                                  <span className="text-[11px] font-bold text-white block line-clamp-1">{preset.titleBn}</span>
+                                  <span className="text-[9px] text-[#B8B8C0] block line-clamp-1">{preset.name}</span>
+                                  {isCurrent && (
+                                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500" />
+                                  )}
+                                </button>
+                              );
+                            })}
                           </div>
                         </div>
-                        {currentEditingBanner.imageUrl && (
-                          <div className="w-full h-36 rounded-xl overflow-hidden border border-white/10 relative">
-                            <img src={currentEditingBanner.imageUrl} alt="Banner Preview" className="w-full h-full object-cover" />
-                            <span className="absolute bottom-2 right-2 text-[10px] bg-black/70 px-2 py-0.5 rounded text-white">
-                              Image Preview
-                            </span>
+                      </div>
+
+                      {/* Right: Live Image Preview Box (5 Cols) */}
+                      <div className="lg:col-span-5 space-y-3">
+                        <label className="text-xs text-white font-semibold block flex items-center justify-between">
+                          <span>Image Preview (ছবির প্রিভিউ):</span>
+                          {currentEditingBanner.imageUrl && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                updateHeroBanner(currentEditingBanner.id, { imageUrl: '' });
+                                toast.success('ছবি বাদ দেওয়া হয়েছে');
+                              }}
+                              className="text-[11px] text-red-400 hover:text-red-300 flex items-center gap-1 cursor-pointer"
+                            >
+                              <Trash2 size={12} /> ছবি মুছে ফেলুন
+                            </button>
+                          )}
+                        </label>
+
+                        {currentEditingBanner.imageUrl ? (
+                          <div className="relative rounded-2xl overflow-hidden border border-white/15 bg-black/60 shadow-xl group/preview">
+                            <img
+                              src={currentEditingBanner.imageUrl}
+                              alt="Banner Preview"
+                              className="w-full h-56 sm:h-64 object-cover group-hover/preview:scale-102 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-between p-3.5 pointer-events-none">
+                              <span className="self-end px-2 py-0.5 rounded bg-black/80 text-[10px] text-emerald-300 border border-emerald-500/30 backdrop-blur-md">
+                                ✓ Ready for Home Page
+                              </span>
+                              <div>
+                                <span className="text-xs font-bold text-white block line-clamp-1 drop-shadow">
+                                  {currentEditingBanner.name || 'Banner Slide'}
+                                </span>
+                                <span className="text-[10px] text-red-300 block drop-shadow">
+                                  {currentEditingBanner.layout === 'image'
+                                    ? currentEditingBanner.hideText ? 'Mode: Full Graphic Poster' : 'Mode: Full Promo Banner'
+                                    : currentEditingBanner.rightVisualType === 'image' ? 'Mode: Right-side Visual Card' : 'Mode: Hero Background'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-full h-56 sm:h-64 rounded-2xl border border-dashed border-white/20 bg-white/[0.02] flex flex-col items-center justify-center p-6 text-center">
+                            <ImageIcon size={36} className="text-white/20 mb-2" />
+                            <p className="text-xs font-bold text-white mb-1">কোনো ছবি সেট করা নেই</p>
+                            <p className="text-[11px] text-[#B8B8C0] max-w-xs">
+                              বামপাশের বক্স থেকে যেকোনো ছবি ফাইল নির্বাচন করুন বা রেডিমেড প্রিসেট সিলেক্ট করুন।
+                            </p>
                           </div>
                         )}
                       </div>
-                    </GlassCard>
-                  )}
+                    </div>
+
+                    {/* ── HOMEPAGE DISPLAY MODE SELECTOR (হোমপেজে ছবিটি কীভাবে দেখাবেন?) ── */}
+                    <div className="pt-4 border-t border-white/10 space-y-3">
+                      <div>
+                        <span className="font-bold text-white text-sm block">
+                          How Should This Image Appear on Homepage? (হোমপেজে এই ছবিটি কীভাবে দেখাবেন?)
+                        </span>
+                        <span className="text-xs text-[#B8B8C0]">
+                          নিচের যেকোনো একটি অপশনে ক্লিক করুন, হোমপেজে স্বয়ংক্রিয়ভাবে সেভাবে প্রদর্শিত হবে:
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        {/* Option 1: Full Promotional Banner */}
+                        <div
+                          onClick={() => {
+                            updateHeroBanner(currentEditingBanner.id, { layout: 'image', hideText: false });
+                            toast.success('হোমপেজ মোড: ফুল প্রোমোশনাল ব্যানার', { icon: '🌟' });
+                          }}
+                          className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
+                            currentEditingBanner.layout === 'image' && !currentEditingBanner.hideText
+                              ? 'bg-red-950/40 border-red-500 shadow-[0_0_15px_rgba(225,29,46,0.3)] ring-1 ring-red-500'
+                              : 'bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-bold text-white text-xs">🌟 Full Promo Banner</span>
+                              {currentEditingBanner.layout === 'image' && !currentEditingBanner.hideText && (
+                                <span className="w-2 h-2 rounded-full bg-red-500" />
+                              )}
+                            </div>
+                            <span className="text-[11px] font-semibold text-red-400 block mb-1">ফুল ব্যানার স্লাইড</span>
+                            <p className="text-[10px] text-[#B8B8C0] leading-relaxed">
+                              পুরো স্লাইডে ছবি থাকবে ব্যাকগ্রাউন্ডে এবং উপরে টেক্সট, হেডলাইন ও বাটন থাকবে।
+                            </p>
+                          </div>
+                          <span className={`text-[10px] font-bold py-1 px-2 rounded-lg text-center ${
+                            currentEditingBanner.layout === 'image' && !currentEditingBanner.hideText
+                              ? 'bg-red-600 text-white'
+                              : 'bg-white/5 text-[#B8B8C0]'
+                          }`}>
+                            {currentEditingBanner.layout === 'image' && !currentEditingBanner.hideText ? '✓ নির্বাচিত (Active)' : 'নির্বাচন করুন'}
+                          </span>
+                        </div>
+
+                        {/* Option 2: Right-Side Visual Card */}
+                        <div
+                          onClick={() => {
+                            updateHeroBanner(currentEditingBanner.id, { layout: 'hero', rightVisualType: 'image' });
+                            toast.success('হোমপেজ মোড: ডানপাশের ভিজ্যুয়াল কার্ড', { icon: '⚡' });
+                          }}
+                          className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
+                            currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'image'
+                              ? 'bg-red-950/40 border-red-500 shadow-[0_0_15px_rgba(225,29,46,0.3)] ring-1 ring-red-500'
+                              : 'bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-bold text-white text-xs">⚡ Right Visual Card</span>
+                              {currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'image' && (
+                                <span className="w-2 h-2 rounded-full bg-red-500" />
+                              )}
+                            </div>
+                            <span className="text-[11px] font-semibold text-red-400 block mb-1">ডানপাশের কার্ড</span>
+                            <p className="text-[10px] text-[#B8B8C0] leading-relaxed">
+                              বামে হেডলাইন ও বাটন এবং ডানপাশে আপনার আপলোড করা ছবির কার্ড দেখাবে।
+                            </p>
+                          </div>
+                          <span className={`text-[10px] font-bold py-1 px-2 rounded-lg text-center ${
+                            currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'image'
+                              ? 'bg-red-600 text-white'
+                              : 'bg-white/5 text-[#B8B8C0]'
+                          }`}>
+                            {currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'image' ? '✓ নির্বাচিত (Active)' : 'নির্বাচন করুন'}
+                          </span>
+                        </div>
+
+                        {/* Option 3: Full Graphic Poster (No Text Overlay) */}
+                        <div
+                          onClick={() => {
+                            updateHeroBanner(currentEditingBanner.id, { layout: 'image', hideText: true });
+                            toast.success('হোমপেজ মোড: শুধুমাত্র ছবি/পোস্টার ব্যানার', { icon: '🎯' });
+                          }}
+                          className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
+                            currentEditingBanner.layout === 'image' && currentEditingBanner.hideText
+                              ? 'bg-red-950/40 border-red-500 shadow-[0_0_15px_rgba(225,29,46,0.3)] ring-1 ring-red-500'
+                              : 'bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-bold text-white text-xs">🎯 Pure Graphic Poster</span>
+                              {currentEditingBanner.layout === 'image' && currentEditingBanner.hideText && (
+                                <span className="w-2 h-2 rounded-full bg-red-500" />
+                              )}
+                            </div>
+                            <span className="text-[11px] font-semibold text-red-400 block mb-1">শুধুমাত্র পুরো ছবি</span>
+                            <p className="text-[10px] text-[#B8B8C0] leading-relaxed">
+                              Canva বা ফটোশপে বানানো সম্পূর্ণ অফার ব্যানার কোনো টেক্সট কভার ছাড়া দেখাবে।
+                            </p>
+                          </div>
+                          <span className={`text-[10px] font-bold py-1 px-2 rounded-lg text-center ${
+                            currentEditingBanner.layout === 'image' && currentEditingBanner.hideText
+                              ? 'bg-red-600 text-white'
+                              : 'bg-white/5 text-[#B8B8C0]'
+                          }`}>
+                            {currentEditingBanner.layout === 'image' && currentEditingBanner.hideText ? '✓ নির্বাচিত (Active)' : 'নির্বাচন করুন'}
+                          </span>
+                        </div>
+
+                        {/* Option 4: Hero Ambient Background Wallpaper */}
+                        <div
+                          onClick={() => {
+                            updateHeroBanner(currentEditingBanner.id, { layout: 'hero', rightVisualType: 'speedometer', bgImage: true });
+                            toast.success('হোমপেজ মোড: হিরো ব্যাকগ্রাউন্ড ইমেজ', { icon: '🌌' });
+                          }}
+                          className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
+                            currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'speedometer'
+                              ? 'bg-red-950/40 border-red-500 shadow-[0_0_15px_rgba(225,29,46,0.3)] ring-1 ring-red-500'
+                              : 'bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-bold text-white text-xs">🌌 Hero Background</span>
+                              {currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'speedometer' && (
+                                <span className="w-2 h-2 rounded-full bg-red-500" />
+                              )}
+                            </div>
+                            <span className="text-[11px] font-semibold text-red-400 block mb-1">হিরো ব্যাকগ্রাউন্ড</span>
+                            <p className="text-[10px] text-[#B8B8C0] leading-relaxed">
+                              ব্যাকগ্রাউন্ডে ছবি থাকবে, সাথে বামে টেক্সট ও ডানে লাইভ স্পিডোমিটার ডায়াল।
+                            </p>
+                          </div>
+                          <span className={`text-[10px] font-bold py-1 px-2 rounded-lg text-center ${
+                            currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'speedometer'
+                              ? 'bg-red-600 text-white'
+                              : 'bg-white/5 text-[#B8B8C0]'
+                          }`}>
+                            {currentEditingBanner.layout === 'hero' && currentEditingBanner.rightVisualType === 'speedometer' ? '✓ নির্বাচিত (Active)' : 'নির্বাচন করুন'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </GlassCard>
 
                   {/* Form Controls: Card 1 - Headlines & Badges */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

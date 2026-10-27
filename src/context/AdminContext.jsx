@@ -358,7 +358,12 @@ export function AdminProvider({ children }) {
   }, [homeMapConfig]);
 
   useEffect(() => {
-    localStorage.setItem('redlink_admin_hero_config', JSON.stringify(heroConfig));
+    try {
+      localStorage.setItem('redlink_admin_hero_config', JSON.stringify(heroConfig));
+    } catch (err) {
+      console.warn('Failed to save redlink_admin_hero_config to localStorage:', err);
+      toast.error('Browser storage quota reached! Images are kept in memory. Please use compressed images or URL links.', { id: 'storage-full' });
+    }
   }, [heroConfig]);
 
   useEffect(() => {

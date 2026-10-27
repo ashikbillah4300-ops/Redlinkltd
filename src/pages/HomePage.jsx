@@ -410,6 +410,18 @@ export default function HomePage() {
         {/* Dynamic Ambient Background Glow */}
         <div className={`absolute inset-0 bg-gradient-radial ${ambientGlowClass} pointer-events-none transition-all duration-1000 -z-10`} />
 
+        {/* Dynamic Ambient Slide Background Image Backdrop */}
+        {currentBanner?.imageUrl && (
+          <div className="absolute inset-0 pointer-events-none -z-20 overflow-hidden transition-opacity duration-1000">
+            <img
+              src={currentBanner.imageUrl}
+              alt=""
+              className="w-full h-full object-cover opacity-10 filter blur-[3px] scale-105 transition-all duration-1000"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0d] via-[#0a0a0d]/70 to-[#0a0a0d]" />
+          </div>
+        )}
+
         {/* Side Floating Navigation Arrows (Desktop) */}
         {banners.length > 1 && (
           <>
@@ -480,46 +492,90 @@ export default function HomePage() {
               className="w-full"
             >
               {currentBanner?.layout === 'image' && currentBanner?.imageUrl ? (
-                /* Full Promotional Graphic Banner Slide */
-                <div className="relative rounded-3xl overflow-hidden border border-white/10 glass-card min-h-[440px] md:min-h-[520px] flex items-center p-6 sm:p-12 md:p-16">
-                  <img
-                    src={currentBanner.imageUrl}
-                    alt={currentBanner.name || 'Banner'}
-                    className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover/hero:scale-102 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/75 to-transparent" />
-                  
-                  <div className="relative z-10 max-w-2xl space-y-5">
-                    {badgeText && (
-                      <span className="section-tag inline-block">
-                        {badgeText}
-                      </span>
-                    )}
-                    <h1 className={`text-3xl sm:text-5xl md:text-6xl font-black font-poppins text-white leading-tight ${isBn ? 'font-bangla' : ''}`}>
-                      {title1}<br /><span className={highlightGradient}>{titleHighlight}</span>
-                    </h1>
-                    <p className={`text-[#B8B8C0] text-base md:text-xl leading-relaxed max-w-xl ${isBn ? 'font-bangla' : ''}`}>
-                      {subtitle}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-4 pt-2">
-                      <Link to={btn1Link} className="btn-primary text-base px-7 py-3.5">
-                        {btn1Text} <ArrowRight size={18} />
-                      </Link>
-                      <Link to={btn2Link} className="btn-outline text-base px-7 py-3.5">
-                        {btn2Text} <CreditCard size={18} />
-                      </Link>
-                      {showSpeedBtn && (
-                        <button
-                          onClick={() => setShowSpeedTest(true)}
-                          className="px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-red-500/30 hover:border-red-500/60 text-white font-medium text-base flex items-center gap-2 transition-all cursor-pointer group"
-                        >
-                          <Zap size={18} className="text-red-400 group-hover:scale-125 transition-transform" />
-                          <span>{speedBtnText}</span>
-                        </button>
-                      )}
+                currentBanner?.hideText ? (
+                  /* Pure Full Graphic Banner Slide (Canvas/Photoshop Flyer with No Text Overlay) */
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 glass-card min-h-[380px] sm:min-h-[460px] md:min-h-[520px] flex flex-col justify-end p-6 sm:p-8 md:p-10 shadow-2xl group">
+                    <img
+                      src={currentBanner.imageUrl}
+                      alt={currentBanner.name || 'Banner'}
+                      className="absolute inset-0 w-full h-full object-cover group-hover/hero:scale-102 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+                    
+                    <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-4">
+                      <div>
+                        {badgeText && (
+                          <span className="section-tag inline-block mb-1.5 text-xs">
+                            {badgeText}
+                          </span>
+                        )}
+                        <h2 className="text-white text-xl sm:text-2xl md:text-3xl font-black font-poppins drop-shadow-lg">
+                          {currentBanner.name || 'Promotional Offer'}
+                        </h2>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <Link to={btn1Link} className="btn-primary text-sm sm:text-base px-6 py-3 shadow-lg">
+                          {btn1Text} <ArrowRight size={16} />
+                        </Link>
+                        {btn2Text && (
+                          <Link to={btn2Link} className="btn-outline text-sm sm:text-base px-5 py-3">
+                            {btn2Text} <CreditCard size={16} />
+                          </Link>
+                        )}
+                        {showSpeedBtn && (
+                          <button
+                            onClick={() => setShowSpeedTest(true)}
+                            className="px-5 py-3 rounded-xl bg-black/60 hover:bg-black/80 border border-white/20 text-white font-medium text-sm sm:text-base flex items-center gap-2 transition-all cursor-pointer backdrop-blur-md"
+                          >
+                            <Zap size={16} className="text-red-400" />
+                            <span>{speedBtnText}</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  /* Full Promotional Graphic Banner Slide with Rich Text & CTA */
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 glass-card min-h-[440px] md:min-h-[520px] flex items-center p-6 sm:p-12 md:p-16 shadow-2xl">
+                    <img
+                      src={currentBanner.imageUrl}
+                      alt={currentBanner.name || 'Banner'}
+                      className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover/hero:scale-102 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/75 to-black/35 pointer-events-none" />
+                    
+                    <div className="relative z-10 max-w-2xl space-y-5">
+                      {badgeText && (
+                        <span className="section-tag inline-block">
+                          {badgeText}
+                        </span>
+                      )}
+                      <h1 className={`text-3xl sm:text-5xl md:text-6xl font-black font-poppins text-white leading-tight drop-shadow-md ${isBn ? 'font-bangla' : ''}`}>
+                        {title1}<br /><span className={highlightGradient}>{titleHighlight}</span>
+                      </h1>
+                      <p className={`text-[#D8D8E2] text-base md:text-xl leading-relaxed max-w-xl drop-shadow ${isBn ? 'font-bangla' : ''}`}>
+                        {subtitle}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-4 pt-2">
+                        <Link to={btn1Link} className="btn-primary text-base px-7 py-3.5 shadow-lg shadow-red-600/30">
+                          {btn1Text} <ArrowRight size={18} />
+                        </Link>
+                        <Link to={btn2Link} className="btn-outline text-base px-7 py-3.5 bg-black/40 backdrop-blur-sm">
+                          {btn2Text} <CreditCard size={18} />
+                        </Link>
+                        {showSpeedBtn && (
+                          <button
+                            onClick={() => setShowSpeedTest(true)}
+                            className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-red-500/30 hover:border-red-500/60 text-white font-medium text-base flex items-center gap-2 transition-all cursor-pointer group backdrop-blur-md"
+                          >
+                            <Zap size={18} className="text-red-400 group-hover:scale-125 transition-transform" />
+                            <span>{speedBtnText}</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
               ) : (
                 /* Rich Hero 2-Column Slide (As shown in screenshot) */
                 <div className="grid lg:grid-cols-2 gap-10 md:gap-12 items-center">
