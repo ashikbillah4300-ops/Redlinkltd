@@ -360,7 +360,7 @@ export default function DashboardPage() {
                     className="w-full justify-center py-3 text-xs sm:text-sm font-bold shadow-red-glow cursor-pointer"
                   >
                     <CreditCard size={16} />
-                    <span>{isBn ? 'এখনই বিল পরিশোধ করুন (bKash/Nagad)' : 'Pay Now via bKash / Nagad / Card'}</span>
+                    <span>{isBn ? 'এখনই বিল পরিশোধ করুন (bKash/Nagad)' : 'Pay Now via bKash / Nagad'}</span>
                   </GlassButton>
                 </div>
               ) : (
@@ -1042,23 +1042,25 @@ export default function DashboardPage() {
               {/* Method Selector */}
               <div>
                 <label className="text-xs font-semibold text-[#B8B8C0] block mb-2">Select Payment Method</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   {[
-                    { id: 'bKash', label: 'bKash', color: 'from-[#D12053] to-[#E2136E]' },
-                    { id: 'Nagad', label: 'Nagad', color: 'from-[#EA580C] to-[#F97316]' },
-                    { id: 'Card', label: 'Visa / MC', color: 'from-[#1E40AF] to-[#3B82F6]' },
+                    { id: 'bKash', label: 'bKash', logo: '/bkash.svg' },
+                    { id: 'Nagad', label: 'Nagad', logo: '/nagad.svg' },
                   ].map((m) => (
                     <button
                       key={m.id}
                       type="button"
                       onClick={() => setPayMethod(m.id)}
-                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer font-bold text-xs ${
+                      className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
                         payMethod === m.id
                           ? 'border-red-500 bg-red-600/20 text-white shadow-red-glow'
                           : 'border-white/10 bg-white/5 text-[#B8B8C0] hover:text-white'
                       }`}
                     >
-                      {m.label}
+                      <div className="h-8 w-24 rounded-lg bg-white flex items-center justify-center p-1 shadow-sm">
+                        <img src={m.logo} alt={m.label} className="h-full w-auto max-h-6 object-contain" />
+                      </div>
+                      <span className="font-bold text-xs">{m.label}</span>
                     </button>
                   ))}
                 </div>

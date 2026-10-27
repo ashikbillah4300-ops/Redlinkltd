@@ -8,75 +8,46 @@ import { GlassCard, GlassButton, FormInput, SectionHeading, FadeUp } from '../co
 import { useLang } from '../context/LangContext';
 import { apiFetchBill, apiPayBill } from '../services/api';
 
-// ── Payment methods ────────────────────────────────────────────────────────────
+// ── Payment methods (Only bKash & Nagad) ──────────────────────────────────
 const paymentMethods = [
   {
-    id: 'bkash', label: 'bKash', color: '#E2136E', emoji: '💳',
+    id: 'bkash',
+    label: 'bKash',
+    color: '#E2136E',
+    logo: '/bkash.svg',
     steps: [
-      'Go to bKash app → "Pay Bill" or "Send Money"',
+      'Go to bKash app → "Pay Bill" or "Make Payment"',
       'Enter merchant number: 01700-000000',
       'Enter your Customer ID as reference',
-      'Enter the amount and your bKash PIN',
-      'You will receive a confirmation SMS',
+      'Enter the bill amount and your bKash PIN',
+      'You will receive a confirmation SMS & receipt',
     ],
     stepsBn: [
-      'bKash অ্যাপ খুলুন → "বিল পরিশোধ" বা "পে"',
+      'bKash অ্যাপ খুলুন → "বিল পে" বা "পেমেন্ট" অপশনে যান',
       'মার্চেন্ট নম্বর দিন: ০১৭০০-০০০০০০',
       'রেফারেন্সে আপনার কাস্টমার আইডি দিন',
-      'পরিমাণ ও bKash পিন দিন',
-      'নিশ্চিতকরণ এসএমএস পাবেন',
+      'পরিমাণ ও আপনার bKash পিন দিন',
+      'নিশ্চিতকরণ এসএমএস ও ট্রানজেকশন রিসিট পাবেন',
     ],
   },
   {
-    id: 'nagad', label: 'Nagad', color: '#F97316', emoji: '💰',
+    id: 'nagad',
+    label: 'Nagad',
+    color: '#F97316',
+    logo: '/nagad.svg',
     steps: [
-      'Open Nagad app → "Payment"',
+      'Open Nagad app → "Merchant Pay"',
       'Enter merchant number: 01700-000000',
-      'Add Customer ID as reference',
-      'Confirm amount and PIN',
-      'Save the transaction ID',
+      'Enter your Customer ID as reference',
+      'Confirm amount and enter your PIN',
+      'Save the confirmation Transaction ID',
     ],
     stepsBn: [
-      'Nagad অ্যাপ খুলুন → "পেমেন্ট"',
-      'মার্চেন্ট নম্বর: ০১৭০০-০০০০০০',
-      'রেফারেন্সে কাস্টমার আইডি দিন',
-      'পরিমাণ ও পিন নিশ্চিত করুন',
-      'লেনদেন আইডি সংরক্ষণ করুন',
-    ],
-  },
-  {
-    id: 'card', label: 'Card (Visa/MC)', color: '#1D4ED8', emoji: '🏦',
-    steps: [
-      'Click "Pay Now" button below',
-      'You\'ll be redirected to our secure payment gateway (SSLCommerz)',
-      'Enter your card details',
-      'Complete 3D Secure verification',
-      'Download your receipt',
-    ],
-    stepsBn: [
-      '"এখন পরিশোধ করুন" বাটনে ক্লিক করুন',
-      'নিরাপদ পেমেন্ট গেটওয়েতে যাবেন',
-      'কার্ডের তথ্য দিন',
-      '3D সিকিউর যাচাই করুন',
-      'রিসিট ডাউনলোড করুন',
-    ],
-  },
-  {
-    id: 'bank', label: 'Bank Transfer', color: '#059669', emoji: '🏛️',
-    steps: [
-      'Bank: Dutch-Bangla Bank Limited (DBBL)',
-      'Account Name: RedLink Technologies',
-      'Account No: 1234567890',
-      'Routing: 090270497',
-      'Use your Customer ID as the reference/narration',
-      'Email proof of payment to billing@redlinkltd.com',
-    ],
-    stepsBn: [
-      'ব্যাংক: ডাচ-বাংলা ব্যাংক লিমিটেড',
-      'অ্যাকাউন্ট: রেডলিংক লিমিটেড',
-      'অ্যাকাউন্ট নং: ১২৩৪৫৬৭৮৯০',
-      'রেফারেন্সে কাস্টমার আইডি দিন',
-      'পেমেন্ট প্রমাণ ইমেইল করুন',
+      'নগদ (Nagad) অ্যাপ খুলুন → "মার্চেন্ট পে" অপশনে যান',
+      'মার্চেন্ট নম্বর দিন: ০১৭০০-০০০০০০',
+      'রেফারেন্সে আপনার কাস্টমার আইডি দিন',
+      'পরিমাণ নিশ্চিত করে আপনার পিন দিন',
+      'লেনদেন আইডি (TrxID) সংরক্ষণ করুন',
     ],
   },
 ];
@@ -85,23 +56,30 @@ const paymentMethods = [
 function MethodAccordion({ method, isBn }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="glass-card-static overflow-hidden">
+    <div className="glass-card-static overflow-hidden rounded-2xl border border-white/10">
       <button
-        className="w-full flex items-center justify-between p-4 text-left"
+        type="button"
+        className="w-full flex items-center justify-between p-4 text-left cursor-pointer hover:bg-white/5 transition-all"
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-3">
-          <span className="text-2xl">{method.emoji}</span>
-          <span className="text-white font-semibold">{method.label}</span>
+          <div className="h-8 w-24 rounded-lg bg-white px-2 py-1 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <img src={method.logo} alt={method.label} className="h-full w-auto max-h-6 object-contain" />
+          </div>
+          <span className="text-white font-bold text-sm">
+            {method.label} {isBn ? 'দিয়ে পেমেন্ট করার নিয়ম' : 'Payment Instructions'}
+          </span>
         </div>
-        <ChevronDown size={16} className={`text-red-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={18} className={`text-red-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
       <div className={`accordion-content ${open ? 'open' : ''}`}>
-        <ol className="px-4 pb-4 space-y-2 ml-4">
+        <ol className="px-5 pb-4 space-y-2.5 ml-2 border-t border-white/5 pt-3">
           {(isBn ? method.stepsBn : method.steps).map((step, i) => (
-            <li key={i} className={`text-[#B8B8C0] text-sm flex gap-2 ${isBn ? 'font-bangla' : ''}`}>
-              <span className="text-red-400 font-bold flex-shrink-0">{i + 1}.</span>
-              {step}
+            <li key={i} className={`text-[#B8B8C0] text-sm flex gap-2.5 items-start ${isBn ? 'font-bangla' : ''}`}>
+              <span className="w-5 h-5 rounded-full bg-red-500/20 text-red-400 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                {i + 1}
+              </span>
+              <span>{step}</span>
             </li>
           ))}
         </ol>
@@ -284,15 +262,22 @@ export default function PayBillPage() {
                   <span className="w-7 h-7 rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 text-sm font-bold">3</span>
                   {isBn ? 'পেমেন্ট পদ্ধতি নির্বাচন করুন' : 'Choose Payment Method'}
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                <div className="grid grid-cols-2 gap-4 mb-5">
                   {paymentMethods.map((m) => (
                     <button
                       key={m.id}
+                      type="button"
                       onClick={() => setSelectedMethod(m.id)}
-                      className={`payment-tile flex flex-col items-center gap-2 ${selectedMethod === m.id ? 'selected' : ''}`}
+                      className={`payment-tile flex flex-col items-center justify-center gap-3 p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer ${
+                        selectedMethod === m.id
+                          ? 'border-red-500 bg-red-500/15 shadow-red-glow ring-2 ring-red-500/30'
+                          : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                      }`}
                     >
-                      <span className="text-2xl">{m.emoji}</span>
-                      <span className="text-white text-xs font-semibold">{m.label}</span>
+                      <div className="w-full max-w-[170px] h-12 rounded-xl bg-white flex items-center justify-center px-4 py-2 shadow-md">
+                        <img src={m.logo} alt={m.label} className="h-full w-auto max-h-8 object-contain" />
+                      </div>
+                      <span className="text-white text-sm font-bold tracking-wide">{m.label}</span>
                     </button>
                   ))}
                 </div>
