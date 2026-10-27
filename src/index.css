@@ -113,6 +113,14 @@ body {
   border-color: #E11D2E;
   box-shadow: 0 0 0 3px rgba(225,29,46,0.20);
 }
+.glass-input.has-icon-left,
+.glass-input.pl-10 {
+  padding-left: 44px !important;
+}
+.glass-input.has-icon-right,
+.glass-input.pr-10 {
+  padding-right: 44px !important;
+}
 
 /* ── Navbar ──────────────────────────────────────── */
 .navbar {

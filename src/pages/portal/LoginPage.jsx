@@ -198,13 +198,14 @@ export default function LoginPage() {
                       <span className="text-[10px] text-red-400 font-mono">Format: RL-XXXXXX</span>
                     </label>
                     <div className="relative">
-                      <Hash size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B8B8C0]" />
+                      <Hash size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B8B8C0] pointer-events-none" />
                       <input
                         type="text"
                         placeholder="e.g. RL-001234"
                         value={customerId}
                         onChange={(e) => setCustomerId(e.target.value.toUpperCase())}
-                        className="glass-input pl-10 text-sm font-mono tracking-wider font-semibold uppercase"
+                        className="glass-input has-icon-left text-sm font-mono tracking-wider font-semibold uppercase"
+                        style={{ paddingLeft: '44px' }}
                       />
                     </div>
                     {errors.customerId && (
@@ -225,13 +226,14 @@ export default function LoginPage() {
                       <span className="text-[10px] text-red-400 font-mono">Any registered email</span>
                     </label>
                     <div className="relative">
-                      <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B8B8C0]" />
+                      <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B8B8C0] pointer-events-none" />
                       <input
                         type="email"
                         placeholder="e.g. karim@gmail.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="glass-input pl-10 text-sm"
+                        className="glass-input has-icon-left text-sm"
+                        style={{ paddingLeft: '44px' }}
                       />
                     </div>
                     {errors.email && (
@@ -255,18 +257,19 @@ export default function LoginPage() {
                   </Link>
                 </div>
                 <div className="relative">
-                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B8B8C0]" />
+                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B8B8C0] pointer-events-none" />
                   <input
                     type={showPw ? 'text' : 'password'}
                     placeholder="Enter password or PIN"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="glass-input pl-10 pr-10 text-sm"
+                    className="glass-input has-icon-left has-icon-right text-sm"
+                    style={{ paddingLeft: '44px', paddingRight: '44px' }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6B6B78] hover:text-white transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6B6B78] hover:text-white transition-colors p-1"
                   >
                     {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
