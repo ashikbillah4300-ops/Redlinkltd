@@ -7,7 +7,9 @@ import {
   MapPin, Megaphone, Activity, Settings, Shield, LogOut, Search,
   Plus, Filter, CheckCircle2, AlertTriangle, Clock, RefreshCw,
   Edit2, Trash2, Eye, ArrowUpRight, TrendingUp, Download, Globe,
-  Phone, Mail, Server, Menu, X, Sparkles, Check, Globe2, Radio, Navigation, Zap
+  Phone, Mail, Server, Menu, X, Sparkles, Check, Globe2, Radio, Navigation, Zap,
+  ChevronLeft, ChevronRight, Copy, ArrowUp, ArrowDown, Sliders, Timer,
+  Image as ImageIcon, Layers, Upload, Play, Pause, ExternalLink
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
@@ -38,7 +40,7 @@ export default function AdminDashboard() {
     networkNodes, updateNodeStatus,
     homeMapConfig, updateHomeMapConfig,
     addHomeMapPoint, updateHomeMapPoint, deleteHomeMapPoint, resetHomeMapConfig,
-    heroConfig, updateHeroConfig, resetHeroConfig,
+    heroConfig, updateHeroConfig, updateHeroBanner, addHeroBanner, deleteHeroBanner, duplicateHeroBanner, reorderHeroBanners, resetHeroConfig,
     auditLogs
   } = useAdmin();
 
@@ -71,6 +73,25 @@ export default function AdminDashboard() {
   const [newUserForm, setNewUserForm] = useState({
     name: '', nameBn: '', mobile: '', email: '', address: '', package: 'Standard 50 Mbps', speed: 50, dueAmount: 900
   });
+
+  // Hero Banners Setup State
+  const [selectedBannerId, setSelectedBannerId] = useState(null);
+  const [adminPreviewIndex, setAdminPreviewIndex] = useState(0);
+
+  const handleBannerImageUpload = (e, bannerId) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image size must be less than 2MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      updateHeroBanner(bannerId, { imageUrl: uploadEvent.target.result });
+      toast.success('Banner image uploaded successfully!');
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Record Payment Form State
   const [paymentForm, setPaymentForm] = useState({
@@ -428,357 +449,834 @@ export default function AdminDashboard() {
         )}
 
         {/* ── TAB: HOME HERO & BANNER SETUP ── */}
-        {activeTab === 'hero' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <Sparkles size={20} className="text-red-400" />
-                  <h3 className="font-bold text-white text-lg">Home Hero & Banner Setup (হোম ব্যানার ও টেক্সট সেটআপ)</h3>
-                </div>
-                <p className="text-xs text-[#B8B8C0]">
-                  Edit the main hero banner headline, description, action buttons, trust badges, and speedometer visuals shown on the homepage.
-                </p>
-              </div>
-              <button
-                onClick={resetHeroConfig}
-                className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#B8B8C0] hover:text-white text-xs transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
-              >
-                <RefreshCw size={13} />
-                Restore Defaults
-              </button>
-            </div>
+        {activeTab === 'hero' && (() => {
+          const bannersList = Array.isArray(heroConfig?.banners) && heroConfig.banners.length > 0
+            ? heroConfig.banners
+            : [];
 
-            {/* Live Hero Banner Preview Card */}
-            <GlassCard className="p-6 relative overflow-hidden border border-red-500/20 bg-gradient-to-br from-black/80 via-[#0e0e12]/80 to-red-950/20">
-              <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                  <span className="font-bold text-white text-xs uppercase tracking-wider">Live Homepage Preview</span>
-                </div>
-                <span className="text-[11px] text-[#B8B8C0]">Changes reflect instantly on the public website</span>
-              </div>
+          const currentEditingBanner = bannersList.find((b) => b.id === selectedBannerId) || bannersList[0] || {};
+          const safePreviewIdx = bannersList.length > 0 ? adminPreviewIndex % bannersList.length : 0;
+          const previewBanner = bannersList[safePreviewIdx] || currentEditingBanner;
+          const currentInterval = Number(heroConfig?.autoScrollInterval) || 5;
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-                <div className="lg:col-span-2 space-y-3">
-                  <span className="section-tag inline-block text-xs py-1 px-3">
-                    {heroConfig?.badge || "🚀 Bangladesh's #1 Fiber ISP"}
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-black font-poppins text-white leading-tight">
-                    {heroConfig?.titleLine1 || "Ultra-Fast Internet."}<br />
-                    <span className="gradient-text">{heroConfig?.titleHighlight || "Zero Interruption."}</span>
-                  </h2>
-                  <p className="text-xs sm:text-sm text-[#B8B8C0] leading-relaxed max-w-xl">
-                    {heroConfig?.subtitle || "Reliable fiber broadband across Bangladesh. Experience speeds up to 100 Mbps with 99.9% uptime guarantee."}
+          const previewGlow = previewBanner?.themeGlow || 'red';
+          const previewHighlightClass = previewGlow === 'blue'
+            ? 'bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 bg-clip-text text-transparent'
+            : previewGlow === 'purple'
+            ? 'bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent'
+            : previewGlow === 'emerald'
+            ? 'bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent'
+            : 'gradient-text';
+
+          return (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={20} className="text-red-400" />
+                    <h3 className="font-bold text-white text-lg">Home Hero & Banner Setup (হোম ব্যানার ও স্লাইডার সেটআপ)</h3>
+                  </div>
+                  <p className="text-xs text-[#B8B8C0]">
+                    হোমপেজের ব্যানারগুলো কনফিগার করুন, অটো-স্ক্রল সময় (সেকেন্ড), স্লাইডার নেভিগেশন ও স্পিডোমিটার মেট্রিক্স সেট করুন।
                   </p>
-                  <div className="flex flex-wrap items-center gap-2.5 pt-1">
-                    <span className="btn-primary text-xs px-4 py-2 pointer-events-none">
-                      {heroConfig?.btnPrimaryText || "View Packages"} →
+                </div>
+                <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+                  <a
+                    href="/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs transition-all flex items-center gap-1.5 cursor-pointer border border-white/10"
+                    title="Open Homepage in a new tab to view changes live"
+                  >
+                    <ExternalLink size={13} className="text-red-400" />
+                    <span>View Homepage Live (হোমপেজে দেখুন)</span>
+                  </a>
+                  <button
+                    onClick={() => {
+                      const newId = addHeroBanner({ name: `Promo Slide ${bannersList.length + 1}` });
+                      setSelectedBannerId(newId);
+                    }}
+                    className="btn-primary text-xs px-4 py-2 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus size={14} />
+                    <span>+ Add New Banner (+ নতুন ব্যানার)</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      localStorage.setItem('redlink_admin_hero_config', JSON.stringify(heroConfig));
+                      toast.success('Banners & auto-scroll interval saved live!', { icon: '✅' });
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                    title="Force immediate save to localStorage"
+                  >
+                    <CheckCircle2 size={13} />
+                    <span>Save All (সংরক্ষণ)</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      resetHeroConfig();
+                      toast.success('Restored 3 default multi-slide banners!');
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#B8B8C0] hover:text-white text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                    title="Restore default 3 multi-slide banners"
+                  >
+                    <RefreshCw size={13} />
+                    <span>Restore Defaults</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* ── CARD 1: CAROUSEL & AUTO-SCROLL CONFIGURATION ── */}
+              <GlassCard className="p-6 relative overflow-hidden border border-red-500/30 bg-gradient-to-br from-red-950/20 via-black/80 to-[#0e0e12]">
+                <div className="flex items-center gap-2 pb-3 mb-4 border-b border-white/10">
+                  <Sliders size={18} className="text-red-400" />
+                  <span className="font-bold text-white text-sm">
+                    Carousel & Auto-Scroll Setup (স্লাইডার ও অটো-স্ক্রল সময় নির্ধারণ)
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
+                  {/* Auto-Scroll Toggle */}
+                  <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/8 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-white font-bold">Auto-Scroll (স্বয়ংক্রিয় স্ক্রল)</span>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={heroConfig?.autoScroll !== false}
+                          onChange={(e) => updateHeroConfig({ autoScroll: e.target.checked })}
+                          className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
+                      </label>
+                    </div>
+                    <p className="text-[11px] text-[#B8B8C0]">
+                      চালু থাকলে ব্যানারগুলো একা একাই নির্দিষ্ট সময় পর পর পরিবর্তন হবে।
+                    </p>
+                  </div>
+
+                  {/* Auto-Scroll Interval Input & Range Slider */}
+                  <div className="p-4 rounded-2xl bg-white/[0.02] border border-red-500/20 md:col-span-2 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Timer size={15} className="text-red-400" />
+                        <span className="text-xs text-white font-bold">
+                          অটো স্ক্রল সময় (সেকেন্ড) / Auto Scroll Interval
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          min="1"
+                          max="60"
+                          value={currentInterval}
+                          onChange={(e) => updateHeroConfig({ autoScrollInterval: Math.max(1, Number(e.target.value)) })}
+                          className="w-16 text-center glass-input py-1 px-2 font-mono font-bold text-red-400 text-sm"
+                        />
+                        <span className="text-xs text-white font-medium">সেকেন্ড (Sec)</span>
+                      </div>
+                    </div>
+
+                    {/* Range Slider */}
+                    <input
+                      type="range"
+                      min="2"
+                      max="20"
+                      step="1"
+                      value={currentInterval}
+                      onChange={(e) => updateHeroConfig({ autoScrollInterval: Number(e.target.value) })}
+                      className="w-full accent-red-500 cursor-pointer h-2 bg-white/10 rounded-lg"
+                    />
+
+                    {/* Quick Presets */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="text-[11px] text-[#B8B8C0]">দ্রুত নির্বাচন:</span>
+                      {[
+                        { sec: 3, label: '3s (দ্রুত)' },
+                        { sec: 5, label: '5s (স্ট্যান্ডার্ড)' },
+                        { sec: 7, label: '7s (রিল্যাক্সড)' },
+                        { sec: 10, label: '10s (ধীর)' }
+                      ].map((item) => (
+                        <button
+                          key={item.sec}
+                          type="button"
+                          onClick={() => updateHeroConfig({ autoScrollInterval: item.sec })}
+                          className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                            currentInterval === item.sec
+                              ? 'bg-red-600/30 text-white border-red-500 font-bold'
+                              : 'bg-white/5 text-[#B8B8C0] border-white/10 hover:text-white'
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pause on Hover & Nav Controls */}
+                  <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/8 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-white font-bold">Pause on Hover</span>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={heroConfig?.pauseOnHover !== false}
+                          onChange={(e) => updateHeroConfig({ pauseOnHover: e.target.checked })}
+                          className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
+                      </label>
+                    </div>
+                    <p className="text-[11px] text-[#B8B8C0]">
+                      মাউস আনলে অটো-স্ক্রল সাময়িক থেমে থাকবে যেন ভিজিটর শান্তিমতো পড়তে পারে।
+                    </p>
+                  </div>
+                </div>
+              </GlassCard>
+
+              {/* ── CARD 2: LIVE HOMEPAGE PREVIEW SLIDER ── */}
+              <GlassCard className="p-6 relative overflow-hidden border border-red-500/20 bg-gradient-to-br from-black/90 via-[#0e0e12] to-red-950/20">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span className="font-bold text-white text-xs uppercase tracking-wider">
+                      Live Homepage Carousel Preview (লাইভ হোমপেজ প্রিভিউ)
                     </span>
-                    <span className="btn-outline text-xs px-4 py-2 pointer-events-none">
-                      {heroConfig?.btnSecondaryText || "Pay Bill"}
+                    <span className="px-2 py-0.5 rounded-md bg-red-600/20 border border-red-500/30 text-red-400 text-[11px] font-mono">
+                      Slide {safePreviewIdx + 1} of {bannersList.length}
                     </span>
-                    {heroConfig?.showSpeedTestBtn !== false && (
-                      <span className="px-3 py-2 rounded-xl bg-white/5 border border-red-500/30 text-white text-xs flex items-center gap-1.5 pointer-events-none">
-                        <Zap size={13} className="text-red-400" />
-                        {heroConfig?.speedTestBtnText || "Live Speed Test"}
+                    {heroConfig?.autoScroll !== false && (
+                      <span className="px-2 py-0.5 rounded-md bg-white/5 text-[#B8B8C0] text-[11px] font-mono">
+                        ⚡ Auto-scroll: {currentInterval}s
                       </span>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-3 pt-2 text-[11px] text-[#B8B8C0]">
-                    <span>{heroConfig?.badge1Icon || "⚡"} {heroConfig?.badge1Text || "99.9% Uptime"}</span>
-                    <span>{heroConfig?.badge2Icon || "🛡️"} {heroConfig?.badge2Text || "24/7 Support"}</span>
-                    <span>{heroConfig?.badge3Icon || "💸"} {heroConfig?.badge3Text || "No Hidden Fees"}</span>
+
+                  {/* Preview Navigation */}
+                  <div className="flex items-center gap-2">
+                    {bannersList.map((b, i) => (
+                      <button
+                        key={b.id || i}
+                        type="button"
+                        onClick={() => setAdminPreviewIndex(i)}
+                        className={`text-xs px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                          i === safePreviewIdx
+                            ? 'bg-red-600 text-white border-red-500 font-bold'
+                            : 'bg-white/5 text-[#B8B8C0] border-white/10 hover:text-white'
+                        }`}
+                      >
+                        Slide {i + 1}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setAdminPreviewIndex((prev) => (prev - 1 + bannersList.length) % bannersList.length)}
+                      className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center cursor-pointer"
+                      title="Previous Slide"
+                    >
+                      <ChevronLeft size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAdminPreviewIndex((prev) => (prev + 1) % bannersList.length)}
+                      className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-white flex items-center justify-center cursor-pointer"
+                      title="Next Slide"
+                    >
+                      <ChevronRight size={14} />
+                    </button>
                   </div>
                 </div>
 
-                {/* Speedometer preview box */}
-                <div className="lg:col-span-1 flex justify-center">
-                  <div className="p-5 rounded-2xl glass-card-static border border-red-500/30 text-center relative w-48 h-48 flex flex-col items-center justify-center">
-                    <div className="text-3xl font-black gradient-text font-poppins">
-                      {heroConfig?.visualSpeed || "100"}
-                    </div>
-                    <div className="text-[#B8B8C0] text-xs font-medium">
-                      {heroConfig?.visualUnit || "Mbps Fiber"}
-                    </div>
-                    <div className="flex items-center gap-1 mt-1 text-[10px] text-green-400 font-mono">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                      <span>{heroConfig?.visualCta || "Click to Test"}</span>
-                    </div>
-                    <span className="absolute -top-2 -right-2 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30">
-                      {heroConfig?.visualUptime || "99.9%"}
+                {/* Banner Content Preview */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                  <div className="lg:col-span-2 space-y-3">
+                    <span className="section-tag inline-block text-xs py-1 px-3">
+                      {previewBanner?.badge || "🚀 Bangladesh's #1 Fiber ISP"}
                     </span>
-                    <span className="absolute -bottom-2 -left-2 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30">
-                      {heroConfig?.visualPing || "<5ms"}
-                    </span>
+                    <h2 className="text-2xl sm:text-3xl font-black font-poppins text-white leading-tight">
+                      {previewBanner?.titleLine1 || "Ultra-Fast Internet."}<br />
+                      <span className={previewHighlightClass}>
+                        {previewBanner?.titleHighlight || "Zero Interruption."}
+                      </span>
+                    </h2>
+                    <p className="text-xs sm:text-sm text-[#B8B8C0] leading-relaxed max-w-xl">
+                      {previewBanner?.subtitle || "Reliable fiber broadband across Bangladesh. Experience speeds up to 100 Mbps with 99.9% uptime guarantee."}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                      <span className="btn-primary text-xs px-4 py-2 pointer-events-none">
+                        {previewBanner?.btnPrimaryText || "View Packages"} →
+                      </span>
+                      <span className="btn-outline text-xs px-4 py-2 pointer-events-none">
+                        {previewBanner?.btnSecondaryText || "Pay Bill"}
+                      </span>
+                      {previewBanner?.showSpeedTestBtn !== false && (
+                        <span className="px-3 py-2 rounded-xl bg-white/5 border border-red-500/30 text-white text-xs flex items-center gap-1.5 pointer-events-none">
+                          <Zap size={13} className="text-red-400" />
+                          {previewBanner?.speedTestBtnText || "Live Speed Test"}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-3 pt-2 text-[11px] text-[#B8B8C0]">
+                      <span>{previewBanner?.badge1Icon || "⚡"} {previewBanner?.badge1Text || "99.9% Uptime"}</span>
+                      <span>{previewBanner?.badge2Icon || "🛡️"} {previewBanner?.badge2Text || "24/7 Support"}</span>
+                      <span>{previewBanner?.badge3Icon || "💸"} {previewBanner?.badge3Text || "No Hidden Fees"}</span>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </GlassCard>
 
-            {/* Configuration Tabs & Form Controls */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Card 1: Badges & Main Headlines */}
-              <GlassCard className="p-6 space-y-4">
-                <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
-                  1. Headlines & Top Badge (হেডলাইন ও ব্যাজ)
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <FormInput
-                    label="Top Badge Text (English)"
-                    value={heroConfig?.badge || ''}
-                    onChange={(e) => updateHeroConfig({ badge: e.target.value })}
-                    placeholder="🚀 Bangladesh's #1 Fiber ISP"
-                  />
-                  <FormInput
-                    label="Top Badge Text (Bangla)"
-                    value={heroConfig?.badgeBn || ''}
-                    onChange={(e) => updateHeroConfig({ badgeBn: e.target.value })}
-                    placeholder="🚀 বাংলাদেশের সেরা ইন্টারনেট"
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <FormInput
-                    label="Headline Line 1 (English)"
-                    value={heroConfig?.titleLine1 || ''}
-                    onChange={(e) => updateHeroConfig({ titleLine1: e.target.value })}
-                    placeholder="Ultra-Fast Internet."
-                  />
-                  <FormInput
-                    label="Headline Line 1 (Bangla)"
-                    value={heroConfig?.titleLine1Bn || ''}
-                    onChange={(e) => updateHeroConfig({ titleLine1Bn: e.target.value })}
-                    placeholder="অতি-দ্রুত ইন্টারনেট।"
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <FormInput
-                    label="Highlight Line 2 (English - Red Gradient)"
-                    value={heroConfig?.titleHighlight || ''}
-                    onChange={(e) => updateHeroConfig({ titleHighlight: e.target.value })}
-                    placeholder="Zero Interruption."
-                  />
-                  <FormInput
-                    label="Highlight Line 2 (Bangla - Red Gradient)"
-                    value={heroConfig?.titleHighlightBn || ''}
-                    onChange={(e) => updateHeroConfig({ titleHighlightBn: e.target.value })}
-                    placeholder="জিরো বিঘ্ন।"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-[#B8B8C0] font-medium block mb-1">Hero Description / Subtitle (English)</label>
-                  <textarea
-                    rows={2}
-                    value={heroConfig?.subtitle || ''}
-                    onChange={(e) => updateHeroConfig({ subtitle: e.target.value })}
-                    className="glass-input text-xs w-full"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-[#B8B8C0] font-medium block mb-1">Hero Description / Subtitle (Bangla)</label>
-                  <textarea
-                    rows={2}
-                    value={heroConfig?.subtitleBn || ''}
-                    onChange={(e) => updateHeroConfig({ subtitleBn: e.target.value })}
-                    className="glass-input text-xs w-full"
-                  />
-                </div>
-              </GlassCard>
-
-              {/* Card 2: Action Buttons & Navigation */}
-              <GlassCard className="p-6 space-y-4">
-                <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
-                  2. Action Buttons & Navigation (অ্যাকশন বাটন)
-                </span>
-                
-                {/* Primary Button */}
-                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/8 space-y-3">
-                  <span className="text-[11px] text-red-400 font-bold uppercase tracking-wider block">Primary Button (Red)</span>
-                  <div className="grid grid-cols-2 gap-3">
-                    <FormInput
-                      label="Label (English)"
-                      value={heroConfig?.btnPrimaryText || ''}
-                      onChange={(e) => updateHeroConfig({ btnPrimaryText: e.target.value })}
-                    />
-                    <FormInput
-                      label="Label (Bangla)"
-                      value={heroConfig?.btnPrimaryTextBn || ''}
-                      onChange={(e) => updateHeroConfig({ btnPrimaryTextBn: e.target.value })}
-                    />
-                  </div>
-                  <FormInput
-                    label="Target Link Destination"
-                    value={heroConfig?.btnPrimaryLink || '/packages'}
-                    onChange={(e) => updateHeroConfig({ btnPrimaryLink: e.target.value })}
-                  />
-                </div>
-
-                {/* Secondary Button */}
-                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/8 space-y-3">
-                  <span className="text-[11px] text-[#B8B8C0] font-bold uppercase tracking-wider block">Secondary Button (Outline)</span>
-                  <div className="grid grid-cols-2 gap-3">
-                    <FormInput
-                      label="Label (English)"
-                      value={heroConfig?.btnSecondaryText || ''}
-                      onChange={(e) => updateHeroConfig({ btnSecondaryText: e.target.value })}
-                    />
-                    <FormInput
-                      label="Label (Bangla)"
-                      value={heroConfig?.btnSecondaryTextBn || ''}
-                      onChange={(e) => updateHeroConfig({ btnSecondaryTextBn: e.target.value })}
-                    />
-                  </div>
-                  <FormInput
-                    label="Target Link Destination"
-                    value={heroConfig?.btnSecondaryLink || '/pay-bill'}
-                    onChange={(e) => updateHeroConfig({ btnSecondaryLink: e.target.value })}
-                  />
-                </div>
-
-                {/* Speed Test Button */}
-                <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/8 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-white font-bold uppercase tracking-wider">Speed Test Button</span>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={heroConfig?.showSpeedTestBtn !== false}
-                        onChange={(e) => updateHeroConfig({ showSpeedTestBtn: e.target.checked })}
-                        className="sr-only peer"
-                      />
-                      <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
-                    </label>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <FormInput
-                      label="Label (English)"
-                      value={heroConfig?.speedTestBtnText || ''}
-                      onChange={(e) => updateHeroConfig({ speedTestBtnText: e.target.value })}
-                    />
-                    <FormInput
-                      label="Label (Bangla)"
-                      value={heroConfig?.speedTestBtnTextBn || ''}
-                      onChange={(e) => updateHeroConfig({ speedTestBtnTextBn: e.target.value })}
-                    />
+                  {/* Right side visual preview */}
+                  <div className="lg:col-span-1 flex justify-center">
+                    {previewBanner?.rightVisualType === 'image' && previewBanner?.imageUrl ? (
+                      <div className="w-48 h-48 rounded-2xl overflow-hidden border border-white/10 relative group">
+                        <img src={previewBanner.imageUrl} alt="Banner" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <span className="text-xs font-bold text-white px-2.5 py-1 rounded-md bg-black/60">
+                            {previewBanner.visualSpeed || '100'} Mbps
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-5 rounded-2xl glass-card-static border border-red-500/30 text-center relative w-48 h-48 flex flex-col items-center justify-center">
+                        <div className="text-3xl font-black gradient-text font-poppins">
+                          {previewBanner?.visualSpeed || "100"}
+                        </div>
+                        <div className="text-[#B8B8C0] text-xs font-medium">
+                          {previewBanner?.visualUnit || "Mbps Fiber"}
+                        </div>
+                        <div className="flex items-center gap-1 mt-1 text-[10px] text-green-400 font-mono">
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                          <span>{previewBanner?.visualCta || "Click to Test"}</span>
+                        </div>
+                        <span className="absolute -top-2 -right-2 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30">
+                          {previewBanner?.visualUptime || "99.9%"}
+                        </span>
+                        <span className="absolute -bottom-2 -left-2 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30">
+                          {previewBanner?.visualPing || "<5ms"}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </GlassCard>
 
-              {/* Card 3: Speedometer Visual Card Metrics */}
+              {/* ── CARD 3: BANNERS MANAGEMENT LIST (সকল ব্যানারের তালিকা ও ক্রম) ── */}
               <GlassCard className="p-6 space-y-4">
-                <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
-                  3. Right Visual Card & Speedometer Metrics (স্পিডোমিটার মেট্রিক্স)
-                </span>
-                <div className="grid grid-cols-2 gap-3">
-                  <FormInput
-                    label="Showcase Speed Number"
-                    value={heroConfig?.visualSpeed || '100'}
-                    onChange={(e) => updateHeroConfig({ visualSpeed: e.target.value })}
-                    placeholder="100"
-                  />
-                  <FormInput
-                    label="Speed Unit Label"
-                    value={heroConfig?.visualUnit || 'Mbps Fiber'}
-                    onChange={(e) => updateHeroConfig({ visualUnit: e.target.value })}
-                    placeholder="Mbps Fiber"
-                  />
+                <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <Layers size={18} className="text-red-400" />
+                    <div>
+                      <span className="font-bold text-white text-sm block">
+                        Manage Banners List (ব্যানার তালিকা ও ক্রম নিয়ন্ত্রণ)
+                      </span>
+                      <span className="text-[11px] text-[#B8B8C0]">
+                        একাধিক ব্যানার যোগ করুন, ক্রম সাজান বা সক্রিয়/নিষ্ক্রিয় করুন।
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white font-mono">
+                    Total: {bannersList.length} Banners
+                  </span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <FormInput
-                    label="Ping Latency Tag"
-                    value={heroConfig?.visualPing || '<5ms'}
-                    onChange={(e) => updateHeroConfig({ visualPing: e.target.value })}
-                    placeholder="<5ms"
-                  />
-                  <FormInput
-                    label="Uptime Metric Tag"
-                    value={heroConfig?.visualUptime || '99.9%'}
-                    onChange={(e) => updateHeroConfig({ visualUptime: e.target.value })}
-                    placeholder="99.9%"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <FormInput
-                    label="Action Label (English)"
-                    value={heroConfig?.visualCta || 'Click to Test'}
-                    onChange={(e) => updateHeroConfig({ visualCta: e.target.value })}
-                    placeholder="Click to Test"
-                  />
-                  <FormInput
-                    label="Action Label (Bangla)"
-                    value={heroConfig?.visualCtaBn || 'স্পিড টেস্ট চালান'}
-                    onChange={(e) => updateHeroConfig({ visualCtaBn: e.target.value })}
-                    placeholder="স্পিড টেস্ট চালান"
-                  />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {bannersList.map((banner, index) => {
+                    const isSelected = (currentEditingBanner?.id === banner.id);
+                    return (
+                      <div
+                        key={banner.id || index}
+                        onClick={() => {
+                          setSelectedBannerId(banner.id);
+                          setAdminPreviewIndex(index);
+                        }}
+                        className={`p-4 rounded-2xl transition-all cursor-pointer border relative flex flex-col justify-between gap-3 ${
+                          isSelected
+                            ? 'bg-red-950/30 border-red-500 shadow-[0_0_20px_rgba(225,29,46,0.25)]'
+                            : 'bg-white/[0.02] border-white/8 hover:border-white/20 hover:bg-white/[0.04]'
+                        }`}
+                      >
+                        {/* Top row */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-white text-xs font-mono flex items-center justify-center font-bold">
+                              #{index + 1}
+                            </span>
+                            <div>
+                              <span className="font-bold text-white text-xs block line-clamp-1">
+                                {banner.name || `Banner ${index + 1}`}
+                              </span>
+                              <span className="text-[10px] text-[#B8B8C0]">
+                                {banner.layout === 'image' ? '🖼️ Image Banner' : '⚡ Rich Hero Slide'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Active / Inactive Toggle */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateHeroBanner(banner.id, { active: banner.active === false ? true : false });
+                            }}
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all cursor-pointer ${
+                              banner.active !== false
+                                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                : 'bg-white/5 text-gray-400 border-white/10'
+                            }`}
+                          >
+                            {banner.active !== false ? 'Active' : 'Disabled'}
+                          </button>
+                        </div>
+
+                        {/* Middle info */}
+                        <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 text-[11px] text-[#B8B8C0] space-y-1">
+                          <p className="line-clamp-1 text-white font-medium">
+                            {banner.titleLine1 || 'Headline'} {banner.titleHighlight || ''}
+                          </p>
+                          <div className="flex items-center justify-between text-[10px]">
+                            <span>Speed: {banner.visualSpeed || '100'} {banner.visualUnit || 'Mbps'}</span>
+                            <span className="capitalize px-1.5 py-0.5 rounded bg-white/5 text-white/80">
+                              {banner.themeGlow || 'red'} glow
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex items-center justify-between pt-2 border-t border-white/5" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => reorderHeroBanners(index, index - 1)}
+                              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[#B8B8C0] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                              title="Move Up"
+                            >
+                              <ArrowUp size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === bannersList.length - 1}
+                              onClick={() => reorderHeroBanners(index, index + 1)}
+                              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[#B8B8C0] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                              title="Move Down"
+                            >
+                              <ArrowDown size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => duplicateHeroBanner(banner.id)}
+                              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[#B8B8C0] hover:text-white cursor-pointer"
+                              title="Duplicate Banner"
+                            >
+                              <Copy size={13} />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedBannerId(banner.id);
+                                setAdminPreviewIndex(index);
+                              }}
+                              className={`text-xs px-2.5 py-1 rounded-lg border font-medium cursor-pointer transition-all ${
+                                isSelected
+                                  ? 'bg-red-600 text-white border-red-500'
+                                  : 'bg-white/5 text-white border-white/10 hover:bg-white/10'
+                              }`}
+                            >
+                              {isSelected ? 'Editing' : 'Edit'}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={bannersList.length <= 1}
+                              onClick={() => deleteHeroBanner(banner.id)}
+                              className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                              title="Delete Banner"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </GlassCard>
 
-              {/* Card 4: Trust Badges (Bottom 3 Feature Pills) */}
-              <GlassCard className="p-6 space-y-4">
-                <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
-                  4. Trust Badges & Guarantees (৩টি ট্রাস্ট ব্যাজ)
-                </span>
-                
-                {/* Badge 1 */}
-                <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/8 items-end">
-                  <FormInput
-                    label="Icon"
-                    value={heroConfig?.badge1Icon || '⚡'}
-                    onChange={(e) => updateHeroConfig({ badge1Icon: e.target.value })}
-                  />
-                  <FormInput
-                    label="Text (English)"
-                    value={heroConfig?.badge1Text || '99.9% Uptime'}
-                    onChange={(e) => updateHeroConfig({ badge1Text: e.target.value })}
-                  />
-                  <FormInput
-                    label="Text (Bangla)"
-                    value={heroConfig?.badge1TextBn || '৯৯.৯% আপটাইম'}
-                    onChange={(e) => updateHeroConfig({ badge1TextBn: e.target.value })}
-                  />
-                </div>
+              {/* ── CARD 4: DETAILED BANNER EDITOR FOR SELECTED BANNER ── */}
+              {currentEditingBanner?.id && (
+                <div className="space-y-6 pt-2">
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+                    <div className="flex items-center gap-2">
+                      <Edit2 size={18} className="text-red-400" />
+                      <div>
+                        <h4 className="font-bold text-white text-base">
+                          Editing: <span className="text-red-400 font-poppins">{currentEditingBanner.name || 'Banner Slide'}</span>
+                        </h4>
+                        <p className="text-xs text-[#B8B8C0]">
+                          নিচে এই ব্যানারের টেক্সট, বাটন, স্পিডোমিটার বা ছবি কাস্টমাইজ করুন।
+                        </p>
+                      </div>
+                    </div>
 
-                {/* Badge 2 */}
-                <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/8 items-end">
-                  <FormInput
-                    label="Icon"
-                    value={heroConfig?.badge2Icon || '🛡️'}
-                    onChange={(e) => updateHeroConfig({ badge2Icon: e.target.value })}
-                  />
-                  <FormInput
-                    label="Text (English)"
-                    value={heroConfig?.badge2Text || '24/7 Support'}
-                    onChange={(e) => updateHeroConfig({ badge2Text: e.target.value })}
-                  />
-                  <FormInput
-                    label="Text (Bangla)"
-                    value={heroConfig?.badge2TextBn || '২৪/৭ সাপোর্ট'}
-                    onChange={(e) => updateHeroConfig({ badge2TextBn: e.target.value })}
-                  />
-                </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[#B8B8C0]">Banner Theme Glow:</span>
+                      {['red', 'blue', 'purple', 'emerald'].map((glowColor) => (
+                        <button
+                          key={glowColor}
+                          type="button"
+                          onClick={() => updateHeroBanner(currentEditingBanner.id, { themeGlow: glowColor })}
+                          className={`w-6 h-6 rounded-full border-2 transition-all cursor-pointer ${
+                            glowColor === 'red' ? 'bg-red-600' : glowColor === 'blue' ? 'bg-cyan-500' : glowColor === 'purple' ? 'bg-purple-600' : 'bg-emerald-500'
+                          } ${
+                            (currentEditingBanner.themeGlow || 'red') === glowColor
+                              ? 'border-white scale-110 shadow-lg'
+                              : 'border-transparent opacity-60 hover:opacity-100'
+                          }`}
+                          title={`Select ${glowColor} glow`}
+                        />
+                      ))}
+                    </div>
+                  </div>
 
-                {/* Badge 3 */}
-                <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/8 items-end">
-                  <FormInput
-                    label="Icon"
-                    value={heroConfig?.badge3Icon || '💸'}
-                    onChange={(e) => updateHeroConfig({ badge3Icon: e.target.value })}
-                  />
-                  <FormInput
-                    label="Text (English)"
-                    value={heroConfig?.badge3Text || 'No Hidden Fees'}
-                    onChange={(e) => updateHeroConfig({ badge3Text: e.target.value })}
-                  />
-                  <FormInput
-                    label="Text (Bangla)"
-                    value={heroConfig?.badge3TextBn || 'কোনো লুকানো চার্জ নেই'}
-                    onChange={(e) => updateHeroConfig({ badge3TextBn: e.target.value })}
-                  />
+                  {/* Banner Identity & Layout Selector */}
+                  <GlassCard className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <FormInput
+                      label="Banner Display Label (Admin Reference)"
+                      value={currentEditingBanner.name || ''}
+                      onChange={(e) => updateHeroBanner(currentEditingBanner.id, { name: e.target.value })}
+                      placeholder="e.g. Slide 1: Ultra-Fast Internet"
+                    />
+
+                    <div>
+                      <label className="text-xs text-[#B8B8C0] font-medium block mb-1.5">Banner Layout Type</label>
+                      <select
+                        value={currentEditingBanner.layout || 'hero'}
+                        onChange={(e) => updateHeroBanner(currentEditingBanner.id, { layout: e.target.value })}
+                        className="glass-input text-xs w-full py-2.5"
+                      >
+                        <option value="hero" className="bg-[#121216] text-white">Rich Hero Layout (টেক্সট + বাটন + স্পিডোমিটার)</option>
+                        <option value="image" className="bg-[#121216] text-white">Full Promotional Banner (ফুল ইমেজ ব্যানার)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-xs text-[#B8B8C0] font-medium block mb-1.5">Right Visual Type</label>
+                      <select
+                        value={currentEditingBanner.rightVisualType || 'speedometer'}
+                        onChange={(e) => updateHeroBanner(currentEditingBanner.id, { rightVisualType: e.target.value })}
+                        className="glass-input text-xs w-full py-2.5"
+                      >
+                        <option value="speedometer" className="bg-[#121216] text-white">Interactive Speedometer Dial</option>
+                        <option value="image" className="bg-[#121216] text-white">Custom Graphic / Image Card</option>
+                      </select>
+                    </div>
+                  </GlassCard>
+
+                  {/* If image banner or custom image right visual */}
+                  {(currentEditingBanner.layout === 'image' || currentEditingBanner.rightVisualType === 'image') && (
+                    <GlassCard className="p-6 space-y-4 border border-red-500/20">
+                      <div className="flex items-center gap-2 pb-2 border-b border-white/10">
+                        <ImageIcon size={16} className="text-red-400" />
+                        <span className="font-bold text-white text-sm">Banner Image Upload & URL</span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                        <div className="space-y-3">
+                          <FormInput
+                            label="Image URL (Direct link or upload below)"
+                            value={currentEditingBanner.imageUrl || ''}
+                            onChange={(e) => updateHeroBanner(currentEditingBanner.id, { imageUrl: e.target.value })}
+                            placeholder="https://example.com/banner.jpg"
+                          />
+                          <div>
+                            <label className="text-xs text-[#B8B8C0] font-medium block mb-1.5">
+                              Upload Image File (কম্পিউটার থেকে ছবি দিন)
+                            </label>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleBannerImageUpload(e, currentEditingBanner.id)}
+                              className="text-xs text-[#B8B8C0] file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer"
+                            />
+                          </div>
+                        </div>
+                        {currentEditingBanner.imageUrl && (
+                          <div className="w-full h-36 rounded-xl overflow-hidden border border-white/10 relative">
+                            <img src={currentEditingBanner.imageUrl} alt="Banner Preview" className="w-full h-full object-cover" />
+                            <span className="absolute bottom-2 right-2 text-[10px] bg-black/70 px-2 py-0.5 rounded text-white">
+                              Image Preview
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </GlassCard>
+                  )}
+
+                  {/* Form Controls: Card 1 - Headlines & Badges */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <GlassCard className="p-6 space-y-4">
+                      <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
+                        1. Headlines & Top Badge (হেডলাইন ও ব্যাজ)
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <FormInput
+                          label="Top Badge Text (English)"
+                          value={currentEditingBanner.badge || ''}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badge: e.target.value })}
+                          placeholder="🚀 Bangladesh's #1 Fiber ISP"
+                        />
+                        <FormInput
+                          label="Top Badge Text (Bangla)"
+                          value={currentEditingBanner.badgeBn || ''}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badgeBn: e.target.value })}
+                          placeholder="🚀 বাংলাদেশের সেরা ইন্টারনেট"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <FormInput
+                          label="Headline Line 1 (English)"
+                          value={currentEditingBanner.titleLine1 || ''}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { titleLine1: e.target.value })}
+                          placeholder="Ultra-Fast Internet."
+                        />
+                        <FormInput
+                          label="Headline Line 1 (Bangla)"
+                          value={currentEditingBanner.titleLine1Bn || ''}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { titleLine1Bn: e.target.value })}
+                          placeholder="অতি-দ্রুত ইন্টারনেট।"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <FormInput
+                          label="Highlight Line 2 (English - Gradient)"
+                          value={currentEditingBanner.titleHighlight || ''}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { titleHighlight: e.target.value })}
+                          placeholder="Zero Interruption."
+                        />
+                        <FormInput
+                          label="Highlight Line 2 (Bangla - Gradient)"
+                          value={currentEditingBanner.titleHighlightBn || ''}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { titleHighlightBn: e.target.value })}
+                          placeholder="জিরো বিঘ্ন।"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-[#B8B8C0] font-medium block mb-1">Hero Description / Subtitle (English)</label>
+                        <textarea
+                          rows={2}
+                          value={currentEditingBanner.subtitle || ''}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { subtitle: e.target.value })}
+                          className="glass-input text-xs w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-[#B8B8C0] font-medium block mb-1">Hero Description / Subtitle (Bangla)</label>
+                        <textarea
+                          rows={2}
+                          value={currentEditingBanner.subtitleBn || ''}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { subtitleBn: e.target.value })}
+                          className="glass-input text-xs w-full"
+                        />
+                      </div>
+                    </GlassCard>
+
+                    {/* Card 2: Action Buttons & Navigation */}
+                    <GlassCard className="p-6 space-y-4">
+                      <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
+                        2. Action Buttons & Navigation (অ্যাকশন বাটন)
+                      </span>
+                      
+                      {/* Primary Button */}
+                      <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/8 space-y-3">
+                        <span className="text-[11px] text-red-400 font-bold uppercase tracking-wider block">Primary Button</span>
+                        <div className="grid grid-cols-2 gap-3">
+                          <FormInput
+                            label="Label (English)"
+                            value={currentEditingBanner.btnPrimaryText || ''}
+                            onChange={(e) => updateHeroBanner(currentEditingBanner.id, { btnPrimaryText: e.target.value })}
+                          />
+                          <FormInput
+                            label="Label (Bangla)"
+                            value={currentEditingBanner.btnPrimaryTextBn || ''}
+                            onChange={(e) => updateHeroBanner(currentEditingBanner.id, { btnPrimaryTextBn: e.target.value })}
+                          />
+                        </div>
+                        <FormInput
+                          label="Target Link Destination"
+                          value={currentEditingBanner.btnPrimaryLink || '/packages'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { btnPrimaryLink: e.target.value })}
+                        />
+                      </div>
+
+                      {/* Secondary Button */}
+                      <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/8 space-y-3">
+                        <span className="text-[11px] text-[#B8B8C0] font-bold uppercase tracking-wider block">Secondary Button</span>
+                        <div className="grid grid-cols-2 gap-3">
+                          <FormInput
+                            label="Label (English)"
+                            value={currentEditingBanner.btnSecondaryText || ''}
+                            onChange={(e) => updateHeroBanner(currentEditingBanner.id, { btnSecondaryText: e.target.value })}
+                          />
+                          <FormInput
+                            label="Label (Bangla)"
+                            value={currentEditingBanner.btnSecondaryTextBn || ''}
+                            onChange={(e) => updateHeroBanner(currentEditingBanner.id, { btnSecondaryTextBn: e.target.value })}
+                          />
+                        </div>
+                        <FormInput
+                          label="Target Link Destination"
+                          value={currentEditingBanner.btnSecondaryLink || '/pay-bill'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { btnSecondaryLink: e.target.value })}
+                        />
+                      </div>
+
+                      {/* Speed Test Button */}
+                      <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/8 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-white font-bold uppercase tracking-wider">Speed Test Button</span>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={currentEditingBanner.showSpeedTestBtn !== false}
+                              onChange={(e) => updateHeroBanner(currentEditingBanner.id, { showSpeedTestBtn: e.target.checked })}
+                              className="sr-only peer"
+                            />
+                            <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
+                          </label>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <FormInput
+                            label="Label (English)"
+                            value={currentEditingBanner.speedTestBtnText || ''}
+                            onChange={(e) => updateHeroBanner(currentEditingBanner.id, { speedTestBtnText: e.target.value })}
+                          />
+                          <FormInput
+                            label="Label (Bangla)"
+                            value={currentEditingBanner.speedTestBtnTextBn || ''}
+                            onChange={(e) => updateHeroBanner(currentEditingBanner.id, { speedTestBtnTextBn: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </GlassCard>
+
+                    {/* Card 3: Speedometer Visual Card Metrics */}
+                    <GlassCard className="p-6 space-y-4">
+                      <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
+                        3. Right Visual Card & Speedometer Metrics (স্পিডোমিটার মেট্রিক্স)
+                      </span>
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormInput
+                          label="Showcase Speed Number"
+                          value={currentEditingBanner.visualSpeed || '100'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { visualSpeed: e.target.value })}
+                          placeholder="100"
+                        />
+                        <FormInput
+                          label="Speed Unit Label"
+                          value={currentEditingBanner.visualUnit || 'Mbps Fiber'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { visualUnit: e.target.value })}
+                          placeholder="Mbps Fiber"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormInput
+                          label="Ping Latency Tag"
+                          value={currentEditingBanner.visualPing || '<5ms'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { visualPing: e.target.value })}
+                          placeholder="<5ms"
+                        />
+                        <FormInput
+                          label="Uptime Metric Tag"
+                          value={currentEditingBanner.visualUptime || '99.9%'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { visualUptime: e.target.value })}
+                          placeholder="99.9%"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormInput
+                          label="Action Label (English)"
+                          value={currentEditingBanner.visualCta || 'Click to Test'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { visualCta: e.target.value })}
+                          placeholder="Click to Test"
+                        />
+                        <FormInput
+                          label="Action Label (Bangla)"
+                          value={currentEditingBanner.visualCtaBn || 'স্পিড টেস্ট চালান'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { visualCtaBn: e.target.value })}
+                          placeholder="স্পিড টেস্ট চালান"
+                        />
+                      </div>
+                    </GlassCard>
+
+                    {/* Card 4: Trust Badges */}
+                    <GlassCard className="p-6 space-y-4">
+                      <span className="font-bold text-white text-sm block pb-2 border-b border-white/10">
+                        4. Trust Badges & Guarantees (৩টি ট্রাস্ট ব্যাজ)
+                      </span>
+                      
+                      {/* Badge 1 */}
+                      <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/8 items-end">
+                        <FormInput
+                          label="Icon"
+                          value={currentEditingBanner.badge1Icon || '⚡'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badge1Icon: e.target.value })}
+                        />
+                        <FormInput
+                          label="Text (English)"
+                          value={currentEditingBanner.badge1Text || '99.9% Uptime'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badge1Text: e.target.value })}
+                        />
+                        <FormInput
+                          label="Text (Bangla)"
+                          value={currentEditingBanner.badge1TextBn || '৯৯.৯% আপটাইম'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badge1TextBn: e.target.value })}
+                        />
+                      </div>
+
+                      {/* Badge 2 */}
+                      <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/8 items-end">
+                        <FormInput
+                          label="Icon"
+                          value={currentEditingBanner.badge2Icon || '🛡️'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badge2Icon: e.target.value })}
+                        />
+                        <FormInput
+                          label="Text (English)"
+                          value={currentEditingBanner.badge2Text || '24/7 Support'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badge2Text: e.target.value })}
+                        />
+                        <FormInput
+                          label="Text (Bangla)"
+                          value={currentEditingBanner.badge2TextBn || '২৪/৭ সাপোর্ট'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badge2TextBn: e.target.value })}
+                        />
+                      </div>
+
+                      {/* Badge 3 */}
+                      <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-white/[0.02] border border-white/8 items-end">
+                        <FormInput
+                          label="Icon"
+                          value={currentEditingBanner.badge3Icon || '💸'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badge3Icon: e.target.value })}
+                        />
+                        <FormInput
+                          label="Text (English)"
+                          value={currentEditingBanner.badge3Text || 'No Hidden Fees'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badge3Text: e.target.value })}
+                        />
+                        <FormInput
+                          label="Text (Bangla)"
+                          value={currentEditingBanner.badge3TextBn || 'কোনো লুকানো চার্জ নেই'}
+                          onChange={(e) => updateHeroBanner(currentEditingBanner.id, { badge3TextBn: e.target.value })}
+                        />
+                      </div>
+                    </GlassCard>
+                  </div>
                 </div>
-              </GlassCard>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* ── TAB 2: SUBSCRIBERS / USERS MANAGEMENT ── */}
         {activeTab === 'users' && (

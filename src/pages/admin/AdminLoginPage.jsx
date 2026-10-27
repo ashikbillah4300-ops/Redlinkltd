@@ -14,9 +14,11 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
 
   // If already logged in, redirect directly to admin
-  if (isAdminLoggedIn) {
-    navigate('/admin');
-  }
+  useEffect(() => {
+    if (isAdminLoggedIn) {
+      navigate('/admin', { replace: true });
+    }
+  }, [isAdminLoggedIn, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

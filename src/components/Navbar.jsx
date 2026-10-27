@@ -102,6 +102,16 @@ export default function Navbar() {
                 {isLoggedIn ? (isBn ? 'পোর্টাল' : 'Portal') : (isBn ? 'লগইন' : 'Login')}
               </Link>
 
+              {/* Admin Console Direct Link */}
+              <Link
+                to="/admin"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-600/15 hover:bg-red-600 border border-red-500/30 hover:border-red-500 text-xs font-semibold text-red-300 hover:text-white transition-all shadow-sm"
+                title="Admin Console (Hero Banners & Auto-Scroll Setup)"
+              >
+                <Shield size={13} />
+                <span>{isBn ? 'অ্যাডমিন' : 'Admin'}</span>
+              </Link>
+
               {/* Mobile Menu Toggle */}
               <button
                 className="lg:hidden w-10 h-10 rounded-xl bg-white/8 border border-white/12 flex items-center justify-center text-white"
@@ -186,6 +196,13 @@ export default function Navbar() {
             className="btn-primary w-full justify-center text-sm"
           >
             {isLoggedIn ? (isBn ? 'আমার পোর্টাল' : 'My Portal') : (isBn ? 'কাস্টমার লগইন' : 'Customer Login')}
+          </Link>
+          <Link
+            to="/admin"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-600/15 border border-red-500/30 text-sm font-semibold text-red-300 hover:bg-red-600 hover:text-white transition-all"
+          >
+            <Shield size={16} />
+            {isBn ? 'অ্যাডমিন প্যানেল (ব্যানার সেটআপ)' : 'Admin Panel (Banner Setup)'}
           </Link>
         </div>
       </div>

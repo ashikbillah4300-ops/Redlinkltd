@@ -87,39 +87,141 @@ export const INITIAL_HOME_MAP_CONFIG = {
   ]
 };
 
+export const DEFAULT_HERO_BANNERS = [
+  {
+    id: 'banner-1',
+    name: 'Home Fiber: Ultra-Fast Internet',
+    active: true,
+    layout: 'hero', // 'hero' | 'image'
+    themeGlow: 'red',
+    badge: "🚀 Bangladesh's #1 Fiber ISP",
+    badgeBn: "🚀 বাংলাদেশের সেরা ইন্টারনেট",
+    titleLine1: "Ultra-Fast Internet.",
+    titleLine1Bn: "অতি-দ্রুত ইন্টারনেট।",
+    titleHighlight: "Zero Interruption.",
+    titleHighlightBn: "জিরো বিঘ্ন।",
+    subtitle: "Reliable fiber broadband across Bangladesh. Experience speeds up to 100 Mbps with 99.9% uptime guarantee and round-the-clock support.",
+    subtitleBn: "বাংলাদেশ জুড়ে বিশ্বস্ত ফাইবার নেটওয়ার্ক। ২৪/৭ সাপোর্ট, কোনো লুকানো চার্জ নেই।",
+    btnPrimaryText: "View Packages",
+    btnPrimaryTextBn: "প্যাকেজ দেখুন",
+    btnPrimaryLink: "/packages",
+    btnSecondaryText: "Pay Bill",
+    btnSecondaryTextBn: "বিল পরিশোধ",
+    btnSecondaryLink: "/pay-bill",
+    showSpeedTestBtn: true,
+    speedTestBtnText: "Live Speed Test",
+    speedTestBtnTextBn: "স্পিড টেস্ট",
+    badge1Icon: "⚡",
+    badge1Text: "99.9% Uptime",
+    badge1TextBn: "৯৯.৯% আপটাইম",
+    badge2Icon: "🛡️",
+    badge2Text: "24/7 Support",
+    badge2TextBn: "২৪/৭ সাপোর্ট",
+    badge3Icon: "💸",
+    badge3Text: "No Hidden Fees",
+    badge3TextBn: "কোনো লুকানো চার্জ নেই",
+    rightVisualType: 'speedometer', // 'speedometer' | 'image'
+    visualSpeed: "100",
+    visualUnit: "Mbps Fiber",
+    visualPing: "<5ms",
+    visualUptime: "99.9%",
+    visualCta: "Click to Test",
+    visualCtaBn: "স্পিড টেস্ট চালান",
+    imageUrl: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1600&auto=format&fit=crop"
+  },
+  {
+    id: 'banner-2',
+    name: 'Gaming & 4K Streaming Turbo',
+    active: true,
+    layout: 'hero',
+    themeGlow: 'blue',
+    badge: "🎮 Ultra-Low Ping For Gamers",
+    badgeBn: "🎮 গেমারদের জন্য বিশেষ আল্ট্রা-লো পিং",
+    titleLine1: "Next-Gen Gaming & 4K.",
+    titleLine1Bn: "নেক্সট-জেন গেমিং ও ৪কে।",
+    titleHighlight: "Zero Buffer & Lag.",
+    titleHighlightBn: "বাফারলেস গিগাবিট স্পিড।",
+    subtitle: "Direct BDIX peering, zero jitter multiplayer routing, and seamless 4K/8K HDR streaming for your entire home.",
+    subtitleBn: "সরাসরি BDIX পিয়ারিং, জিরো জিটার ও ল্যাগ-ফ্রি মাল্টিপ্লেয়ার গেমিং এবং স্মার্ট টিভিতে বাফারহীন ৪কে স্ট্রিমিং।",
+    btnPrimaryText: "Explore Gaming Plans",
+    btnPrimaryTextBn: "গেমিং প্যাকেজ দেখুন",
+    btnPrimaryLink: "/packages",
+    btnSecondaryText: "Check Coverage",
+    btnSecondaryTextBn: "কভারেজ চেক করুন",
+    btnSecondaryLink: "/coverage",
+    showSpeedTestBtn: true,
+    speedTestBtnText: "Speed Test",
+    speedTestBtnTextBn: "স্পিড টেস্ট",
+    badge1Icon: "⚡",
+    badge1Text: "<2ms BDIX Latency",
+    badge1TextBn: "<২মি.সে BDIX ল্যাটেন্সি",
+    badge2Icon: "🕹️",
+    badge2Text: "Dedicated Routing",
+    badge2TextBn: "ডেডিকেটেড রাউটিং",
+    badge3Icon: "🔥",
+    badge3Text: "Free Dual-Band Router",
+    badge3TextBn: "ফ্রি ডুয়াল-ব্যান্ড রাউটার",
+    rightVisualType: 'speedometer',
+    visualSpeed: "200",
+    visualUnit: "Mbps Turbo",
+    visualPing: "<2ms",
+    visualUptime: "99.99%",
+    visualCta: "Test Turbo Speed",
+    visualCtaBn: "টার্বো স্পিড টেস্ট",
+    imageUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1600&auto=format&fit=crop"
+  },
+  {
+    id: 'banner-3',
+    name: 'Corporate & SME Dedicated Fiber',
+    active: true,
+    layout: 'hero',
+    themeGlow: 'purple',
+    badge: "🏢 Enterprise High Availability",
+    badgeBn: "🏢 এন্টারপ্রাইজ ডেডিকেটেড ফাইবার",
+    titleLine1: "Mission-Critical Business.",
+    titleLine1Bn: "বিজনেস ডেডিকেটেড নেটওয়ার্ক।",
+    titleHighlight: "1:1 Symmetrical Bandwidth.",
+    titleHighlightBn: "১:১ সিমেট্রিক্যাল স্পিড।",
+    subtitle: "Enterprise grade optical fiber with 99.99% SLA uptime, redundant gateway, static public IP, and 24/7 dedicated account manager.",
+    subtitleBn: "কর্পোরেট অফিসের জন্য ৯৯.৯৯% SLA গ্যারান্টি, রিডানডেন্ট ব্যাকবোন, রিয়েল আইপি এবং সার্বক্ষণিক ডেডিকেটেড সাপোর্ট।",
+    btnPrimaryText: "Business Solutions",
+    btnPrimaryTextBn: "বিজনেস সমাধান",
+    btnPrimaryLink: "/business",
+    btnSecondaryText: "Contact Sales",
+    btnSecondaryTextBn: "সেলস যোগাযোগ",
+    btnSecondaryLink: "/contact",
+    showSpeedTestBtn: true,
+    speedTestBtnText: "Live Speed Test",
+    speedTestBtnTextBn: "স্পিড টেস্ট",
+    badge1Icon: "🏢",
+    badge1Text: "99.99% SLA Uptime",
+    badge1TextBn: "৯৯.৯৯% SLA আপটাইম",
+    badge2Icon: "🌐",
+    badge2Text: "Real Static IP Included",
+    badge2TextBn: "রিয়েল আইপি অন্তর্ভুক্ত",
+    badge3Icon: "🛡️",
+    badge3Text: "Dedicated Account Mgr",
+    badge3TextBn: "ডেডিকেটেড একাউন্ট ম্যানেজার",
+    rightVisualType: 'speedometer',
+    visualSpeed: "500",
+    visualUnit: "Mbps Corporate",
+    visualPing: "<1ms",
+    visualUptime: "99.999%",
+    visualCta: "Test Corporate Speed",
+    visualCtaBn: "কর্পোরেট স্পিড টেস্ট",
+    imageUrl: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1600&auto=format&fit=crop"
+  }
+];
+
 export const INITIAL_HERO_CONFIG = {
-  badge: "🚀 Bangladesh's #1 Fiber ISP",
-  badgeBn: "🚀 বাংলাদেশের সেরা ইন্টারনেট",
-  titleLine1: "Ultra-Fast Internet.",
-  titleLine1Bn: "অতি-দ্রুত ইন্টারনেট।",
-  titleHighlight: "Zero Interruption.",
-  titleHighlightBn: "জিরো বিঘ্ন।",
-  subtitle: "Reliable fiber broadband across Bangladesh. Experience speeds up to 100 Mbps with 99.9% uptime guarantee and round-the-clock support.",
-  subtitleBn: "বাংলাদেশ জুড়ে বিশ্বস্ত ফাইবার নেটওয়ার্ক। ২৪/৭ সাপোর্ট, কোনো লুকানো চার্জ নেই।",
-  btnPrimaryText: "View Packages",
-  btnPrimaryTextBn: "প্যাকেজ দেখুন",
-  btnPrimaryLink: "/packages",
-  btnSecondaryText: "Pay Bill",
-  btnSecondaryTextBn: "বিল পরিশোধ",
-  btnSecondaryLink: "/pay-bill",
-  showSpeedTestBtn: true,
-  speedTestBtnText: "Live Speed Test",
-  speedTestBtnTextBn: "স্পিড টেস্ট",
-  badge1Icon: "⚡",
-  badge1Text: "99.9% Uptime",
-  badge1TextBn: "৯৯.৯% আপটাইম",
-  badge2Icon: "🛡️",
-  badge2Text: "24/7 Support",
-  badge2TextBn: "২৪/৭ সাপোর্ট",
-  badge3Icon: "💸",
-  badge3Text: "No Hidden Fees",
-  badge3TextBn: "কোনো লুকানো চার্জ নেই",
-  visualSpeed: "100",
-  visualUnit: "Mbps Fiber",
-  visualPing: "<5ms",
-  visualUptime: "99.9%",
-  visualCta: "Click to Test",
-  visualCtaBn: "স্পিড টেস্ট চালান"
+  autoScroll: true,
+  autoScrollInterval: 4, // in seconds!
+  pauseOnHover: false,
+  transitionEffect: 'slide', // 'slide' | 'fade'
+  showArrows: true,
+  showDots: true,
+  banners: DEFAULT_HERO_BANNERS,
+  ...DEFAULT_HERO_BANNERS[0]
 };
 
 export function AdminProvider({ children }) {
@@ -179,8 +281,35 @@ export function AdminProvider({ children }) {
   });
 
   const [heroConfig, setHeroConfig] = useState(() => {
-    const saved = localStorage.getItem('redlink_admin_hero_config');
-    return saved ? JSON.parse(saved) : INITIAL_HERO_CONFIG;
+    try {
+      const saved = localStorage.getItem('redlink_admin_hero_config');
+      if (!saved) return { ...INITIAL_HERO_CONFIG, version: 3 };
+      const parsed = JSON.parse(saved);
+
+      // Detect old or stale banners where all items are identical
+      const isStale = !parsed.version || parsed.version < 3 ||
+        (Array.isArray(parsed.banners) && parsed.banners.length >= 2 &&
+         parsed.banners.every((b) => b.titleLine1 === parsed.banners[0].titleLine1 && b.visualSpeed === parsed.banners[0].visualSpeed));
+
+      let banners = (!isStale && Array.isArray(parsed.banners) && parsed.banners.length >= 2)
+        ? parsed.banners
+        : DEFAULT_HERO_BANNERS;
+
+      return {
+        ...INITIAL_HERO_CONFIG,
+        ...parsed,
+        version: 3,
+        banners,
+        autoScroll: parsed.autoScroll !== undefined ? parsed.autoScroll : true,
+        autoScrollInterval: Number(parsed.autoScrollInterval) > 0 ? Number(parsed.autoScrollInterval) : 4,
+        pauseOnHover: false,
+        showArrows: true,
+        showDots: true,
+        transitionEffect: parsed.transitionEffect || 'slide'
+      };
+    } catch {
+      return { ...INITIAL_HERO_CONFIG, version: 3 };
+    }
   });
 
   const [auditLogs, setAuditLogs] = useState(() => {
@@ -473,8 +602,130 @@ export function AdminProvider({ children }) {
   // ── Home Hero Setup CMS ──
   const updateHeroConfig = (fields) => {
     setHeroConfig((prev) => ({ ...prev, ...fields }));
-    logAction('Updated Home Hero Banner Content & Visuals');
-    toast.success('Home Hero section updated live!');
+    logAction('Updated Home Hero Banner Carousel Settings');
+    toast.success('Hero settings updated live!');
+  };
+
+  const updateHeroBanner = (bannerId, bannerFields) => {
+    setHeroConfig((prev) => {
+      const currentBanners = prev.banners || [];
+      const updatedBanners = currentBanners.map((b) =>
+        b.id === bannerId ? { ...b, ...bannerFields } : b
+      );
+      const isFirst = updatedBanners[0]?.id === bannerId;
+      return {
+        ...prev,
+        banners: updatedBanners,
+        ...(isFirst ? bannerFields : {})
+      };
+    });
+    logAction(`Updated Banner "${bannerId}"`);
+    toast.success('Banner updated live!');
+  };
+
+  const addHeroBanner = (customFields = {}) => {
+    const id = `banner-${Date.now()}`;
+    const newBanner = {
+      id,
+      name: `Banner ${(heroConfig.banners?.length || 0) + 1}`,
+      active: true,
+      layout: 'hero',
+      themeGlow: 'red',
+      badge: "🚀 New High-Speed Plan",
+      badgeBn: "🚀 নতুন হাই-স্পিড প্ল্যান",
+      titleLine1: "Ultra-Fast Fiber.",
+      titleLine1Bn: "অতি-দ্রুত ফাইবার।",
+      titleHighlight: "Supercharged Speed.",
+      titleHighlightBn: "সুপারচার্জড স্পিড।",
+      subtitle: "Experience next-level internet connectivity across Bangladesh with 99.9% uptime guarantee.",
+      subtitleBn: "৯৯.৯% আপটাইম সহ বাংলাদেশ জুড়ে আধুনিক হাই-স্পিড ফাইবার ইন্টারনেট সংযোগ উপভোগ করুন।",
+      btnPrimaryText: "View Packages",
+      btnPrimaryTextBn: "প্যাকেজ দেখুন",
+      btnPrimaryLink: "/packages",
+      btnSecondaryText: "Pay Bill",
+      btnSecondaryTextBn: "বিল পরিশোধ",
+      btnSecondaryLink: "/pay-bill",
+      showSpeedTestBtn: true,
+      speedTestBtnText: "Live Speed Test",
+      speedTestBtnTextBn: "স্পিড টেস্ট",
+      badge1Icon: "⚡",
+      badge1Text: "99.9% Uptime",
+      badge1TextBn: "৯৯.৯% আপটাইম",
+      badge2Icon: "🛡️",
+      badge2Text: "24/7 Support",
+      badge2TextBn: "২৪/৭ সাপোর্ট",
+      badge3Icon: "💸",
+      badge3Text: "No Hidden Fees",
+      badge3TextBn: "কোনো লুকানো চার্জ নেই",
+      rightVisualType: 'speedometer',
+      visualSpeed: "150",
+      visualUnit: "Mbps Fiber",
+      visualPing: "<3ms",
+      visualUptime: "99.9%",
+      visualCta: "Click to Test",
+      visualCtaBn: "স্পিড টেস্ট চালান",
+      imageUrl: "",
+      ...customFields
+    };
+
+    setHeroConfig((prev) => ({
+      ...prev,
+      banners: [...(prev.banners || []), newBanner]
+    }));
+    logAction('Added new Hero Banner');
+    toast.success('New banner added!');
+    return id;
+  };
+
+  const deleteHeroBanner = (bannerId) => {
+    setHeroConfig((prev) => {
+      const currentBanners = prev.banners || [];
+      if (currentBanners.length <= 1) {
+        toast.error('At least one banner must remain!');
+        return prev;
+      }
+      const filtered = currentBanners.filter((b) => b.id !== bannerId);
+      logAction(`Deleted Banner ${bannerId}`);
+      toast.success('Banner removed!');
+      return {
+        ...prev,
+        banners: filtered
+      };
+    });
+  };
+
+  const duplicateHeroBanner = (bannerId) => {
+    setHeroConfig((prev) => {
+      const source = (prev.banners || []).find((b) => b.id === bannerId);
+      if (!source) return prev;
+      const clone = {
+        ...source,
+        id: `banner-${Date.now()}`,
+        name: `${source.name || 'Banner'} (Copy)`
+      };
+      logAction(`Duplicated Banner "${source.name}"`);
+      toast.success('Banner duplicated!');
+      return {
+        ...prev,
+        banners: [...prev.banners, clone]
+      };
+    });
+  };
+
+  const reorderHeroBanners = (fromIndex, toIndex) => {
+    setHeroConfig((prev) => {
+      const list = [...(prev.banners || [])];
+      if (fromIndex < 0 || fromIndex >= list.length || toIndex < 0 || toIndex >= list.length) {
+        return prev;
+      }
+      const [moved] = list.splice(fromIndex, 1);
+      list.splice(toIndex, 0, moved);
+      logAction('Reordered Hero Banners');
+      return {
+        ...prev,
+        banners: list
+      };
+    });
   };
 
   const resetHeroConfig = () => {
@@ -521,6 +772,11 @@ export function AdminProvider({ children }) {
         resetHomeMapConfig,
         heroConfig,
         updateHeroConfig,
+        updateHeroBanner,
+        addHeroBanner,
+        deleteHeroBanner,
+        duplicateHeroBanner,
+        reorderHeroBanners,
         resetHeroConfig,
         auditLogs
       }}
