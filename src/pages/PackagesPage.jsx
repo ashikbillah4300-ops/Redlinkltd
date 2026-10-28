@@ -1,68 +1,12 @@
 // ── Packages Page ─────────────────────────────────────────────────────────────
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, X } from 'lucide-react';
 import { Tabs, SectionHeading, GlassCard, FadeUp } from '../components/ui/index';
 import PackageCard from '../components/PackageCard';
 import OttEntertainment from '../components/OttEntertainment';
 import { useLang } from '../context/LangContext';
 import { useAdmin } from '../context/AdminContext';
 import { homePackages, corporatePackages } from '../data/constants';
-
-// Comparison table columns
-const homeFeatures = [
-  { key: 'speed', label: 'Speed', values: ['20 Mbps', '50 Mbps', '100 Mbps'] },
-  { key: 'price', label: 'Monthly Price', values: ['৳500', '৳900', '৳1,500'] },
-  { key: 'data', label: 'Data Limit', values: ['Unlimited', 'Unlimited', 'Unlimited'] },
-  { key: 'bdix', label: 'BDIX / FTP', values: [true, true, true] },
-  { key: 'router', label: 'Free Router', values: [true, true, true] },
-  { key: 'routerType', label: 'Router Type', values: ['Basic', 'Dual-Band', 'Wi-Fi 6'] },
-  { key: 'support', label: 'Support', values: ['Email', '24/7 Phone', '24/7 Priority'] },
-  { key: 'staticIp', label: 'Static IP', values: [false, false, true] },
-  { key: 'sla', label: 'SLA Uptime', values: ['—', '99.5%', '99.9%'] },
-];
-
-function ComparisonTable({ packages, features, isBn }) {
-  return (
-    <div className="overflow-x-auto rounded-2xl glass-card-static">
-      <table className="comparison-table min-w-[600px]">
-        <thead>
-          <tr>
-            <th className="text-left w-40">
-              <span className={isBn ? 'font-bangla' : ''}>{isBn ? 'বৈশিষ্ট্য' : 'Feature'}</span>
-            </th>
-            {packages.map((pkg) => (
-              <th key={pkg.id} className="text-center">
-                <div className="flex flex-col items-center gap-1">
-                  <span className={`text-white font-bold ${isBn ? 'font-bangla' : ''}`}>{isBn ? pkg.nameBn : pkg.name}</span>
-                  {pkg.popular && <span className="popular-badge text-xs">Popular</span>}
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {features.map((feat) => (
-            <tr key={feat.key}>
-              <td className={`text-[#B8B8C0] font-medium ${isBn ? 'font-bangla' : ''}`}>{feat.label}</td>
-              {feat.values.map((val, i) => (
-                <td key={i} className="text-center">
-                  {typeof val === 'boolean' ? (
-                    val
-                      ? <Check size={16} className="text-green-400 mx-auto" />
-                      : <X size={16} className="text-red-500/60 mx-auto" />
-                  ) : (
-                    <span className="text-white text-sm">{val}</span>
-                  )}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
 
 export default function PackagesPage() {
   const [activeTab, setActiveTab] = useState('home');
@@ -116,17 +60,6 @@ export default function PackagesPage() {
           ))}
         </motion.div>
 
-        {/* Comparison Table */}
-        {activeTab === 'home' && (
-          <FadeUp>
-            <div className="mb-8">
-              <h3 className={`text-2xl font-bold text-white text-center mb-6 ${isBn ? 'font-bangla' : ''}`}>
-                {isBn ? 'প্যাকেজ তুলনা' : 'Package Comparison'}
-              </h3>
-              <ComparisonTable packages={homePackages} features={homeFeatures} isBn={isBn} />
-            </div>
-          </FadeUp>
-        )}
 
         {/* Reseller Info Box */}
         {activeTab === 'corporate' && (

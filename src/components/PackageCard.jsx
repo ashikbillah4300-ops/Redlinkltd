@@ -116,7 +116,7 @@ export default function PackageCard({ pkg, isBn }) {
         </ul>
 
         <GlassButton
-          variant={pkg.popular ? 'primary' : 'outline'}
+          variant="primary"
           className="w-full justify-center py-3"
           onClick={() => setShowModal(true)}
         >
