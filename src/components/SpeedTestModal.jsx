@@ -280,17 +280,17 @@ export function SpeedTestWidget({ onClose, isModal = false }) {
       {/* ── Scrollable Content Area ── */}
       <div className="p-4 sm:p-6 overflow-y-auto space-y-4">
         {/* Server & Detected Public IP Info */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 text-[#B8B8C0] flex-shrink-0">
-              <Server size={13} className="text-red-400" />
-              <span>{isBn ? 'সার্ভার নোড:' : 'Server Node:'}</span>
+        <div className="flex flex-col gap-2 text-xs">
+          <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-[#B8B8C0] flex-shrink-0">
+              <Server size={14} className="text-red-400" />
+              <span className="font-medium">{isBn ? 'সার্ভার নোড:' : 'Server Node:'}</span>
             </div>
             <select
               value={selectedServer.id}
               onChange={(e) => setSelectedServer(SERVERS.find(s => s.id === e.target.value) || SERVERS[0])}
               disabled={stage !== 'idle' && stage !== 'complete'}
-              className="bg-black/70 border border-white/15 rounded-lg px-2 py-1 text-white text-xs focus:outline-none focus:border-red-500 max-w-[160px] truncate"
+              className="bg-black/70 border border-white/15 rounded-lg px-2.5 py-1 text-white text-xs focus:outline-none focus:border-red-500 cursor-pointer min-w-0"
             >
               {SERVERS.map(s => (
                 <option key={s.id} value={s.id} className="bg-[#111113] text-white">{s.name}</option>
@@ -298,12 +298,12 @@ export function SpeedTestWidget({ onClose, isModal = false }) {
             </select>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 text-[#B8B8C0] flex-shrink-0">
-              <Globe size={13} className="text-emerald-400" />
-              <span>{isBn ? 'আপনার আইপি:' : 'Your IP:'}</span>
+          <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-[#B8B8C0] flex-shrink-0">
+              <Globe size={14} className="text-emerald-400" />
+              <span className="font-medium">{isBn ? 'আপনার আইপি:' : 'Your IP:'}</span>
             </div>
-            <span className="text-white font-mono text-xs truncate flex items-center gap-1">
+            <span className="text-white font-mono text-xs flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-lg">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
               {clientInfo.ip} ({clientInfo.city})
             </span>
