@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { useAdmin } from '../../context/AdminContext';
+import { useAdmin, getWhatsAppNumber, createWhatsAppUrl } from '../../context/AdminContext';
 import { GlassCard, GlassButton, FormInput } from '../../components/ui/index';
 import toast from 'react-hot-toast';
 
@@ -2867,11 +2867,27 @@ export default function AdminDashboard() {
                   value={siteSettings.hotline}
                   onChange={(e) => updateSiteSettings({ hotline: e.target.value })}
                 />
-                <FormInput
-                  label="WhatsApp Support Number"
-                  value={siteSettings.whatsapp}
-                  onChange={(e) => updateSiteSettings({ whatsapp: e.target.value })}
-                />
+                <div>
+                  <FormInput
+                    label="WhatsApp Support Number (All website buttons route here)"
+                    value={siteSettings.whatsapp}
+                    onChange={(e) => updateSiteSettings({ whatsapp: e.target.value })}
+                    placeholder="e.g. 01700000000 or +8801700000000"
+                  />
+                  <div className="flex items-center justify-between text-[11px] text-[#B8B8C0] mt-1.5 px-1 flex-wrap gap-1">
+                    <span>
+                      লাইভ গন্তব্য: <span className="text-emerald-400 font-mono font-medium">wa.me/{getWhatsAppNumber(siteSettings)}</span>
+                    </span>
+                    <a
+                      href={createWhatsAppUrl(siteSettings, 'হ্যালো RedLink, এটি অ্যাডমিন প্যানেল থেকে টেস্ট মেসেজ।')}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 hover:text-emerald-300 font-medium inline-flex items-center gap-1 transition-colors"
+                    >
+                      <ExternalLink size={11} /> টেস্ট করুন
+                    </a>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

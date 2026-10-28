@@ -5,6 +5,22 @@ import { homePackages as initialHomePackages, corporatePackages as initialCorpPa
 
 const AdminContext = createContext();
 
+// ── WhatsApp URL & Number Utilities ──────────────────────────────────────────
+export function getWhatsAppNumber(siteSettings) {
+  const raw = siteSettings?.whatsapp || siteSettings?.hotline || '8801700000000';
+  const digits = String(raw).replace(/[^0-9]/g, '');
+  if (!digits) return '8801700000000';
+  if (digits.startsWith('880')) return digits;
+  if (digits.startsWith('0')) return `88${digits}`;
+  if (digits.length === 10 && digits.startsWith('1')) return `880${digits}`;
+  return digits;
+}
+
+export function createWhatsAppUrl(siteSettings, message) {
+  const num = getWhatsAppNumber(siteSettings);
+  return `https://wa.me/${num}?text=${encodeURIComponent(message)}`;
+}
+
 // Initial Seed Data with full billing ledger & credentials
 const INITIAL_USERS = [
   {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Wifi, Phone, Mail, MapPin, MessageCircle, Activity } from 'lucide-react';
 import { useLang } from '../context/LangContext';
-import { useAdmin } from '../context/AdminContext';
+import { useAdmin, createWhatsAppUrl, getWhatsAppNumber } from '../context/AdminContext';
 import NetworkDiagnosticModal from './NetworkDiagnosticModal';
 
 const footerLinks = {
@@ -66,10 +66,7 @@ export default function Footer() {
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
               </a>
               <a 
-                href={`https://wa.me/${(() => {
-                  const d = (siteSettings?.whatsapp || '8801700000000').replace(/[^0-9]/g, '');
-                  return d.startsWith('880') ? d : d.startsWith('0') ? `88${d}` : d ? `880${d}` : '8801700000000';
-                })()}?text=Hi%20RedLink%2C%20I%20need%20support`} 
+                href={createWhatsAppUrl(siteSettings, 'Hi RedLink, I need support')} 
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp" 
@@ -122,7 +119,7 @@ export default function Footer() {
                 <Phone size={15} className="text-red-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <a href={`tel:${siteSettings?.hotline || '16500'}`} className="text-[#B8B8C0] text-sm hover:text-white block font-semibold">{siteSettings?.hotline || '16500'}</a>
-                  <a href={`tel:${siteSettings?.whatsapp || '+8801700000000'}`} className="text-[#B8B8C0] text-xs hover:text-white block">{siteSettings?.whatsapp || '+880 1700-000000'}</a>
+                  <a href={`tel:${getWhatsAppNumber(siteSettings)}`} className="text-[#B8B8C0] text-xs hover:text-white block">{siteSettings?.whatsapp || '+880 1700-000000'}</a>
                 </div>
               </li>
               <li className="flex items-start gap-3">

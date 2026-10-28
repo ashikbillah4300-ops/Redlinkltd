@@ -5,10 +5,12 @@ import { motion } from 'framer-motion';
 
 import { GlassCard, GlassButton, Modal, FormInput, FormTextarea, FormSelect, SectionHeading, FadeUp } from '../components/ui/index';
 import { useLang } from '../context/LangContext';
+import { useAdmin, createWhatsAppUrl, getWhatsAppNumber } from '../context/AdminContext';
 import { businessServices } from '../data/constants';
 import { apiRequestQuote } from '../services/api';
 
 function QuoteModal({ isOpen, onClose, service, isBn }) {
+  const { siteSettings } = useAdmin();
   const [form, setForm] = useState({ name: '', company: '', mobile: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
 
@@ -19,6 +21,11 @@ function QuoteModal({ isOpen, onClose, service, isBn }) {
     try {
       const res = await apiRequestQuote({ ...form, serviceId: service?.id, serviceName: service?.title });
       toast.success(`Quote request sent! Ref: ${res.quoteId}`, { icon: '📋', duration: 5000 });
+
+      // Forward directly to Admin WhatsApp
+      const waMsg = `হ্যালো RedLink, আমি এন্টারপ্রাইজ সার্ভিসের জন্য কোটেশন চেয়েছি:\n- নাম: ${form.name}\n- কোম্পানি: ${form.company || 'N/A'}\n- মোবাইল: ${form.mobile}\n- সার্ভিস: ${service?.title}${form.message ? `\n- প্রয়োজন: ${form.message}` : ''}`;
+      window.open(createWhatsAppUrl(siteSettings, waMsg), '_blank');
+
       onClose();
     } catch (err) {
       toast.error(err.message);
@@ -45,6 +52,7 @@ function QuoteModal({ isOpen, onClose, service, isBn }) {
 
 export default function BusinessPage() {
   const { isBn } = useLang();
+  const { siteSettings } = useAdmin();
   const [quoteService, setQuoteService] = useState(null);
 
   return (
@@ -126,11 +134,19 @@ export default function BusinessPage() {
                 : 'Get a free consultation and custom quote tailored to your business requirements.'}
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              <a href="tel:+8801700000000" className="btn-primary px-8 py-3.5">
-                📞 {isBn ? 'এখনই কল করুন' : 'Call Enterprise Sales'}
+              <a
+                href={createWhatsAppUrl(siteSettings, isBn ? 'হ্যালো RedLink, আমি আপনাদের কর্পোরেট / এন্টারপ্রাইজ সলিউশন সম্পর্কে জানতে চাই।' : 'Hello RedLink, I would like to inquire about enterprise bandwidth solutions.')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary px-8 py-3.5 flex items-center gap-2 shadow-red-glow"
+              >
+                💬 {isBn ? 'হোয়াটসঅ্যাপে যোগাযোগ করুন' : 'Chat on WhatsApp'}
               </a>
-              <a href="mailto:enterprise@redlinkltd.com" className="btn-outline px-8 py-3.5">
-                ✉️ enterprise@redlinkltd.com
+              <a
+                href={`tel:${getWhatsAppNumber(siteSettings)}`}
+                className="btn-outline px-8 py-3.5 flex items-center gap-2"
+              >
+                📞 {isBn ? 'কল করুন' : 'Call Sales'}
               </a>
             </div>
           </div>

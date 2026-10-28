@@ -1,6 +1,6 @@
 // ── Background Blobs + WhatsApp Float ─────────────────────────────────────────
 import { Link } from 'react-router-dom';
-import { useAdmin } from '../context/AdminContext';
+import { useAdmin, createWhatsAppUrl } from '../context/AdminContext';
 
 export function BackgroundBlobs() {
   return (
@@ -14,17 +14,11 @@ export function BackgroundBlobs() {
 
 export function WhatsAppFloat() {
   const { siteSettings } = useAdmin();
-  const rawNumber = siteSettings?.whatsapp || '8801700000000';
-  const digitsOnly = rawNumber.replace(/[^0-9]/g, '');
-  const cleanNumber = digitsOnly.startsWith('880')
-    ? digitsOnly
-    : digitsOnly.startsWith('0')
-      ? `88${digitsOnly}`
-      : digitsOnly ? `880${digitsOnly}` : '8801700000000';
+  const waUrl = createWhatsAppUrl(siteSettings, 'Hi RedLink, I need support');
 
   return (
     <a
-      href={`https://wa.me/${cleanNumber}?text=Hi%20RedLink%2C%20I%20need%20support`}
+      href={waUrl}
       target="_blank"
       rel="noopener noreferrer"
       className="whatsapp-float"

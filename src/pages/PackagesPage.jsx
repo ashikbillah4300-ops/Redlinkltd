@@ -5,13 +5,13 @@ import { Tabs, SectionHeading, GlassCard, FadeUp } from '../components/ui/index'
 import PackageCard from '../components/PackageCard';
 import OttEntertainment from '../components/OttEntertainment';
 import { useLang } from '../context/LangContext';
-import { useAdmin } from '../context/AdminContext';
+import { useAdmin, createWhatsAppUrl, getWhatsAppNumber } from '../context/AdminContext';
 import { homePackages, corporatePackages } from '../data/constants';
 
 export default function PackagesPage() {
   const [activeTab, setActiveTab] = useState('home');
   const { isBn } = useLang();
-  const { packages: liveHomePackages } = useAdmin();
+  const { packages: liveHomePackages, siteSettings } = useAdmin();
 
   const packages = activeTab === 'home' ? (liveHomePackages && liveHomePackages.length > 0 ? liveHomePackages : homePackages) : corporatePackages;
 
@@ -74,9 +74,22 @@ export default function PackagesPage() {
                   ? 'আমাদের সাথে রিসেলার পার্টনার হিসেবে যুক্ত হতে বা পাইকারি ব্যান্ডউইথ নিতে সরাসরি যোগাযোগ করুন।'
                   : 'Partner with us as an ISP reseller or get wholesale dedicated bandwidth tailored to your business.'}
               </p>
-              <a href="tel:+8801700000000" className="btn-primary">
-                📞 {isBn ? 'আমাদের কল করুন' : 'Call Us Now'}
-              </a>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <a
+                  href={createWhatsAppUrl(siteSettings, isBn ? 'হ্যালো RedLink, আমি আপনাদের রিসেলার পার্টনারশিপ বা পাইকারি ব্যান্ডউইথ সমাধান নিতে আগ্রহী।' : 'Hello RedLink, I am interested in your ISP reseller bandwidth partnership.')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary flex items-center gap-2 px-6 py-3 shadow-red-glow"
+                >
+                  💬 {isBn ? 'হোয়াটসঅ্যাপে যোগাযোগ করুন' : 'Chat on WhatsApp'}
+                </a>
+                <a
+                  href={`tel:${getWhatsAppNumber(siteSettings)}`}
+                  className="btn-outline flex items-center gap-2 px-6 py-3"
+                >
+                  📞 {isBn ? 'কল করুন' : 'Call Sales'}
+                </a>
+              </div>
             </GlassCard>
           </FadeUp>
         )}
