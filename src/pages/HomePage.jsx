@@ -8,10 +8,10 @@ import {
   Pause, Play, Sparkles
 } from 'lucide-react';
 
-import { GlassCard, SectionHeading, FadeUp } from '../components/ui/index';
+import { GlassCard, SectionHeading, FadeUp, Tabs } from '../components/ui/index';
 import { useLang } from '../context/LangContext';
 import { useAdmin, DEFAULT_HERO_BANNERS } from '../context/AdminContext';
-import { homePackages, stats, testimonials, whyChooseUs } from '../data/constants';
+import { homePackages, corporatePackages, stats, testimonials, whyChooseUs } from '../data/constants';
 import PackageCard from '../components/PackageCard';
 import SpeedTestModal from '../components/SpeedTestModal';
 import OttEntertainment from '../components/OttEntertainment';
@@ -122,8 +122,11 @@ const quickActions = [
 export default function HomePage() {
   const { isBn } = useLang();
   const { packages: livePackages, heroConfig } = useAdmin();
+  const [activeTab, setActiveTab] = useState('home');
   const [showSpeedTest, setShowSpeedTest] = useState(false);
-  const displayPackages = livePackages && livePackages.length > 0 ? livePackages.slice(0, 3) : homePackages;
+  const displayPackages = activeTab === 'home'
+    ? (livePackages && livePackages.length > 0 ? livePackages.slice(0, 3) : homePackages.slice(0, 3))
+    : corporatePackages.slice(0, 3);
 
   // ── Multi-Banner Carousel Setup ──
   const rawBanners = Array.isArray(heroConfig?.banners) && heroConfig.banners.length > 0
@@ -642,13 +645,33 @@ export default function HomePage() {
               isBn={isBn}
             />
           </FadeUp>
-          <div className="grid md:grid-cols-3 gap-6">
+          {/* Tabs */}
+          <FadeUp delay={0.1}>
+            <div className="flex justify-center mb-10">
+              <Tabs
+                tabs={[
+                  { id: 'home', label: isBn ? 'হোম প্যাকেজ' : 'Home Package' },
+                  { id: 'corporate', label: isBn ? 'রিসেলার' : 'Reseller' },
+                ]}
+                active={activeTab}
+                onChange={setActiveTab}
+              />
+            </div>
+          </FadeUp>
+
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="grid md:grid-cols-3 gap-6"
+          >
             {displayPackages.map((pkg, i) => (
               <FadeUp key={pkg.id} delay={i * 0.12}>
                 <PackageCard pkg={pkg} isBn={isBn} />
               </FadeUp>
             ))}
-          </div>
+          </motion.div>
           <div className="text-center mt-8">
             <Link to="/packages" className="btn-outline px-8 py-3">
               {isBn ? 'সব প্যাকেজ দেখুন' : 'View All Packages'} <ArrowRight size={16} />
