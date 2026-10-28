@@ -668,7 +668,7 @@ export default function HomePage() {
           >
             {displayPackages.map((pkg, i) => (
               <FadeUp key={pkg.id} delay={i * 0.12}>
-                <PackageCard pkg={pkg} isBn={isBn} />
+                <PackageCard pkg={pkg} isBn={isBn} isReseller={activeTab === 'corporate'} />
               </FadeUp>
             ))}
           </motion.div>

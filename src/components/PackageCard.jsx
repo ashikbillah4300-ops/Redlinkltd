@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Zap } from 'lucide-react';
 import { GlassButton, Modal, FormInput, FormTextarea, FormSelect } from './ui/index';
+import { useAdmin } from '../context/AdminContext';
 import { homePackages } from '../data/constants';
 import toast from 'react-hot-toast';
 import { apiApplyPackage } from '../services/api';
@@ -60,8 +61,28 @@ function ApplyModal({ isOpen, onClose, pkg, isBn }) {
   );
 }
 
-export default function PackageCard({ pkg, isBn }) {
+export default function PackageCard({ pkg, isBn, isReseller = false }) {
   const [showModal, setShowModal] = useState(false);
+  const { siteSettings } = useAdmin();
+
+  // Detect if reseller package
+  const isResellerPkg = isReseller || pkg?.type === 'corporate' || pkg?.isReseller || pkg?.id?.startsWith('c');
+
+  // WhatsApp setup
+  const rawNumber = siteSettings?.whatsapp || '8801700000000';
+  const digitsOnly = rawNumber.replace(/[^0-9]/g, '');
+  const cleanNumber = digitsOnly.startsWith('880')
+    ? digitsOnly
+    : digitsOnly.startsWith('0')
+      ? `88${digitsOnly}`
+      : digitsOnly ? `880${digitsOnly}` : '8801700000000';
+
+  const pkgName = isBn ? (pkg.nameBn || pkg.name) : pkg.name;
+  const waMessage = isBn
+    ? `হ্যালো RedLink, আমি আপনাদের রিসেলার "${pkgName} (${pkg.speed} Mbps)" প্যাকেজটি নিতে চাই। বিস্তারিত ও প্রাইসিং জানাবেন কি?`
+    : `Hello RedLink, I want to take the "${pkgName} (${pkg.speed} Mbps)" Reseller package. Please share the details and pricing.`;
+
+  const waLink = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMessage)}`;
 
   return (
     <>
@@ -89,21 +110,32 @@ export default function PackageCard({ pkg, isBn }) {
           </div>
         </div>
 
-        {/* Price */}
-        <div className="mb-5">
-          <div className="flex items-end gap-2">
-            <span className="text-4xl font-black font-poppins gradient-text">৳{pkg.price}</span>
-            <span className="text-[#B8B8C0] text-sm pb-1">/month</span>
+        {/* Price or Reseller WhatsApp Notice */}
+        {isResellerPkg ? (
+          <div className="mb-5 p-3 rounded-xl bg-white/[0.04] border border-emerald-500/30 flex flex-col justify-center min-h-[72px]">
+            <span className="text-emerald-400 font-bold text-sm block">
+              {isBn ? 'আলোচনা সাপেক্ষে' : 'Negotiable / Custom Rate'}
+            </span>
+            <span className={`text-[#B8B8C0] text-xs mt-0.5 ${isBn ? 'font-bangla' : ''}`}>
+              {isBn ? 'প্যাকেজটি নিতে হোয়াটসঅ্যাপে যোগাযোগ করুন' : 'Contact on WhatsApp to get this package'}
+            </span>
           </div>
-          {pkg.originalPrice && (
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-[#6B6B78] text-sm line-through">৳{pkg.originalPrice}</span>
-              <span className="text-green-400 text-xs font-semibold bg-green-400/10 px-2 py-0.5 rounded-full">
-                Save {Math.round((1 - pkg.price / pkg.originalPrice) * 100)}%
-              </span>
+        ) : (
+          <div className="mb-5 min-h-[72px] flex flex-col justify-center">
+            <div className="flex items-end gap-2">
+              <span className="text-4xl font-black font-poppins gradient-text">৳{pkg.price}</span>
+              <span className="text-[#B8B8C0] text-sm pb-1">/month</span>
             </div>
-          )}
-        </div>
+            {pkg.originalPrice && (
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[#6B6B78] text-sm line-through">৳{pkg.originalPrice}</span>
+                <span className="text-green-400 text-xs font-semibold bg-green-400/10 px-2 py-0.5 rounded-full">
+                  Save {Math.round((1 - pkg.price / pkg.originalPrice) * 100)}%
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Features */}
         <ul className="space-y-2.5 flex-1 mb-6">
@@ -115,13 +147,29 @@ export default function PackageCard({ pkg, isBn }) {
           ))}
         </ul>
 
-        <GlassButton
-          variant="primary"
-          className="w-full justify-center py-3"
-          onClick={() => setShowModal(true)}
-        >
-          {isBn ? 'এখনই আবেদন করুন' : 'Apply Now'}
-        </GlassButton>
+        {isResellerPkg ? (
+          <a
+            href={waLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-500 hover:from-emerald-500 hover:to-green-400 text-white shadow-lg shadow-emerald-950/40 transition-all active:scale-95 text-center cursor-pointer"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white" className="flex-shrink-0">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            <span className={isBn ? 'font-bangla' : ''}>
+              {isBn ? 'হোয়াটসঅ্যাপে যোগাযোগ করুন' : 'Contact on WhatsApp'}
+            </span>
+          </a>
+        ) : (
+          <GlassButton
+            variant="primary"
+            className="w-full justify-center py-3"
+            onClick={() => setShowModal(true)}
+          >
+            {isBn ? 'এখনই আবেদন করুন' : 'Apply Now'}
+          </GlassButton>
+        )}
       </motion.div>
 
       <ApplyModal isOpen={showModal} onClose={() => setShowModal(false)} pkg={pkg} isBn={isBn} />
