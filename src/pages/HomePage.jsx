@@ -282,7 +282,7 @@ export default function HomePage() {
     <div>
       {/* ── Multi-Banner Hero Carousel Section ── */}
       <section
-        className="min-h-[70vh] sm:min-h-[78vh] md:min-h-[85vh] flex items-center py-4 sm:py-8 md:py-14 px-3 sm:px-6 lg:px-8 relative overflow-hidden group/hero"
+        className="min-h-0 sm:min-h-[78vh] md:min-h-[85vh] flex items-start sm:items-center pt-1.5 pb-4 sm:py-8 md:py-14 px-3 sm:px-6 lg:px-8 relative overflow-hidden group/hero"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -414,7 +414,7 @@ export default function HomePage() {
                   </div>
                 ) : (
                   /* Full Promotional Graphic Banner Slide with Rich Text & CTA */
-                  <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 glass-card min-h-[360px] sm:min-h-[460px] md:min-h-[520px] flex items-center p-4 sm:p-10 md:p-16 shadow-2xl">
+                  <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 glass-card min-h-[280px] sm:min-h-[460px] md:min-h-[520px] flex items-center p-3.5 sm:p-10 md:p-16 shadow-2xl">
                     <img
                       src={currentBanner.imageUrl}
                       alt={currentBanner.name || 'Banner'}
@@ -422,39 +422,39 @@ export default function HomePage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-black/40 pointer-events-none" />
                     
-                    <div className="relative z-10 max-w-2xl space-y-3.5 sm:space-y-5 w-full">
+                    <div className="relative z-10 max-w-2xl space-y-2.5 sm:space-y-5 w-full">
                       {badgeText && (
-                        <span className="section-tag inline-block text-[11px] sm:text-xs py-1 px-3">
+                        <span className="section-tag inline-block text-[10px] sm:text-xs py-0.5 sm:py-1 px-2.5 sm:px-3">
                           {badgeText}
                         </span>
                       )}
-                      <h1 className={`text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black font-poppins text-white leading-tight drop-shadow-md ${isBn ? 'font-bangla' : ''}`}>
+                      <h1 className={`text-xl sm:text-4xl md:text-5xl lg:text-6xl font-black font-poppins text-white leading-snug sm:leading-tight drop-shadow-md ${isBn ? 'font-bangla' : ''}`}>
                         {title1}<br /><span className={highlightGradient}>{titleHighlight}</span>
                       </h1>
-                      <p className={`text-[#D8D8E2] text-xs sm:text-base md:text-xl leading-relaxed max-w-xl drop-shadow ${isBn ? 'font-bangla' : ''}`}>
+                      <p className={`text-[#D8D8E2] text-[11.5px] sm:text-base md:text-xl leading-normal sm:leading-relaxed max-w-xl drop-shadow ${isBn ? 'font-bangla' : ''}`}>
                         {subtitle}
                       </p>
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 pt-1 sm:pt-2">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 sm:gap-4 pt-1 sm:pt-2">
                         <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-4 w-full sm:w-auto">
                           <Link
                             to={btn1Link}
-                            className="btn-primary text-xs sm:text-base px-3.5 sm:px-7 py-2.5 sm:py-3.5 text-center flex items-center justify-center gap-1.5 shadow-lg shadow-red-600/30 font-semibold"
+                            className="btn-primary text-xs sm:text-base px-3 sm:px-7 py-2 sm:py-3.5 text-center flex items-center justify-center gap-1.5 shadow-lg shadow-red-600/30 font-semibold"
                           >
-                            <span>{btn1Text}</span> <ArrowRight size={15} />
+                            <span>{btn1Text}</span> <ArrowRight size={14} />
                           </Link>
                           <Link
                             to={btn2Link}
-                            className="btn-outline text-xs sm:text-base px-3.5 sm:px-7 py-2.5 sm:py-3.5 text-center flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-sm font-semibold"
+                            className="btn-outline text-xs sm:text-base px-3 sm:px-7 py-2 sm:py-3.5 text-center flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-sm font-semibold"
                           >
-                            <span>{btn2Text}</span> <CreditCard size={15} />
+                            <span>{btn2Text}</span> <CreditCard size={14} />
                           </Link>
                         </div>
                         {showSpeedBtn && (
                           <button
                             onClick={() => setShowSpeedTest(true)}
-                            className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-red-500/30 hover:border-red-500/60 text-white font-medium text-xs sm:text-base flex items-center justify-center gap-2 transition-all cursor-pointer group backdrop-blur-md"
+                            className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-red-500/30 hover:border-red-500/60 text-white font-medium text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer group backdrop-blur-md"
                           >
-                            <Zap size={15} className="text-red-400 group-hover:scale-125 transition-transform" />
+                            <Zap size={14} className="text-red-400 group-hover:scale-125 transition-transform" />
                             <span>{speedBtnText}</span>
                           </button>
                         )}
@@ -467,36 +467,36 @@ export default function HomePage() {
                 <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
                   {/* Left Column: Headlines, Buttons, Badges */}
                   <div>
-                    <span className="section-tag mb-3 sm:mb-6 inline-block text-[11px] sm:text-xs py-1 px-3">
+                    <span className="section-tag mb-2 sm:mb-6 inline-block text-[10px] sm:text-xs py-0.5 sm:py-1 px-2.5 sm:px-3">
                       {badgeText}
                     </span>
-                    <h1 className={`text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-black font-poppins leading-tight text-white mb-3 sm:mb-6 ${isBn ? 'font-bangla' : ''}`}>
+                    <h1 className={`text-xl sm:text-4xl md:text-5xl lg:text-7xl font-black font-poppins leading-snug sm:leading-tight text-white mb-2 sm:mb-6 ${isBn ? 'font-bangla' : ''}`}>
                       {title1}<br /><span className={highlightGradient}>{titleHighlight}</span>
                     </h1>
-                    <p className={`text-[#B8B8C0] text-xs sm:text-base md:text-xl leading-relaxed mb-5 sm:mb-8 max-w-lg ${isBn ? 'font-bangla' : ''}`}>
+                    <p className={`text-[#B8B8C0] text-[11.5px] sm:text-base md:text-xl leading-normal sm:leading-relaxed mb-3 sm:mb-8 max-w-lg ${isBn ? 'font-bangla' : ''}`}>
                       {subtitle}
                     </p>
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 sm:gap-4">
                       <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-4 w-full sm:w-auto">
                         <Link
                           to={btn1Link}
-                          className="btn-primary text-xs sm:text-base px-3.5 sm:px-7 py-2.5 sm:py-3.5 text-center flex items-center justify-center gap-1.5 shadow-lg shadow-red-600/30 font-semibold"
+                          className="btn-primary text-xs sm:text-base px-3 sm:px-7 py-2 sm:py-3.5 text-center flex items-center justify-center gap-1.5 shadow-lg shadow-red-600/30 font-semibold"
                         >
-                          <span>{btn1Text}</span> <ArrowRight size={15} />
+                          <span>{btn1Text}</span> <ArrowRight size={14} />
                         </Link>
                         <Link
                           to={btn2Link}
-                          className="btn-outline text-xs sm:text-base px-3.5 sm:px-7 py-2.5 sm:py-3.5 text-center flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-sm font-semibold"
+                          className="btn-outline text-xs sm:text-base px-3 sm:px-7 py-2 sm:py-3.5 text-center flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-sm font-semibold"
                         >
-                          <span>{btn2Text}</span> <CreditCard size={15} />
+                          <span>{btn2Text}</span> <CreditCard size={14} />
                         </Link>
                       </div>
                       {showSpeedBtn && (
                         <button
                           onClick={() => setShowSpeedTest(true)}
-                          className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-red-500/30 hover:border-red-500/60 text-white font-medium text-xs sm:text-base flex items-center justify-center gap-2 transition-all cursor-pointer group"
+                          className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-red-500/30 hover:border-red-500/60 text-white font-medium text-xs sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer group"
                         >
-                          <Zap size={15} className="text-red-400 group-hover:scale-125 transition-transform" />
+                          <Zap size={14} className="text-red-400 group-hover:scale-125 transition-transform" />
                           <span>{speedBtnText}</span>
                         </button>
                       )}
@@ -524,7 +524,7 @@ export default function HomePage() {
 
           {/* ── Carousel Navigation Controls ── */}
           {banners.length > 1 && (
-            <div className="flex items-center justify-between gap-3 mt-4 sm:mt-8 md:mt-12 pt-3 sm:pt-6 border-t border-white/5">
+            <div className="flex items-center justify-between gap-3 mt-2.5 sm:mt-8 md:mt-12 pt-2 sm:pt-6 border-t border-white/5">
               {/* Pagination Dots with Active Countdown Progress Bar */}
               <div className="flex items-center gap-2">
                 {banners.map((b, idx) => {
