@@ -11,6 +11,7 @@ import { AdminProvider, useAdmin } from './context/AdminContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { PageWrapper, WhatsAppFloat } from './components/Layout';
+import DismissibleToast from './components/DismissibleToast';
 
 // Public Pages
 import HomePage from './pages/HomePage';
@@ -109,11 +110,12 @@ export default function App() {
         <LangProvider>
           <BrowserRouter>
             <MainLayout />
-            {/* Global Toast Notifications */}
+            {/* Global Toast Notifications — Swipe, Tap or Close button enabled */}
             <Toaster
               position="top-right"
+              gutter={10}
               toastOptions={{
-                duration: 4000,
+                duration: 3500,
                 style: {
                   background: 'rgba(17,17,19,0.97)',
                   backdropFilter: 'blur(16px)',
@@ -121,9 +123,10 @@ export default function App() {
                   borderRadius: '14px',
                   color: '#FFFFFF',
                   fontFamily: 'Poppins, sans-serif',
-                  fontSize: '14px',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.40)',
-                  padding: '12px 16px',
+                  fontSize: '13.5px',
+                  boxShadow: '0 10px 32px rgba(0,0,0,0.45)',
+                  padding: '10px 14px',
+                  cursor: 'pointer',
                 },
                 success: {
                   iconTheme: { primary: '#4ADE80', secondary: '#0A0A0B' },
@@ -134,7 +137,9 @@ export default function App() {
                   style: { borderColor: 'rgba(225,29,46,0.30)' },
                 },
               }}
-            />
+            >
+              {(t) => <DismissibleToast t={t} />}
+            </Toaster>
           </BrowserRouter>
         </LangProvider>
       </AuthProvider>

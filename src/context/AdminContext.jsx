@@ -978,7 +978,7 @@ export function AdminProvider({ children }) {
   const updateHeroConfig = (fields) => {
     setHeroConfig((prev) => ({ ...prev, ...fields }));
     logAction('Updated Home Hero Banner Carousel Settings');
-    toast.success('Hero settings updated live!');
+    toast.success('Hero settings updated live!', { id: 'hero-settings' });
   };
 
   const updateHeroBanner = (bannerId, bannerFields) => {
