@@ -3194,12 +3194,18 @@ export default function AdminDashboard() {
               setShowRecordPaymentModal(false);
               setPaymentForm({ customerId: '', name: '', amount: '', method: 'bKash', trxId: '' });
             }} className="space-y-3 text-xs">
-              <FormInput label="Customer ID (e.g. RL-001234)" required value={paymentForm.customerId} onChange={(e) => {
-                const id = e.target.value;
-                const match = users.find(u => u.id === id);
+              <FormInput label="Customer ID or Name (e.g. Mohammad Karim or RL-001234)" required value={paymentForm.customerId} onChange={(e) => {
+                const val = e.target.value;
+                const clean = val.trim().toLowerCase();
+                const cleanAlpha = clean.replace(/[^a-z0-9]/g, '');
+                const match = users.find(u => {
+                  const idLower = (u.id || '').toLowerCase();
+                  const nameLower = (u.name || '').toLowerCase();
+                  return idLower === clean || (cleanAlpha && idLower.replace(/[^a-z0-9]/g, '') === cleanAlpha) || nameLower.includes(clean);
+                });
                 setPaymentForm({
                   ...paymentForm,
-                  customerId: id,
+                  customerId: match ? match.id : val,
                   name: match ? match.name : paymentForm.name,
                   amount: match && match.dueAmount > 0 ? match.dueAmount : paymentForm.amount
                 });

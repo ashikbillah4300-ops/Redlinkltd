@@ -56,7 +56,7 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const identifier = loginMethod === 'id' ? customerId.trim().toUpperCase() : email.trim().toLowerCase();
+      const identifier = loginMethod === 'id' ? customerId.trim() : email.trim().toLowerCase();
       const authenticatedUser = await loginWithCredentials({
         identifier,
         password,
@@ -161,7 +161,7 @@ export default function LoginPage() {
                 }`}
               >
                 <Hash size={16} />
-                <span>{isBn ? 'কাস্টমার আইডি' : 'Customer ID'}</span>
+                <span>{isBn ? 'নাম বা আইডি' : 'Name or Customer ID'}</span>
               </button>
 
               <button
@@ -194,17 +194,17 @@ export default function LoginPage() {
                     className="space-y-1"
                   >
                     <label className="text-xs font-semibold text-[#B8B8C0] block flex items-center justify-between">
-                      <span>{isBn ? 'কাস্টমার আইডি' : 'Customer ID'}</span>
-                      <span className="text-[10px] text-red-400 font-mono">Format: RL-XXXXXX</span>
+                      <span>{isBn ? 'কাস্টমার নাম বা আইডি' : 'Customer Name or ID'}</span>
+                      <span className="text-[10px] text-red-400 font-mono">{isBn ? 'নাম অথবা RL-XXXXXX' : 'Name or RL-XXXXXX'}</span>
                     </label>
                     <div className="relative">
                       <Hash size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B8B8C0] pointer-events-none" />
                       <input
                         type="text"
-                        placeholder="e.g. RL-001234"
+                        placeholder={isBn ? 'যেমন: মোহাম্মদ করিম বা RL-001234' : 'e.g. Mohammad Karim or RL-001234'}
                         value={customerId}
-                        onChange={(e) => setCustomerId(e.target.value.toUpperCase())}
-                        className="glass-input has-icon-left text-sm font-mono tracking-wider font-semibold uppercase"
+                        onChange={(e) => setCustomerId(e.target.value)}
+                        className="glass-input has-icon-left text-sm font-medium"
                         style={{ paddingLeft: '44px' }}
                       />
                     </div>

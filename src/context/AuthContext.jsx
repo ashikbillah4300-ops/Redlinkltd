@@ -31,16 +31,24 @@ export const AuthProvider = ({ children }) => {
   const findCustomerInStorage = (identifier) => {
     if (!identifier) return null;
     const clean = identifier.trim().toLowerCase();
+    const cleanDigits = clean.replace(/\D/g, '');
+    const cleanAlpha = clean.replace(/[^a-z0-9]/g, '');
 
     try {
       const raw = localStorage.getItem('redlink_admin_users');
       if (raw) {
         const users = JSON.parse(raw);
         const match = users.find((u) => {
-          const idMatch = u.id && u.id.trim().toLowerCase() === clean;
+          const idClean = (u.id || '').trim().toLowerCase();
+          const idAlpha = idClean.replace(/[^a-z0-9]/g, '');
+          const idMatch = idClean === clean || (cleanAlpha && idAlpha === cleanAlpha);
           const emailMatch = u.email && u.email.trim().toLowerCase() === clean;
-          const mobileMatch = u.mobile && u.mobile.trim() === clean;
-          return idMatch || emailMatch || mobileMatch;
+          const mobileClean = (u.mobile || '').replace(/\D/g, '');
+          const mobileMatch = cleanDigits.length >= 4 && mobileClean.includes(cleanDigits);
+          const nameEn = (u.name || '').trim().toLowerCase();
+          const nameBn = (u.nameBn || '').trim().toLowerCase();
+          const nameMatch = nameEn === clean || nameBn === clean || nameEn.includes(clean) || nameBn.includes(clean);
+          return idMatch || nameMatch || emailMatch || mobileMatch;
         });
         if (match) return match;
       }
@@ -85,7 +93,16 @@ export const AuthProvider = ({ children }) => {
       upgradeRequest: null
     };
 
-    if (clean === 'rl-001234' || clean === 'karim@gmail.com' || clean === 'karim@example.com' || clean === '01712345678') {
+    if (
+      clean === 'rl-001234' ||
+      clean === '001234' ||
+      clean === 'mohammad karim' ||
+      clean === 'karim' ||
+      clean === 'মোহাম্মদ করিম' ||
+      clean === 'karim@gmail.com' ||
+      clean === 'karim@example.com' ||
+      clean === '01712345678'
+    ) {
       return seedKarim;
     }
 
@@ -118,7 +135,7 @@ export const AuthProvider = ({ children }) => {
     const cleanPass = (password || '').trim();
 
     if (!cleanId) {
-      const msg = method === 'email' ? 'Please enter your Gmail / Email address' : 'Please enter your Customer ID (e.g. RL-001234)';
+      const msg = method === 'email' ? 'Please enter your Gmail / Email address' : 'Please enter your Customer Name or ID (e.g. Mohammad Karim or RL-001234)';
       throw new Error(msg);
     }
     if (!cleanPass) {
@@ -130,7 +147,7 @@ export const AuthProvider = ({ children }) => {
       if (method === 'email') {
         throw new Error(`No customer found with Email "${cleanId}". Make sure this user exists or was created in the Admin Panel.`);
       } else {
-        throw new Error(`Customer ID "${cleanId}" not found. Please check your ID or create it from the Admin Panel.`);
+        throw new Error(`Customer "${cleanId}" not found. Try your Name (e.g. Mohammad Karim) or ID (RL-001234).`);
       }
     }
 
